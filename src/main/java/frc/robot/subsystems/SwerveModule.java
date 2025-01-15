@@ -7,9 +7,12 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,8 +22,11 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 
 public class SwerveModule {
-  private final CANSparkMax m_driveMotor;
-  private final CANSparkMax m_turningMotor;
+  private final SparkMax m_driveMotor;
+  private final SparkMax m_turningMotor;
+
+  private final SparkMaxConfig m_driveMotorConfig = new SparkMaxConfig();
+  private final SparkMaxConfig m_turningMotorConfig = new SparkMaxConfig();
 
   private final CANcoder m_turningEncoder;
   private final CANcoderConfigurator m_turningEncoderConfigurator;
@@ -49,21 +55,22 @@ public class SwerveModule {
       int turningEncoderPort,
       boolean driveMotorReversed,
       double turningEncoderOffset) {
-    m_driveMotor = new CANSparkMax(driveMotorPort, MotorType.kBrushless);
-    m_turningMotor = new CANSparkMax(turningMotorPort, MotorType.kBrushless);
+    m_driveMotor = new SparkMax(driveMotorPort, MotorType.kBrushless);
+    m_turningMotor = new SparkMax(turningMotorPort, MotorType.kBrushless);
     m_turningEncoder = new CANcoder(turningEncoderPort);
     m_turningEncoderConfigurator = m_turningEncoder.getConfigurator();
 
     // converts default units to meters per second
-    m_driveMotor.getEncoder().setVelocityConversionFactor(
-        DriveConstants.kWheelDiameterMeters * Math.PI / 60 / DriveConstants.kDrivingGearRatio);
+    m_driveMotorConfig.encoder.positionConversionFactor(DriveConstants.kWheelDiameterMeters * Math.PI / 60 / DriveConstants.kDrivingGearRatio);
+    m_driveMotorConfig.inverted(driveMotorReversed);
 
-    m_driveMotor.setInverted(driveMotorReversed);
+    m_turningMotorConfig.idleMode(IdleMode.kBrake);
 
-    m_turningMotor.setIdleMode(IdleMode.kBrake);
+    m_driveMotor.configure(m_driveMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_turningMotor.configure(m_turningMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // TODO: CANcoder offsets are now set on the device manually using Pheonix Tuner
-    // (or maybe Pheonix X)
+
+    // TODO: CANcoder offsets are now set on the device manually using Pheonix Tuner X
     m_turningEncoderConfigurator.apply(new MagnetSensorConfigs().withMagnetOffset(-turningEncoderOffset));
 
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
@@ -93,7 +100,8 @@ public class SwerveModule {
    * @param desiredState Desired state with speed and angle.
    */
   public void setDesiredState(SwerveModuleState desiredState) {
-    m_state = SwerveModuleState.optimize(desiredState, getEncoderAngle(m_turningEncoder));
+    m_state = desiredState;
+    m_state.optimize(getEncoderAngle(m_turningEncoder));
     driveOutput = m_state.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond;
 
     turnOutput = m_turningPIDController.calculate(getEncoderAngle(m_turningEncoder).getRadians(),
