@@ -8,6 +8,7 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -77,6 +78,10 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Field", m_field);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
+
+    // TODO: Name the Limelight "LL1899" and set the camera orientation
+    // TODO: Set a custom crop window for improved performance (the bot only needs to see april tags on the reef)
+    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 9999999));
   }
 
   @Override
@@ -92,6 +97,22 @@ public class DriveSubsystem extends SubsystemBase {
 
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
+
+    if (VisionConstants.kUseVision && Robot.isReal()) {
+      // Update LimeLight with current robot orientation
+      LimelightHelpers.SetRobotOrientation("LL1899", m_gyro.getAngle(), 0.0, 0.0, 0.0, 0.0, 0.0);
+
+      // Get the pose estimate
+      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("LL1899");
+
+      // Add it to your pose estimator if it is a valid measurement
+      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
+        m_poseEstimator.addVisionMeasurement(
+            limelightMeasurement.pose,
+            limelightMeasurement.timestampSeconds);
+      }
+    }
+    
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
@@ -224,8 +245,7 @@ public class DriveSubsystem extends SubsystemBase {
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logData);
 
-    // Takes the integral of the rotation speed to find the current angle for the
-    // simulator
+    // Takes the integral of the rotation speed to find the current angle for the simulator
     m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
         * Robot.kDefaultPeriod;
   }

@@ -45,6 +45,7 @@ import frc.robot.Constants.VisionConstants;
  * <li>+Rotation is clockwise
  * </ul>
  */
+@Deprecated
 public class VisionSubsystem extends SubsystemBase {
 
   NetworkTable m_visionNetworkTable = NetworkTableInstance.getDefault().getTable("limelight");
