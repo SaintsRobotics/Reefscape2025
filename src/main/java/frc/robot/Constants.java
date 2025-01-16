@@ -88,7 +88,7 @@ public final class Constants {
     /** For a a SDS Mk4i L1 swerve base with Neos */
     public static final double kMaxSpeedMetersPerSecond = 3.6576;
     /** For a a SDS Mk4i L1 swerve base with Neos */
-    public static final double kMaxAngularSpeedRadiansPerSecond = 15.24 / 9;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 15.24 / 3;
 
     /** Heading Correction */
     public static final double kHeadingCorrectionTurningStopTime = 0.2;
