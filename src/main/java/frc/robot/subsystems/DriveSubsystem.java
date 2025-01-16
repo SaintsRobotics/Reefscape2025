@@ -101,10 +101,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     // AdvantageScope Logging
     double[] logData = {
-        m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
-        m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
-        m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
-        m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
+        m_frontLeft.getPosition().angle.getRadians(), m_frontLeft.driveOutput,
+        m_frontRight.getPosition().angle.getRadians(), m_frontRight.driveOutput,
+        m_rearLeft.getPosition().angle.getRadians(), m_rearLeft.driveOutput,
+        m_rearRight.getPosition().angle.getRadians(), m_rearRight.driveOutput,
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
   }

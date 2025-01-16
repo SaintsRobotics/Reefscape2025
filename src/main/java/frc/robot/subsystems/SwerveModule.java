@@ -71,7 +71,7 @@ public class SwerveModule {
 
 
     // TODO: CANcoder offsets are now set on the device manually using Pheonix Tuner X
-    m_turningEncoderConfigurator.apply(new MagnetSensorConfigs().withMagnetOffset(-turningEncoderOffset));
+    // m_turningEncoderConfigurator.apply(new MagnetSensorConfigs().withMagnetOffset(-turningEncoderOffset));
 
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
