@@ -29,29 +29,25 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kFrontLeftDriveMotorPort,
       DriveConstants.kFrontLeftTurningMotorPort,
       DriveConstants.kFrontLeftTurningEncoderPort,
-      DriveConstants.kFrontLeftDriveMotorReversed,
-      DriveConstants.kFrontLeftTurningEncoderOffset);
+      DriveConstants.kFrontLeftDriveMotorReversed);
 
   private final SwerveModule m_rearLeft = new SwerveModule(
       DriveConstants.kRearLeftDriveMotorPort,
       DriveConstants.kRearLeftTurningMotorPort,
       DriveConstants.kRearLeftTurningEncoderPort,
-      DriveConstants.kRearLeftDriveMotorReversed,
-      DriveConstants.kRearLeftTurningEncoderOffset);
+      DriveConstants.kRearLeftDriveMotorReversed);
 
   private final SwerveModule m_frontRight = new SwerveModule(
       DriveConstants.kFrontRightDriveMotorPort,
       DriveConstants.kFrontRightTurningMotorPort,
       DriveConstants.kFrontRightTurningEncoderPort,
-      DriveConstants.kFrontRightDriveMotorReversed,
-      DriveConstants.kFrontRightTurningEncoderOffset);
+      DriveConstants.kFrontRightDriveMotorReversed);
 
   private final SwerveModule m_rearRight = new SwerveModule(
       DriveConstants.kRearRightDriveMotorPort,
       DriveConstants.kRearRightTurningMotorPort,
       DriveConstants.kRearRightTurningEncoderPort,
-      DriveConstants.kRearRightDriveMotorReversed,
-      DriveConstants.kRearRightTurningEncoderOffset);
+      DriveConstants.kRearRightDriveMotorReversed);
 
   private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
   private double m_gyroAngle;
@@ -101,10 +97,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     // AdvantageScope Logging
     double[] logData = {
-        m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
-        m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
-        m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
-        m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
+        m_frontLeft.getPosition().angle.getRadians(), m_frontLeft.driveOutput,
+        m_frontRight.getPosition().angle.getRadians(), m_frontRight.driveOutput,
+        m_rearLeft.getPosition().angle.getRadians(), m_rearLeft.driveOutput,
+        m_rearRight.getPosition().angle.getRadians(), m_rearRight.driveOutput,
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
   }

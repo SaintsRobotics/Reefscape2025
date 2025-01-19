@@ -32,31 +32,26 @@ public final class Constants {
   public static final class IOConstants {
     public static final int kDriverControllerPort = 0;
 
-    public static final double kControllerDeadband = 0.2;
+    public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
   }
 
   public static final class DriveConstants {
     // TODO: set motor and encoder constants
-    public static final int kFrontLeftDriveMotorPort = 1;
-    public static final int kRearLeftDriveMotorPort = 3;
-    public static final int kFrontRightDriveMotorPort = 5;
-    public static final int kRearRightDriveMotorPort = 7;
+    public static final int kFrontLeftDriveMotorPort = 4;
+    public static final int kRearLeftDriveMotorPort = 5;
+    public static final int kFrontRightDriveMotorPort = 12;
+    public static final int kRearRightDriveMotorPort = 34;
 
-    public static final int kFrontLeftTurningMotorPort = 2;
-    public static final int kRearLeftTurningMotorPort = 4;
-    public static final int kFrontRightTurningMotorPort = 6;
-    public static final int kRearRightTurningMotorPort = 8;
+    public static final int kFrontLeftTurningMotorPort = 11;
+    public static final int kRearLeftTurningMotorPort = 9;
+    public static final int kFrontRightTurningMotorPort = 36;
+    public static final int kRearRightTurningMotorPort = 16;
 
-    public static final int kFrontLeftTurningEncoderPort = 9;
-    public static final int kRearLeftTurningEncoderPort = 10;
-    public static final int kFrontRightTurningEncoderPort = 11;
-    public static final int kRearRightTurningEncoderPort = 12;
-
-    public static final double kFrontLeftTurningEncoderOffset = 0;
-    public static final double kRearLeftTurningEncoderOffset = 0;
-    public static final double kFrontRightTurningEncoderOffset = 0;
-    public static final double kRearRightTurningEncoderOffset = 0;
+    public static final int kFrontLeftTurningEncoderPort = 19;
+    public static final int kRearLeftTurningEncoderPort = 20;
+    public static final int kFrontRightTurningEncoderPort = 18;
+    public static final int kRearRightTurningEncoderPort = 17;
 
     // TODO: Test motor orientations before driving on an actual robot
     public static final boolean kFrontLeftDriveMotorReversed = false;
@@ -77,7 +72,7 @@ public final class Constants {
     public static final double kDrivingGearRatio = 8.14; // SDS MK4i's in L1 configuration
 
     // TODO: Tune this PID before running on a robot on the ground
-    public static final double kPModuleTurningController = -0.3;
+    public static final double kPModuleTurningController = 0.3;
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         new Translation2d(kWheelBase / 2, kTrackWidth / 2),
