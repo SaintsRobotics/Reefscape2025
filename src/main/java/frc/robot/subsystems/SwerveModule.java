@@ -28,8 +28,7 @@ public class SwerveModule {
 
   private final CANcoder m_turningEncoder;
 
-  private final PIDController m_turningPIDController = new PIDController(DriveConstants.kPModuleTurningController, 0,
-      0);
+  private final PIDController m_turningPIDController = new PIDController(DriveConstants.kPModuleTurningController, 0, 0);
 
   private SwerveModuleState m_state = new SwerveModuleState();
   private double m_distance;
@@ -40,10 +39,10 @@ public class SwerveModule {
   /**
    * Constructs a {@link SwerveModule}.
    *
-   * @param driveMotorPort       The port of the drive motor.
-   * @param turningMotorPort     The port of the turning motor.
-   * @param turningEncoderPort   The port of the turning encoder.
-   * @param driveMotorReversed   Whether the drive motor is reversed.
+   * @param driveMotorPort     The port of the drive motor.
+   * @param turningMotorPort   The port of the turning motor.
+   * @param turningEncoderPort The port of the turning encoder.
+   * @param driveMotorReversed Whether the drive motor is reversed.
    */
   public SwerveModule(
       int driveMotorPort,
@@ -64,7 +63,7 @@ public class SwerveModule {
     m_driveMotor.configure(m_driveMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_turningMotor.configure(m_turningMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // TODO: CANcoder offsets are now set on the device manually using Pheonix Tuner X
+    // TODO: CANcoder offsets are now set on the encoder using Pheonix Tuner X
 
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
