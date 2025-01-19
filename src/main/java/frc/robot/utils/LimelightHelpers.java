@@ -2,7 +2,7 @@
 // Last updated Nov 5, 2024
 // Imported Jan 14, 2025
 
-package frc.robot.subsystems;
+package frc.robot.utils;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
