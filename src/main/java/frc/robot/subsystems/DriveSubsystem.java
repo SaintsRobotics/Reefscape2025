@@ -29,29 +29,25 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kFrontLeftDriveMotorPort,
       DriveConstants.kFrontLeftTurningMotorPort,
       DriveConstants.kFrontLeftTurningEncoderPort,
-      DriveConstants.kFrontLeftDriveMotorReversed,
-      DriveConstants.kFrontLeftTurningEncoderOffset);
+      DriveConstants.kFrontLeftDriveMotorReversed);
 
   private final SwerveModule m_rearLeft = new SwerveModule(
       DriveConstants.kRearLeftDriveMotorPort,
       DriveConstants.kRearLeftTurningMotorPort,
       DriveConstants.kRearLeftTurningEncoderPort,
-      DriveConstants.kRearLeftDriveMotorReversed,
-      DriveConstants.kRearLeftTurningEncoderOffset);
+      DriveConstants.kRearLeftDriveMotorReversed);
 
   private final SwerveModule m_frontRight = new SwerveModule(
       DriveConstants.kFrontRightDriveMotorPort,
       DriveConstants.kFrontRightTurningMotorPort,
       DriveConstants.kFrontRightTurningEncoderPort,
-      DriveConstants.kFrontRightDriveMotorReversed,
-      DriveConstants.kFrontRightTurningEncoderOffset);
+      DriveConstants.kFrontRightDriveMotorReversed);
 
   private final SwerveModule m_rearRight = new SwerveModule(
       DriveConstants.kRearRightDriveMotorPort,
       DriveConstants.kRearRightTurningMotorPort,
       DriveConstants.kRearRightTurningEncoderPort,
-      DriveConstants.kRearRightDriveMotorReversed,
-      DriveConstants.kRearRightTurningEncoderOffset);
+      DriveConstants.kRearRightDriveMotorReversed);
 
   private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
   private double m_gyroAngle;

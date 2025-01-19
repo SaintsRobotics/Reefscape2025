@@ -53,11 +53,6 @@ public final class Constants {
     public static final int kFrontRightTurningEncoderPort = 18;
     public static final int kRearRightTurningEncoderPort = 17;
 
-    public static final double kFrontLeftTurningEncoderOffset = 0;
-    public static final double kRearLeftTurningEncoderOffset = 0;
-    public static final double kFrontRightTurningEncoderOffset = 0;
-    public static final double kRearRightTurningEncoderOffset = 0;
-
     // TODO: Test motor orientations before driving on an actual robot
     public static final boolean kFrontLeftDriveMotorReversed = false;
     public static final boolean kRearLeftDriveMotorReversed = false;

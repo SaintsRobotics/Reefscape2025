@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -28,7 +27,6 @@ public class SwerveModule {
   private final SparkMaxConfig m_turningMotorConfig = new SparkMaxConfig();
 
   private final CANcoder m_turningEncoder;
-  // private final CANcoderConfigurator m_turningEncoderConfigurator;
 
   private final PIDController m_turningPIDController = new PIDController(DriveConstants.kPModuleTurningController, 0,
       0);
@@ -46,18 +44,15 @@ public class SwerveModule {
    * @param turningMotorPort     The port of the turning motor.
    * @param turningEncoderPort   The port of the turning encoder.
    * @param driveMotorReversed   Whether the drive motor is reversed.
-   * @param turningEncoderOffset Offset of the turning encoder.
    */
   public SwerveModule(
       int driveMotorPort,
       int turningMotorPort,
       int turningEncoderPort,
-      boolean driveMotorReversed,
-      double turningEncoderOffset) {
+      boolean driveMotorReversed) {
     m_driveMotor = new SparkMax(driveMotorPort, MotorType.kBrushless);
     m_turningMotor = new SparkMax(turningMotorPort, MotorType.kBrushless);
     m_turningEncoder = new CANcoder(turningEncoderPort);
-    // m_turningEncoderConfigurator = m_turningEncoder.getConfigurator();
 
     // converts default units to meters per second
     m_driveMotorConfig.encoder.positionConversionFactor(
@@ -70,8 +65,6 @@ public class SwerveModule {
     m_turningMotor.configure(m_turningMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // TODO: CANcoder offsets are now set on the device manually using Pheonix Tuner X
-    // WARNING: Running this code will reset the CANcoder offsets
-    // m_turningEncoderConfigurator.apply(new MagnetSensorConfigs().withMagnetOffset(-turningEncoderOffset));
 
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
