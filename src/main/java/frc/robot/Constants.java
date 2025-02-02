@@ -89,6 +89,8 @@ public final class Constants {
     public static final double kHeadingCorrectionTurningStopTime = 0.2;
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPHeadingCorrectionController = 5;
+
+    public static final boolean kAutoDriving = false;
   }
 
   public static final class VisionConstants {
