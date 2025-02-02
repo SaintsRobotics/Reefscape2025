@@ -40,10 +40,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    //limelight does not exist in simulator
-    if (Robot.isReal()) {
-        m_visionSubsystem.addSubscriber(new Pair<SwerveDrivePoseEstimator,AHRS>(m_robotDrive.getEstimator(), m_robotDrive.getAHRS()));
-    }
+    m_visionSubsystem.addSubscriber(new Pair<SwerveDrivePoseEstimator,AHRS>(m_robotDrive.getEstimator(), m_robotDrive.getAHRS()));
 
     m_robotDrive.setDefaultCommand(
         new RunCommand(

@@ -112,6 +112,11 @@ public final class Constants {
     public static final int kIMUType_external = 0;
     public static final int kIMUType_sync = 1;
     public static final int kIMUType_internal = 2;
+
+    public static final class VirtualLimelightConstants {
+      public static final int kbotpose_orb_wpiblue_header_size = 11;
+      public static final int kValsPerFiducial = 7;
+    }
   }
 
 }
