@@ -62,7 +62,7 @@ public class VisionSubsystem extends SubsystemBase {
     // calculate pose
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
         estimator.getEstimatedPosition().getRotation().getDegrees(), m_dy, ahrs.getPitch(), m_dp, ahrs.getRoll(), m_dr);
-    PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(VisionConstants.kLimelightName); // WPILib
+    PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName); // WPILib
                                                                                                          // Ecosystem
                                                                                                          // (including
                                                                                                          // pathplanner)
