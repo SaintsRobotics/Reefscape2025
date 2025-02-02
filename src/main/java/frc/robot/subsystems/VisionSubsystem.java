@@ -11,6 +11,7 @@ import com.studica.frc.AHRS;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.utils.LimelightHelpers;
@@ -69,6 +70,11 @@ public class VisionSubsystem extends SubsystemBase {
                                                                                                          // assumes
                                                                                                          // origin on
                                                                                                          // blue side
+
+    if (estimate == null) {
+      DriverStation.reportError("Bad limelight data: wrong packet size", false);
+      return;
+    }
 
     if (estimate.tagCount == 0) { // no estimate available
       return;
