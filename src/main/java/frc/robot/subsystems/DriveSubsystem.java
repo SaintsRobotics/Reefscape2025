@@ -11,7 +11,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -53,8 +52,6 @@ public class DriveSubsystem extends SubsystemBase {
   private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
   private double m_gyroAngle;
 
-  private Pose3d m_visionPose;
-
   private final Timer m_headingCorrectionTimer = new Timer();
   private final PIDController m_headingCorrectionPID = new PIDController(DriveConstants.kPHeadingCorrectionController,
       0, 0);
@@ -66,7 +63,7 @@ public class DriveSubsystem extends SubsystemBase {
   };
 
   private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
-      m_gyro.getRotation2d(), m_swerveModulePositions, m_visionPose.toPose2d(), VisionConstants.kOdometrySTDDevs,
+      m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
       VisionConstants.kVisionSTDDevs);
 
   private final Field2d m_field = new Field2d();
@@ -76,7 +73,6 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Field", m_field);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
-    m_visionPose = new Pose3d(getPose());
   }
 
   @Override
@@ -230,7 +226,11 @@ public class DriveSubsystem extends SubsystemBase {
         * Robot.kDefaultPeriod;
   }
 
-  public void poseSubscriber(Pose3d pose) {
-    m_visionPose = pose;
+  public SwerveDrivePoseEstimator getEstimator() {
+    return m_poseEstimator;
+  }
+
+  public AHRS getAHRS() {
+    return m_gyro;
   }
 }

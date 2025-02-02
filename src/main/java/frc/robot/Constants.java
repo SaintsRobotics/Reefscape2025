@@ -97,11 +97,21 @@ public final class Constants {
     public static final double kP = 0;
     public static final double kY = 0;
 
-    //1foot forward of center, 10 inch right of center, no height
+    public static final double kMaxAmbiguityNonMega = 0.7;
+    public static final double kMaxDistNonMega = 3;
+
+    public static final double kdtThreshold = 40; // max delta timestamp for past measurement to be valid. set to zero
+                                                  // to disable angle rate consideration
+
+    // 1foot forward of center, 10 inch right of center, no height
     public static final String kLimelightName = "limelight";
 
     public static final Vector<N3> kOdometrySTDDevs = VecBuilder.fill(0.1, 0.1, 0.1);
-    public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.9, 0.9, 0.9);
+    public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, Integer.MAX_VALUE);
+
+    public static final int kIMUType_external = 0;
+    public static final int kIMUType_sync = 1;
+    public static final int kIMUType_internal = 2;
   }
 
 }

@@ -4,7 +4,11 @@
 
 package frc.robot;
 
+import com.studica.frc.AHRS;
+
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,7 +40,11 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    m_visionSubsystem.addSubscriber((consumer) -> m_robotDrive.poseSubscriber(consumer));
+    //limelight does not exist in simulator
+    if (Robot.isReal()) {
+        m_visionSubsystem.addSubscriber(new Pair<SwerveDrivePoseEstimator,AHRS>(m_robotDrive.getEstimator(), m_robotDrive.getAHRS()));
+    }
+
     m_robotDrive.setDefaultCommand(
         new RunCommand(
             () -> m_robotDrive.drive(
@@ -84,5 +92,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return null;
+  }
+
+  public VisionSubsystem getVisionSubsystem() {
+    return m_visionSubsystem;
   }
 }
