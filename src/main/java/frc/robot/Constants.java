@@ -6,8 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
@@ -92,23 +90,18 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    // TODO: Update cam pose relative to center of bot
-    public static final Pose3d kCamPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
-    public static final double[] kLimelightCamPose = {
-        kCamPose.getX(),
-        kCamPose.getY(),
-        kCamPose.getZ(),
-        kCamPose.getRotation().getX(),
-        kCamPose.getRotation().getY(),
-        kCamPose.getRotation().getZ() };
+    public static final double kF = 0.3048;
+    public static final double kS = 0.254;
+    public static final double kU = 0;
+    public static final double kR = 0;
+    public static final double kP = 0;
+    public static final double kY = 0;
 
-    // TODO: Experiment with different std devs in the pose estimator
+    //1foot forward of center, 10 inch right of center, no height
+    public static final String kLimelightName = "limelight";
+
     public static final Vector<N3> kOdometrySTDDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.9, 0.9, 0.9);
-
-    // Field size in meters
-    public static final double kFieldWidth = 8.21055;
-    public static final double kFieldLength = 16.54175;
   }
 
 }
