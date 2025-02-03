@@ -82,4 +82,16 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return null;
   }
+
+  /**
+   * This periodic loop runs every 10ms (100Hz)
+   * 
+   * <p>
+   * Should be used for any code that needs to be run more frequently than the
+   * default 20ms loop (50Hz) such as PID Controllers.
+   * </p>
+   */
+  public void fastPeriodic() {
+    m_robotDrive.fastPeriodic();
+  }
 }

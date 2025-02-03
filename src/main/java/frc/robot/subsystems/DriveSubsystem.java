@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -62,6 +63,8 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearRight.getPosition()
   };
 
+  private SwerveModuleState[] m_desiredStates;
+
   private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
       m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
       VisionConstants.kVisionSTDDevs);
@@ -73,6 +76,8 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Field", m_field);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
+
+    m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds());
   }
 
   @Override
@@ -96,12 +101,22 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("odometryY", m_poseEstimator.getEstimatedPosition().getY());
 
     // AdvantageScope Logging
+    // max speed = 1 (for ease of use in AdvantageScope)
     double[] logData = {
-        m_frontLeft.getPosition().angle.getRadians(), m_frontLeft.driveOutput,
-        m_frontRight.getPosition().angle.getRadians(), m_frontRight.driveOutput,
-        m_rearLeft.getPosition().angle.getRadians(), m_rearLeft.driveOutput,
-        m_rearRight.getPosition().angle.getRadians(), m_rearRight.driveOutput,
+        m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
+        m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
+        m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
+        m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
     };
+
+    double[] logDataDesired = {
+      m_desiredStates[0].angle.getDegrees(), m_desiredStates[0].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
+      m_desiredStates[1].angle.getDegrees(), m_desiredStates[1].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
+      m_desiredStates[2].angle.getDegrees(), m_desiredStates[2].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
+      m_desiredStates[3].angle.getDegrees(), m_desiredStates[3].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
+    };
+
+    SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logDataDesired);
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
   }
 
@@ -162,13 +177,11 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
-    SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+    m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
                 Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
             : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
-
-    setModuleStates(swerveModuleStates);
   }
 
   /**
@@ -198,32 +211,18 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.addVisionMeasurement(pose, timestamp);
   }
 
-  /**
-   * Sets the swerve ModuleStates.
-   *
-   * @param desiredStates The desired SwerveModule states.
-   */
-  public void setModuleStates(SwerveModuleState[] desiredStates) {
+  /** Sets the module states every 10ms (100Hz), faster than the regular periodic loop */
+  public void fastPeriodic() {
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
-    m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
-
-    // AdvantageScope Logging
-    double[] logData = {
-        desiredStates[0].angle.getDegrees(), desiredStates[0].speedMetersPerSecond,
-        desiredStates[1].angle.getDegrees(), desiredStates[1].speedMetersPerSecond,
-        desiredStates[2].angle.getDegrees(), desiredStates[2].speedMetersPerSecond,
-        desiredStates[3].angle.getDegrees(), desiredStates[3].speedMetersPerSecond,
-    };
-    SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logData);
+        m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+    m_frontLeft.setDesiredState(m_desiredStates[0]);
+    m_frontRight.setDesiredState(m_desiredStates[1]);
+    m_rearLeft.setDesiredState(m_desiredStates[2]);
+    m_rearRight.setDesiredState(m_desiredStates[3]);
 
     // Takes the integral of the rotation speed to find the current angle for the
     // simulator
-    m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
-        * Robot.kDefaultPeriod;
+    m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates).omegaRadiansPerSecond
+        * Constants.kFastPeriodicPeriod;
   }
-
 }
