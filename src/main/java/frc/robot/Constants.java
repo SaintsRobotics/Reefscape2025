@@ -26,7 +26,7 @@ import edu.wpi.first.math.numbers.N3;
  */
 public final class Constants {
 
-  public static final double kFastPeriodicPeriod = 0.01;
+  public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
 
   /**
    * Input/Output constants

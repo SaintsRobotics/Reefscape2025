@@ -101,18 +101,19 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("odometryY", m_poseEstimator.getEstimatedPosition().getY());
 
     // AdvantageScope Logging
+    // max speed = 1 (for ease of use in AdvantageScope)
     double[] logData = {
-        m_frontLeft.getPosition().angle.getRadians(), m_frontLeft.driveOutput,
-        m_frontRight.getPosition().angle.getRadians(), m_frontRight.driveOutput,
-        m_rearLeft.getPosition().angle.getRadians(), m_rearLeft.driveOutput,
-        m_rearRight.getPosition().angle.getRadians(), m_rearRight.driveOutput,
+        m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
+        m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
+        m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
+        m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
     };
 
     double[] logDataDesired = {
-      m_desiredStates[0].angle.getDegrees(), m_desiredStates[0].speedMetersPerSecond,
-      m_desiredStates[1].angle.getDegrees(), m_desiredStates[1].speedMetersPerSecond,
-      m_desiredStates[2].angle.getDegrees(), m_desiredStates[2].speedMetersPerSecond,
-      m_desiredStates[3].angle.getDegrees(), m_desiredStates[3].speedMetersPerSecond,
+      m_desiredStates[0].angle.getDegrees(), m_desiredStates[0].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
+      m_desiredStates[1].angle.getDegrees(), m_desiredStates[1].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
+      m_desiredStates[2].angle.getDegrees(), m_desiredStates[2].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
+      m_desiredStates[3].angle.getDegrees(), m_desiredStates[3].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
     };
 
     SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logDataDesired);
@@ -210,6 +211,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.addVisionMeasurement(pose, timestamp);
   }
 
+  /** Sets the module states every 10ms (100Hz), faster than the regular periodic loop */
   public void fastPeriodic() {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
