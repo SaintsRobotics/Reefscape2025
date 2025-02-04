@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class SwerveModule {
@@ -28,7 +29,7 @@ public class SwerveModule {
 
   private final CANcoder m_turningEncoder;
 
-  private final PIDController m_turningPIDController = new PIDController(DriveConstants.kPModuleTurningController, 0, 0);
+  private final PIDController m_turningPIDController = new PIDController(DriveConstants.kPModuleTurningController, 0, 0, Constants.kFastPeriodicPeriod);
 
   private SwerveModuleState m_state = new SwerveModuleState();
   private double m_distance;
