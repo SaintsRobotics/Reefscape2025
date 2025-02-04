@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -31,12 +32,22 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+
+    // close and garbage collect the virtual limelight if it exists
     if (m_virutalLimelight != null) {
       m_virutalLimelight.close();
+      m_virutalLimelight = null;
     }
 
-    if (Robot.isSimulation()) {
-      m_virutalLimelight = new VirtualLimelight(VisionConstants.kLimelightName);
+    // make sure we are not in a real competition
+    if (!DriverStation.isFMSAttached()) {
+      if (Robot.isSimulation()) {
+        m_virutalLimelight = new VirtualLimelight(VisionConstants.kLimelightName);
+        /*
+         * Create testing fiducials here
+         * m_virutalLimelight.setFiducials(new Fiducial[] {new Fiducial(1, 1, -1, 0, 0.9)});
+         */
+      }
     }
 
     if (Robot.isReal()) {
@@ -63,7 +74,7 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     if (Robot.isSimulation()) {
-      m_virutalLimelight.update();
+      m_virutalLimelight.update(0, 0, 0); //pass robot deltas here for dynamic simulation
     }
     CommandScheduler.getInstance().run();
   }

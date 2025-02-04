@@ -2,6 +2,10 @@ package frc.robot.utils;
 
 import java.util.EnumSet;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanTopic;
@@ -25,23 +29,7 @@ import frc.robot.Constants.VisionConstants.VirtualLimelightConstants;
  * Requires hardcoding fiducials (april tags) to work
  */
 public class VirtualLimelight {
-    private final String m_table;
-
-    @SuppressWarnings("unused")
-    private double[] m_camerapose_robotspace = new double[6];
-    @SuppressWarnings("unused")
-    private double m_imumode = 0;
-    @SuppressWarnings("unused")
-    private double[] m_robot_orientation = new double[6];
-
-    private final DoubleArrayPublisher m_camerapose_robotspace_pub;
-    private final DoublePublisher m_imumode_pub;
-    private final DoubleArrayPublisher m_robot_orientation_pub;
-    private final DoubleArrayPublisher m_botpose_orb_wpiblue_pub;
-
-    private final BooleanPublisher m_lock_pub;
-
-    private class Listener implements TableEventListener {
+    private final class Listener implements TableEventListener {
         public void accept(NetworkTable table, String key, NetworkTableEvent event) {
             if (key.compareTo("camerapose_robotspace_set") == 0) {
                 double[] camerapose_robotspace = getDoubleArrayEntry(m_table, "camerapose_robotspace_set").get();
@@ -65,6 +53,120 @@ public class VirtualLimelight {
             }
         }
     }
+
+    public final static class Fiducial {
+        private final Pose2d m_pose;
+        private double m_dx;
+        private double m_dy;
+        private double m_drot;
+        private final double m_ambiguity;
+
+        // all WPILib ecosystem position based, rotation in degrees
+        public Fiducial(int id, double dx, double dy, double drot, double ambiguity) {
+            m_dx = dx;
+            m_dy = dy;
+            m_drot = drot;
+            m_ambiguity = ambiguity;
+
+            final Pose3d pose3d = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(id).orElse(new Pose3d());
+            m_pose = new Pose2d(pose3d.getX(), pose3d.getY(), pose3d.getRotation().toRotation2d());
+        }
+
+        /**
+         * Shift deltas of the fiducials
+         * @param dx
+         * @param dy
+         * @param drot
+         */
+        public void shift(double dx, double dy, double drot) {
+            m_dx += dx;
+            m_dy += dy;
+            m_drot += drot;
+        }
+
+        public static double[] calculate(Fiducial[] fiducials) {
+            double[] ret = new double[VirtualLimelightConstants.kbotpose_orb_wpiblue_header_size
+                    + VirtualLimelightConstants.kValsPerFiducial * fiducials.length];
+
+            /*
+             * This method will create the botpose_orb packet. First is the
+             * header with 11 doubles with the following structure:
+             * 0: Robot position X
+             * 1: Robot Position Y
+             * 2: Reserved
+             * 3: Reserved
+             * 4: Reserved
+             * 5: Robot rotation in degrees
+             * 6: Latency
+             * 7: Tag count
+             * 8: Tag span
+             * 9: Tag distance
+             * 10:Tag Area (percentage of total area)
+             * 
+             * Only the robot position, rotation, latency, and tag count are
+             * needed for pose estimation.
+             * 
+             * After the header, the rest of the space is for the fiducials.
+             * Each fiducial should contain seven doubles, and the number of
+             * fiducials should be equal to tc. Each fiducial should have the
+             * following structure:
+             * 0: Fiducial id
+             * 1: Translation X (non converted)
+             * 2: Translation Y (non converted)
+             * 3: Rotation in degrees
+             * 4: Distance to camera
+             * 5: Distance to robot
+             * 6: Ambiguity
+             * 
+             * Only the distance to camera and ambiguity are needed for pose
+             * estimation.
+             */
+
+            // average pose
+            double sx = 0;
+            double sy = 0;
+            double srot = 0;
+
+            // populate packet
+            int fiducialBase = VirtualLimelightConstants.kbotpose_orb_wpiblue_header_size;
+            for (Fiducial f : fiducials) {
+                sx += f.m_pose.getX() - f.m_dx;
+                sy += f.m_pose.getY() - f.m_dy;
+                srot += f.m_pose.getRotation().getDegrees() - f.m_drot;
+
+                ret[fiducialBase + 4] = Math.sqrt(f.m_dx * f.m_dx + f.m_dy * f.m_dy);
+                ret[fiducialBase + 6] = f.m_ambiguity;
+
+                fiducialBase += VirtualLimelightConstants.kValsPerFiducial;
+            }
+
+            ret[0] = sx / fiducials.length;
+            ret[1] = sy / fiducials.length;
+            ret[5] = srot / fiducials.length;
+            ret[6] = VirtualLimelightConstants.kLatency;
+            ret[7] = fiducials.length;
+
+            return ret;
+        }
+    }
+
+    private final String m_table;
+
+    @SuppressWarnings("unused")
+    private double[] m_camerapose_robotspace = new double[6];
+    @SuppressWarnings("unused")
+    private double m_imumode = 0;
+    @SuppressWarnings("unused")
+    private double[] m_robot_orientation = new double[6];
+
+    private final DoubleArrayPublisher m_camerapose_robotspace_pub;
+    private final DoublePublisher m_imumode_pub;
+    private final DoubleArrayPublisher m_robot_orientation_pub;
+    private final DoubleArrayPublisher m_botpose_orb_wpiblue_pub;
+
+    private final BooleanPublisher m_lock_pub;
+
+    private Fiducial[] m_fiducials = new Fiducial[0];
 
     private final int m_listenerHandle;
 
@@ -103,46 +205,29 @@ public class VirtualLimelight {
                 new Listener());
     }
 
+    public void setFiducials(Fiducial[] fiducials) {
+        m_fiducials = fiducials;
+    }
+
+    /**
+     * Shift deltas of the fiducials
+     * @param dx
+     * @param dy
+     * @param drot
+     */
+    public void shiftFiducials(double dx, double dy, double drot) {
+        for (Fiducial f : m_fiducials) {
+            f.shift(dx, dy, drot);
+        }
+    }
+
     public void update() {
         // write botpose_orb_wpiblue
-        final double tx = 0; // translation x
-        final double ty = 0; // translation y
-        final double rd = 0; // rotation in degrees
-        final double lt = 0.1; // latency
-        final double tc = 0; // tag count
-        final double ts = 0; // tag span
-        final double td = 0; // tag distance
-        final double ta = 0; // tag area (percentage of total area)
+        double[] botpose_orb_wpiblue = Fiducial.calculate(m_fiducials);
 
-        double[] botpose_orb_wpiblue = new double[] {
-                tx,
-                ty,
-                0,
-                0,
-                0,
-                rd,
-                lt,
-                tc,
-                ts,
-                td,
-                ta,
-                /*
-                 * After the header, the rest of the space is for the fiducials.
-                 * Each fiducial should contain seven doubles, and the number of
-                 * fiducials should be equal to tc. Each fiducial should have the
-                 * following structure:
-                 * 0: Fiducial id
-                 * 1: Translation X (non converted)
-                 * 2: Translation Y (non converted)
-                 * 3: Rotation in Degrees
-                 * 4: Distance to Camera
-                 * 5: Distance to Robot
-                 * 6: Ambiguity
-                 */
-        };
-
+        // verify packet size
         if (botpose_orb_wpiblue.length != VirtualLimelightConstants.kbotpose_orb_wpiblue_header_size
-                + VirtualLimelightConstants.kValsPerFiducial * tc) {
+                + VirtualLimelightConstants.kValsPerFiducial * botpose_orb_wpiblue[7]) {
             DriverStation.reportError("Bad botpose_orb_wpiblue data: wrong packet size", false);
             return;
         }
@@ -150,6 +235,17 @@ public class VirtualLimelight {
         m_botpose_orb_wpiblue_pub.set(botpose_orb_wpiblue, 0);
 
         NetworkTableInstance.getDefault().flush();
+    }
+
+    /**
+     * Shift deltas of the robot (i.e. the negate of the fiducials)
+     * @param dx
+     * @param dy
+     * @param drot
+     */
+    public void update(double dx, double dy, double drot) {
+        shiftFiducials(-dx, -dy, -drot);
+        update();
     }
 
     public void close() {
@@ -163,27 +259,27 @@ public class VirtualLimelight {
         m_botpose_orb_wpiblue_pub.close();
     }
 
-    private BooleanEntry getBooleanEntry(String table, String entry) {
+    private static BooleanEntry getBooleanEntry(String table, String entry) {
         return getBooleanTopic(table, entry).getEntry(false);
     }
 
-    private DoubleEntry getDoubleEntry(String table, String entry) {
+    private static DoubleEntry getDoubleEntry(String table, String entry) {
         return getDoubleTopic(table, entry).getEntry(-1);
     }
 
-    private DoubleArrayEntry getDoubleArrayEntry(String table, String entry) {
+    private static DoubleArrayEntry getDoubleArrayEntry(String table, String entry) {
         return getDoubleArrayTopic(table, entry).getEntry(new double[0]);
     }
 
-    private BooleanTopic getBooleanTopic(String table, String entry) {
+    private static BooleanTopic getBooleanTopic(String table, String entry) {
         return NetworkTableInstance.getDefault().getTable(table).getBooleanTopic(entry);
     }
 
-    private DoubleTopic getDoubleTopic(String table, String entry) {
+    private static DoubleTopic getDoubleTopic(String table, String entry) {
         return NetworkTableInstance.getDefault().getTable(table).getDoubleTopic(entry);
     }
 
-    private DoubleArrayTopic getDoubleArrayTopic(String table, String entry) {
+    private static DoubleArrayTopic getDoubleArrayTopic(String table, String entry) {
         return NetworkTableInstance.getDefault().getTable(table).getDoubleArrayTopic(entry);
     }
 }

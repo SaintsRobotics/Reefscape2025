@@ -116,6 +116,8 @@ public final class Constants {
     public static final class VirtualLimelightConstants {
       public static final double[] kHWMetrics = new double[] {-1, -1, -1, -1}; //used for detecting real limelight
 
+      public static final double kLatency = 0.01;
+
       public static final int kbotpose_orb_wpiblue_header_size = 11;
       public static final int kValsPerFiducial = 7;
     }
