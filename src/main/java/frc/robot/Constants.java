@@ -33,6 +33,7 @@ public final class Constants {
    */
   public static final class IOConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kOperatorControllerPort = 1;
 
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
@@ -111,6 +112,24 @@ public final class Constants {
     // Field size in meters
     public static final double kFieldWidth = 8.21055;
     public static final double kFieldLength = 16.54175;
+  }
+
+  public static final class ElevatorConstants {
+    // TODO: Set motor and distance sensor ports
+    public static final int kElevatorMotorPort = 0;
+    public static final int kElevatorCANrangePort = 0;
+
+    // TODO: Tune PID for elevator
+    public static final double kPElevator = 0.03;
+
+    // TODO: Set these constants
+    public static final double kElevatorGearing = 1;
+    public static final double kElevatorMaxSpeed = 0.7;
+    public static final double kElevatorFeedForward = 0.1;
+    public static final double kElevatorSpeedScalar = 1;
+    public static final double kElevatorBottom = 0;
+    public static final double kElevatorTop = 1;
+    public static final double kElevatorDistanceThreshold = 1;
   }
 
 }

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -24,8 +25,10 @@ import frc.robot.subsystems.DriveSubsystem;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  private final ElevatorSubsystem m_elevator = new ElevatorSubsystem();
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
+  private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -63,6 +66,14 @@ public class RobotContainer {
                     * -1,
                 !m_driverController.getRightBumperButton()),
             m_robotDrive));
+    
+    m_elevator.setDefaultCommand(
+        new RunCommand(
+            () -> m_elevator.trackPosition(
+                MathUtil.applyDeadband(
+                    -m_operatorController.getLeftY(),
+                    IOConstants.kControllerDeadband)),
+            m_elevator));
   }
 
   /**
@@ -93,5 +104,6 @@ public class RobotContainer {
    */
   public void fastPeriodic() {
     m_robotDrive.fastPeriodic();
+    m_elevator.fastPeriodic();
   }
 }
