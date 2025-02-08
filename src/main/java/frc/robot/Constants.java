@@ -106,7 +106,7 @@ public final class Constants {
                                                   // to disable angle rate consideration
 
     // 1foot forward of center, 10 inch right of center, no height
-    public static final String kLimelightName = "limelight";
+    public static final String kLimelightName = "limelight-sr";
 
     public static final Vector<N3> kOdometrySTDDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, Integer.MAX_VALUE);
