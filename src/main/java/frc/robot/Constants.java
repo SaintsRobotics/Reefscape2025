@@ -6,7 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
 
@@ -92,12 +95,10 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final double kF = 0.3048;
-    public static final double kS = 0.254;
-    public static final double kU = 0;
-    public static final double kR = 0;
-    public static final double kP = 0;
-    public static final double kY = 0;
+    public static final Pose3d kCamPos = new Pose3d(
+      new Translation3d(0.3048,0.254,0),
+      new Rotation3d(0,0,0)
+    );
 
     public static final double kMaxAmbiguityNonMega = 0.7;
     public static final double kMaxDistNonMega = 3;

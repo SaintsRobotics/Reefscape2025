@@ -20,18 +20,26 @@ import frc.robot.utils.LimelightHelpers.PoseEstimate;
 public class VisionSubsystem extends SubsystemBase {
   ArrayList<Pair<SwerveDrivePoseEstimator, AHRS>> m_estimators = new ArrayList<>();
 
-  private double m_dy;
-  private double m_dp;
-  private double m_dr;
-  private double m_dt;
+  // Rate: Change over time
+  private double m_yawRate;
+  private double m_pitchRate;
+  private double m_rollRate;
+  private double m_deltaTime;
 
   /** Creates a new VisionSubsystem. */
   public VisionSubsystem() {
-    LimelightHelpers.setCameraPose_RobotSpace(VisionConstants.kLimelightName, VisionConstants.kF, VisionConstants.kS,
-        VisionConstants.kU, VisionConstants.kR, VisionConstants.kP, VisionConstants.kY);
+    LimelightHelpers.setCameraPose_RobotSpace(
+      VisionConstants.kLimelightName, 
+      VisionConstants.kCamPos.getX(),
+      VisionConstants.kCamPos.getY(),
+      VisionConstants.kCamPos.getZ(), 
+      VisionConstants.kCamPos.getRotation().getX(), 
+      VisionConstants.kCamPos.getRotation().getY(), 
+      VisionConstants.kCamPos.getRotation().getZ()
+    );
     LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, VisionConstants.kIMUType_sync);
 
-    m_dy = m_dp = m_dr = m_dt = 0;
+    m_yawRate = m_pitchRate = m_rollRate = m_deltaTime = 0;
   }
 
   @Override
@@ -50,26 +58,27 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   private void estimatePose(SwerveDrivePoseEstimator estimator, AHRS ahrs) {
-    // calculate deltas
-    m_dt = ahrs.getLastSensorTimestamp() - m_dt;
-    if (m_dt > VisionConstants.kdtThreshold) {
-      m_dy = m_dp = m_dr = m_dt = 0;
+    // calculate deltas and rates of rotation
+    m_deltaTime = ahrs.getLastSensorTimestamp() - m_deltaTime;
+    if (m_deltaTime > VisionConstants.kdtThreshold) {
+      m_yawRate = m_pitchRate = m_rollRate = m_deltaTime = 0;
     } else {
-      m_dy = MathUtil.inputModulus(ahrs.getYaw() - m_dy, -180, 180) / m_dt;
-      m_dp = MathUtil.inputModulus(ahrs.getPitch() - m_dp, -180, 180) / m_dt;
-      m_dr = MathUtil.inputModulus(ahrs.getRoll() - m_dr, -180, 180) / m_dt;
+      m_yawRate = MathUtil.inputModulus(ahrs.getYaw() - m_yawRate, -180, 180) / m_deltaTime;
+      m_pitchRate = MathUtil.inputModulus(ahrs.getPitch() - m_pitchRate, -180, 180) / m_deltaTime;
+      m_rollRate = MathUtil.inputModulus(ahrs.getRoll() - m_rollRate, -180, 180) / m_deltaTime;
     }
 
     // calculate pose
+    // WPILIB assumes origin on blue side
     LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName,
-        estimator.getEstimatedPosition().getRotation().getDegrees(), m_dy, ahrs.getPitch(), m_dp, ahrs.getRoll(), m_dr);
-    PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName); // WPILib
-                                                                                                         // Ecosystem
-                                                                                                         // (including
-                                                                                                         // pathplanner)
-                                                                                                         // assumes
-                                                                                                         // origin on
-                                                                                                         // blue side
+        estimator.getEstimatedPosition().getRotation().getDegrees(), 
+        m_yawRate, 
+        ahrs.getPitch(), 
+        m_pitchRate, 
+        ahrs.getRoll(), 
+        m_rollRate
+    );
+    PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName); 
 
     if (estimate == null) {
       DriverStation.reportError("Bad limelight data: wrong packet size", false);
