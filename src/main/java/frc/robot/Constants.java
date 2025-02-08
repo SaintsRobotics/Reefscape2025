@@ -130,6 +130,11 @@ public final class Constants {
     public static final double kElevatorBottom = 0;
     public static final double kElevatorTop = 1;
     public static final double kElevatorDistanceThreshold = 1;
+
+    public static final double kL1Height = 0.3;
+    public static final double kL2Height = 0.5;
+    public static final double kL3Height = 0.7;
+    public static final double kL4Height = 0.9;
   }
 
 }

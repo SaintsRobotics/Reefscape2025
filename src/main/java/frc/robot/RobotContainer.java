@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -74,6 +75,8 @@ public class RobotContainer {
                     -m_operatorController.getLeftY(),
                     IOConstants.kControllerDeadband)),
             m_elevator));
+    
+    
   }
 
   /**
@@ -82,6 +85,23 @@ public class RobotContainer {
   private void configureBindings() {
     new JoystickButton(m_driverController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
+
+    new POVButton(m_operatorController, 0) // Up - L1
+        .onTrue(new InstantCommand(
+            () -> m_elevator.setHeight(1)
+        ));
+    new POVButton(m_operatorController, 90) // Right - L2
+        .onTrue(new InstantCommand(
+            () -> m_elevator.setHeight(2)
+        ));
+    new POVButton(m_operatorController, 180) // Down - L3
+        .onTrue(new InstantCommand(
+            () -> m_elevator.setHeight(3)
+        ));
+    new POVButton(m_operatorController, 270) // Left - L4
+        .onTrue(new InstantCommand(
+            () -> m_elevator.setHeight(4)
+        ));
   }
 
   /**

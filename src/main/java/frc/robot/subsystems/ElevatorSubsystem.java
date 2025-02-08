@@ -21,7 +21,7 @@ import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
-  private final CANrange m_range = new CANrange(ElevatorConstants.kElevatorCANrangePort);
+  private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
   private final PIDController m_PIDController = new PIDController(ElevatorConstants.kPElevator, 0, 0, Constants.kFastPeriodicPeriod);
 
@@ -40,7 +40,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (m_range.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
+    if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
+      // This offset is set when the distance sensor detects that the elevator is at the bottom 
+      // At the bottom, the motor's position + offset should equal 0
       m_motorOffset = -m_elevatorMotor.getEncoder().getPosition();
     }
   }
@@ -61,5 +63,29 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_targetPosition = MathUtil.clamp(m_targetPosition, ElevatorConstants.kElevatorBottom, ElevatorConstants.kElevatorTop);
     // Display this number for now so we can see it
     SmartDashboard.putNumber("elevator targetPosition", m_targetPosition);
+  }
+
+  public void setHeight(int level) {
+    // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
+    switch (level) {
+      case 1:
+        m_targetPosition = ElevatorConstants.kL1Height;
+        break;
+      
+      case 2:
+        m_targetPosition = ElevatorConstants.kL2Height;
+        break;
+
+      case 3:
+        m_targetPosition = ElevatorConstants.kL3Height;
+        break;
+      
+      case 4: 
+        m_targetPosition = ElevatorConstants.kL4Height;
+        break;
+
+      default:
+        break;
+    }
   }
 }
