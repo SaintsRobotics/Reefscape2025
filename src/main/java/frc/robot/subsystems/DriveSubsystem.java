@@ -81,8 +81,21 @@ public class DriveSubsystem extends SubsystemBase {
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
 
     // TODO: Name the Limelight "LL1899" and set the camera orientation
-    // TODO: Set a custom crop window for improved performance (the bot only needs to see april tags on the reef)
+    // TODO: Set a custom crop window for improved performance (the bot only needs
+    // to see april tags on the reef)
     m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 9999999));
+
+    if (VisionConstants.kUseVision && Robot.isReal()) {
+      LimelightHelpers.setCameraPose_RobotSpace(
+          VisionConstants.kLimelightName,
+          VisionConstants.kCamPos.getX(),
+          VisionConstants.kCamPos.getY(),
+          VisionConstants.kCamPos.getZ(),
+          VisionConstants.kCamPos.getRotation().getX(),
+          VisionConstants.kCamPos.getRotation().getY(),
+          VisionConstants.kCamPos.getRotation().getZ());
+      LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, VisionConstants.kIMUMode);
+    }
   }
 
   @Override
@@ -101,10 +114,11 @@ public class DriveSubsystem extends SubsystemBase {
 
     if (VisionConstants.kUseVision && Robot.isReal()) {
       // Update LimeLight with current robot orientation
-      LimelightHelpers.SetRobotOrientation("LL1899", m_gyro.getAngle(), 0.0, 0.0, 0.0, 0.0, 0.0);
+      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_gyro.getAngle(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
       // Get the pose estimate
-      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("LL1899");
+      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers
+          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
 
       // Add it to your pose estimator if it is a valid measurement
       if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
@@ -113,7 +127,6 @@ public class DriveSubsystem extends SubsystemBase {
             limelightMeasurement.timestampSeconds);
       }
     }
-    
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
@@ -246,7 +259,8 @@ public class DriveSubsystem extends SubsystemBase {
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logData);
 
-    // Takes the integral of the rotation speed to find the current angle for the simulator
+    // Takes the integral of the rotation speed to find the current angle for the
+    // simulator
     m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
         * Robot.kDefaultPeriod;
   }
