@@ -27,37 +27,34 @@ import edu.wpi.first.math.numbers.N3;
  */
 public final class Constants {
 
+  public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
+
   /**
    * Input/Output constants
    */
   public static final class IOConstants {
     public static final int kDriverControllerPort = 0;
 
-    public static final double kControllerDeadband = 0.2;
+    public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
   }
 
   public static final class DriveConstants {
     // TODO: set motor and encoder constants
-    public static final int kFrontLeftDriveMotorPort = 1;
-    public static final int kRearLeftDriveMotorPort = 3;
-    public static final int kFrontRightDriveMotorPort = 5;
-    public static final int kRearRightDriveMotorPort = 7;
+    public static final int kFrontLeftDriveMotorPort = 4;
+    public static final int kRearLeftDriveMotorPort = 5;
+    public static final int kFrontRightDriveMotorPort = 12;
+    public static final int kRearRightDriveMotorPort = 34;
 
-    public static final int kFrontLeftTurningMotorPort = 2;
-    public static final int kRearLeftTurningMotorPort = 4;
-    public static final int kFrontRightTurningMotorPort = 6;
-    public static final int kRearRightTurningMotorPort = 8;
+    public static final int kFrontLeftTurningMotorPort = 11;
+    public static final int kRearLeftTurningMotorPort = 9;
+    public static final int kFrontRightTurningMotorPort = 36;
+    public static final int kRearRightTurningMotorPort = 16;
 
-    public static final int kFrontLeftTurningEncoderPort = 9;
-    public static final int kRearLeftTurningEncoderPort = 10;
-    public static final int kFrontRightTurningEncoderPort = 11;
-    public static final int kRearRightTurningEncoderPort = 12;
-
-    public static final double kFrontLeftTurningEncoderOffset = 0;
-    public static final double kRearLeftTurningEncoderOffset = 0;
-    public static final double kFrontRightTurningEncoderOffset = 0;
-    public static final double kRearRightTurningEncoderOffset = 0;
+    public static final int kFrontLeftTurningEncoderPort = 19;
+    public static final int kRearLeftTurningEncoderPort = 20;
+    public static final int kFrontRightTurningEncoderPort = 18;
+    public static final int kRearRightTurningEncoderPort = 17;
 
     // TODO: Test motor orientations before driving on an actual robot
     public static final boolean kFrontLeftDriveMotorReversed = false;
