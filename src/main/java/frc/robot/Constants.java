@@ -108,7 +108,7 @@ public final class Constants {
 
     // TODO: Experiment with different std devs in the pose estimator
     public static final Vector<N3> kOdometrySTDDevs = VecBuilder.fill(0.1, 0.1, 0.1);
-    public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.5, 0.5, 999999);
+    public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
 
     public static final boolean kUseVision = true;
   }

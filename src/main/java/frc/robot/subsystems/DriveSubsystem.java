@@ -81,10 +81,9 @@ public class DriveSubsystem extends SubsystemBase {
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
 
-    // TODO: Name the Limelight "LL1899" and set the camera orientation
     // TODO: Set a custom crop window for improved performance (the bot only needs
     // to see april tags on the reef)
-    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 9999999));
+    m_poseEstimator.setVisionMeasurementStdDevs(VisionConstants.kVisionSTDDevs);
 
     if (VisionConstants.kUseVision && Robot.isReal()) {
       LimelightHelpers.setCameraPose_RobotSpace(
