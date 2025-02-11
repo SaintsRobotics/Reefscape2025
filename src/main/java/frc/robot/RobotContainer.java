@@ -27,7 +27,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final ElevatorSubsystem m_elevator = new ElevatorSubsystem();
+  // private final ElevatorSubsystem m_elevator = new ElevatorSubsystem();
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
@@ -69,6 +69,7 @@ public class RobotContainer {
                 !m_driverController.getRightBumperButton()),
             m_robotDrive));
     
+    /*
     m_elevator.setDefaultCommand(
         new RunCommand(
             () -> m_elevator.trackPosition(
@@ -76,7 +77,7 @@ public class RobotContainer {
                     -m_operatorController.getLeftY(),
                     IOConstants.kControllerDeadband)),
             m_elevator));
-    
+     */
     
   }
 
@@ -87,6 +88,7 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
 
+    /*
     new POVButton(m_operatorController, ElevatorConstants.kDPadUp) // Up - L1
         .onTrue(new InstantCommand(
             () -> m_elevator.setHeight(ElevatorConstants.kL1Height)
@@ -103,6 +105,7 @@ public class RobotContainer {
         .onTrue(new InstantCommand(
             () -> m_elevator.setHeight(ElevatorConstants.kL4Height)
         ));
+    */
   }
 
   /**
@@ -125,6 +128,6 @@ public class RobotContainer {
    */
   public void fastPeriodic() {
     m_robotDrive.fastPeriodic();
-    m_elevator.fastPeriodic();
+    //m_elevator.fastPeriodic();
   }
 }
