@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.Random;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -114,6 +116,11 @@ public final class Constants {
 
       public static final int kbotpose_orb_wpiblue_header_size = 11;
       public static final int kValsPerFiducial = 7;
+
+      public static final double kMaxTranslationError = 0.0001;
+      public static final double kMaxRotationError = 1; // Degrees
+
+      public static final Random kRandom = new Random();
     }
 
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);

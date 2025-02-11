@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.utils.VirtualLimelight;
+import frc.robot.utils.VirtualLimelight.Fiducial;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -45,9 +46,10 @@ public class Robot extends TimedRobot {
         m_virutalLimelight = new VirtualLimelight(VisionConstants.kLimelightName);
         /*
          * Create testing fiducials here
-         * m_virutalLimelight.setFiducials(new Fiducial[] {new Fiducial(1, 1, -1, 0, 0.9)});
          */
-      }
+        m_virutalLimelight.setFiducials(new Fiducial[] {new Fiducial(1, 0, 
+          0, 0, 0.9)});
+       }
     }
 
     if (Robot.isReal()) {
@@ -57,6 +59,8 @@ public class Robot extends TimedRobot {
     }
 
     m_robotContainer = new RobotContainer();
+
+    //m_virutalLimelight.update(m_robotContainer.getDriveSubsystem().getPose());
     this.addPeriodic(m_robotContainer::fastPeriodic, Constants.kFastPeriodicPeriod);
   }
 
@@ -73,8 +77,8 @@ public class Robot extends TimedRobot {
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
-    if (Robot.isSimulation()) {
-      m_virutalLimelight.update(0, 0, 0); //pass robot deltas here for dynamic simulation
+    if (m_virutalLimelight != null) {
+      m_virutalLimelight.update(m_robotContainer.getDriveSubsystem().getPose());
     }
     CommandScheduler.getInstance().run();
   }
@@ -82,7 +86,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    
+
   }
 
   @Override

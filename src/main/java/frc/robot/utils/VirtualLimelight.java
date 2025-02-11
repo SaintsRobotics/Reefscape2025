@@ -209,18 +209,6 @@ public class VirtualLimelight {
         m_fiducials = fiducials;
     }
 
-    /**
-     * Shift deltas of the fiducials
-     * @param dx
-     * @param dy
-     * @param drot
-     */
-    public void shiftFiducials(double dx, double dy, double drot) {
-        for (Fiducial f : m_fiducials) {
-            f.shift(dx, dy, drot);
-        }
-    }
-
     public void update() {
         // write botpose_orb_wpiblue
         double[] botpose_orb_wpiblue = Fiducial.calculate(m_fiducials);
@@ -243,8 +231,8 @@ public class VirtualLimelight {
      * @param dy
      * @param drot
      */
-    public void update(double dx, double dy, double drot) {
-        shiftFiducials(-dx, -dy, -drot);
+    public void update(Pose2d botpose) {
+        //TODO
         update();
     }
 
