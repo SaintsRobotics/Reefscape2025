@@ -57,7 +57,6 @@ public class Robot extends TimedRobot {
     }
 
     m_robotContainer = new RobotContainer();
-    m_robotContainer.getVisionSubsystem().setIMUMode(VisionConstants.kIMUType_internal);
     this.addPeriodic(m_robotContainer::fastPeriodic, Constants.kFastPeriodicPeriod);
   }
 
@@ -83,7 +82,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    m_robotContainer.getVisionSubsystem().setIMUMode(VisionConstants.kIMUType_sync);
+    
   }
 
   @Override

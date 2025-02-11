@@ -6,7 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
 
@@ -92,29 +95,18 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final double kF = 0.3048;
-    public static final double kS = 0.254;
-    public static final double kU = 0;
-    public static final double kR = 0;
-    public static final double kP = 0;
-    public static final double kY = 0;
+    // TODO: Update cam pose relative to center of bot
+    public static final Pose3d kCamPos = new Pose3d(
+      new Translation3d(0.3048,0.254,0),
+      new Rotation3d(0,0,0)
+    );
 
-    public static final double kMaxAmbiguityNonMega = 0.7;
-    public static final double kMaxDistNonMega = 3;
-
-    public static final double kdtThreshold = 40; // max delta timestamp for past measurement to be valid. set to zero
-                                                  // to disable angle rate consideration
-
-    // 1foot forward of center, 10 inch right of center, no height
     public static final String kLimelightName = "limelight-sr";
 
+    // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
+    public static final int kIMUMode = 0;
+
     public static final Vector<N3> kOdometrySTDDevs = VecBuilder.fill(0.1, 0.1, 0.1);
-    public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, Integer.MAX_VALUE);
-
-    public static final int kIMUType_external = 0;
-    public static final int kIMUType_sync = 1;
-    public static final int kIMUType_internal = 2;
-
     public static final class VirtualLimelightConstants {
       public static final double[] kHWMetrics = new double[] {-1, -1, -1, -1}; //used for detecting real limelight
 
@@ -123,6 +115,9 @@ public final class Constants {
       public static final int kbotpose_orb_wpiblue_header_size = 11;
       public static final int kValsPerFiducial = 7;
     }
-  }
 
+    public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
+
+    public static final boolean kUseVision = true;
+  }
 }

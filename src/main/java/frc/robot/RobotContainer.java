@@ -4,11 +4,9 @@
 
 package frc.robot;
 
-import com.studica.frc.AHRS;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,8 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
-
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -29,8 +25,6 @@ import frc.robot.subsystems.VisionSubsystem;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
-
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
 
   /**
@@ -39,8 +33,6 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
-
-    m_visionSubsystem.addSubscriber(new Pair<SwerveDrivePoseEstimator,AHRS>(m_robotDrive.getEstimator(), m_robotDrive.getAHRS()));
 
     m_robotDrive.setDefaultCommand(
         new RunCommand(
@@ -79,6 +71,9 @@ public class RobotContainer {
   private void configureBindings() {
     new JoystickButton(m_driverController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
+
+    new JoystickButton(m_driverController, Button.kBack.value)
+        .onTrue(new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d());}, m_robotDrive));
   }
 
   /**
@@ -89,10 +84,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return null;
-  }
-
-  public VisionSubsystem getVisionSubsystem() {
-    return m_visionSubsystem;
   }
   
   /**

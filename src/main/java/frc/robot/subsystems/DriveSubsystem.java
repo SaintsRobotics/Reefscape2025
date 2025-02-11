@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants;
+import frc.robot.utils.LimelightHelpers;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -73,9 +74,27 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
+    this.zeroHeading();
+    this.resetOdometry(new Pose2d());
     SmartDashboard.putData("Field", m_field);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
+
+    // TODO: Set a custom crop window for improved performance (the bot only needs
+    // to see april tags on the reef)
+    m_poseEstimator.setVisionMeasurementStdDevs(VisionConstants.kVisionSTDDevs);
+
+    if (VisionConstants.kUseVision && Robot.isReal()) {
+      LimelightHelpers.setCameraPose_RobotSpace(
+          VisionConstants.kLimelightName,
+          VisionConstants.kCamPos.getX(),
+          VisionConstants.kCamPos.getY(),
+          VisionConstants.kCamPos.getZ(),
+          VisionConstants.kCamPos.getRotation().getX(),
+          VisionConstants.kCamPos.getRotation().getY(),
+          VisionConstants.kCamPos.getRotation().getZ());
+      LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, VisionConstants.kIMUMode);
+    }
 
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds());
   }
@@ -93,6 +112,22 @@ public class DriveSubsystem extends SubsystemBase {
 
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
+
+    if (VisionConstants.kUseVision && Robot.isReal()) {
+      // Update LimeLight with current robot orientation
+      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+
+      // Get the pose estimate
+      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers
+          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
+
+      // Add it to your pose estimator if it is a valid measurement
+      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
+        m_poseEstimator.addVisionMeasurement(
+            limelightMeasurement.pose,
+            limelightMeasurement.timestampSeconds);
+      }
+    }
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
