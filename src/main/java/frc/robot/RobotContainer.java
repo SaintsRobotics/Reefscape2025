@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -86,21 +87,21 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
 
-    new POVButton(m_operatorController, 0) // Up - L1
+    new POVButton(m_operatorController, ElevatorConstants.kDPadUp) // Up - L1
         .onTrue(new InstantCommand(
-            () -> m_elevator.setHeight(1)
+            () -> m_elevator.setHeight(ElevatorConstants.kL1Height)
         ));
-    new POVButton(m_operatorController, 90) // Right - L2
+    new POVButton(m_operatorController, ElevatorConstants.kDPadRight) // Right - L2
         .onTrue(new InstantCommand(
-            () -> m_elevator.setHeight(2)
+            () -> m_elevator.setHeight(ElevatorConstants.kL2Height)
         ));
-    new POVButton(m_operatorController, 180) // Down - L3
+    new POVButton(m_operatorController, ElevatorConstants.kDPadDown) // Down - L3
         .onTrue(new InstantCommand(
-            () -> m_elevator.setHeight(3)
+            () -> m_elevator.setHeight(ElevatorConstants.kL3Height)
         ));
-    new POVButton(m_operatorController, 270) // Left - L4
+    new POVButton(m_operatorController, ElevatorConstants.kDPadLeft) // Left - L4
         .onTrue(new InstantCommand(
-            () -> m_elevator.setHeight(4)
+            () -> m_elevator.setHeight(ElevatorConstants.kL4Height)
         ));
   }
 

@@ -65,27 +65,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("elevator targetPosition", m_targetPosition);
   }
 
-  public void setHeight(int level) {
+  public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
-    switch (level) {
-      case 1:
-        m_targetPosition = ElevatorConstants.kL1Height;
-        break;
-      
-      case 2:
-        m_targetPosition = ElevatorConstants.kL2Height;
-        break;
-
-      case 3:
-        m_targetPosition = ElevatorConstants.kL3Height;
-        break;
-      
-      case 4: 
-        m_targetPosition = ElevatorConstants.kL4Height;
-        break;
-
-      default:
-        break;
-    }
+    m_targetPosition = level;
   }
 }
