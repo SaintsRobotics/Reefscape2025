@@ -4,14 +4,13 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.VisionConstants.VirtualLimelightConstants;
 import frc.robot.utils.VirtualLimelight;
 import frc.robot.utils.VirtualLimelight.Fiducial;
 
@@ -44,7 +43,7 @@ public class Robot extends TimedRobot {
 
     // make sure we are not in a real competition
     if (!DriverStation.isFMSAttached()) {
-      if (Robot.isSimulation()) {
+      if (Robot.isSimulation() || VirtualLimelightConstants.kSimulateLimelight) {
         m_virutalLimelight = new VirtualLimelight(VisionConstants.kLimelightName);
         /*
          * Create testing fiducials here
@@ -60,8 +59,6 @@ public class Robot extends TimedRobot {
     }
 
     m_robotContainer = new RobotContainer();
-
-    m_robotContainer.getDriveSubsystem().resetSimulatedOdometry(new Pose2d(5, 5, new Rotation2d(1)));
 
     //m_virutalLimelight.update(m_robotContainer.getDriveSubsystem().getPose());
     this.addPeriodic(m_robotContainer::fastPeriodic, Constants.kFastPeriodicPeriod);

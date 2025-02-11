@@ -117,7 +117,7 @@ public class VirtualLimelight {
                 fiducialBase += VirtualLimelightConstants.kValsPerFiducial;
             }
 
-            ret[VirtualLimelightConstants.kHeaderOffset_posX] = 5; //realpose.getX();
+            ret[VirtualLimelightConstants.kHeaderOffset_posX] = realpose.getX();
             ret[VirtualLimelightConstants.kHeaderOffset_posY] = realpose.getY();
             //ret[VirtualLimelightConstants.kHeaderOffset_posZ]
             //ret[VirtualLimelightConstants.kHeaderOffset_rotP]

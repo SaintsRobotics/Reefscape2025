@@ -20,8 +20,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.utils.AutoSimulatedOdometry;
+import frc.robot.utils.SimulatedEstimator;
+import frc.robot.utils.IEstimatorWrapper;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.RealEstimator;
 import frc.robot.Constants;
 import frc.robot.Robot;
 
@@ -60,7 +62,7 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearRight.getPosition()
   };
 
-  private final AutoSimulatedOdometry m_poseEstimator = new AutoSimulatedOdometry(DriveConstants.kDriveKinematics, m_swerveModulePositions, new AHRS(NavXComType.kMXP_SPI));;
+  private final IEstimatorWrapper m_poseEstimator;
 
 
   private SwerveModuleState[] m_desiredStates;
@@ -69,6 +71,13 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
+    if (Robot.isReal()) {
+      m_poseEstimator = new RealEstimator(DriveConstants.kDriveKinematics, m_swerveModulePositions, new AHRS(NavXComType.kMXP_SPI));
+    }
+    else {
+      m_poseEstimator = new SimulatedEstimator(DriveConstants.kDriveKinematics, m_swerveModulePositions);
+    }
+
     this.zeroHeading();
     this.resetOdometry(new Pose2d());
     SmartDashboard.putData("Field", m_field);
@@ -160,7 +169,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getSimulatedPose() {
-    return m_poseEstimator.getSimulatedPosition();
+    return ((SimulatedEstimator)m_poseEstimator).getAbsolutePosition();
   }
 
   /**
@@ -235,7 +244,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetSimulatedOdometry(Pose2d pose) {
-    m_poseEstimator.resetSimulatedPosition(
+    ((SimulatedEstimator)m_poseEstimator).resetAbsolutePosition(
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -263,6 +272,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearLeft.setDesiredState(m_desiredStates[2]);
     m_rearRight.setDesiredState(m_desiredStates[3]);
 
-    m_poseEstimator.update(DriveConstants.kDriveKinematics, m_swerveModulePositions, m_desiredStates, Constants.kFastPeriodicPeriod);
+    ((SimulatedEstimator)m_poseEstimator).updateGyro(DriveConstants.kDriveKinematics, m_swerveModulePositions, m_desiredStates, Constants.kFastPeriodicPeriod);
   }
 }

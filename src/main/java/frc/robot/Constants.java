@@ -140,6 +140,8 @@ public final class Constants {
 
       public static final double kMaxTranslationError = 0.0001;
       public static final double kMaxRotationError = 1; // Degrees
+
+      public static final boolean kSimulateLimelight = false;
     }
 
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
