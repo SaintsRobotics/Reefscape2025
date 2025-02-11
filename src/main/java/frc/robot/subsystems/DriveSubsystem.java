@@ -22,6 +22,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.utils.AutoSimulatedOdometry;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -49,8 +50,6 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightTurningEncoderPort,
       DriveConstants.kRearRightDriveMotorReversed);
 
-  private final AutoSimulatedOdometry m_poseEstimator;
-
   private final Timer m_headingCorrectionTimer = new Timer();
   private final PIDController m_headingCorrectionPID = new PIDController(DriveConstants.kPHeadingCorrectionController,
       0, 0);
@@ -60,6 +59,9 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearLeft.getPosition(),
       m_rearRight.getPosition()
   };
+
+  private final AutoSimulatedOdometry m_poseEstimator = new AutoSimulatedOdometry(DriveConstants.kDriveKinematics, m_swerveModulePositions, new AHRS(NavXComType.kMXP_SPI));;
+
 
   private SwerveModuleState[] m_desiredStates;
 
@@ -72,8 +74,6 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Field", m_field);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
-
-    m_poseEstimator = new AutoSimulatedOdometry(DriveConstants.kDriveKinematics, m_swerveModulePositions, new AHRS(NavXComType.kMXP_SPI));
 
     // TODO: Set a custom crop window for improved performance (the bot only needs
     // to see april tags on the reef)
@@ -110,7 +110,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     if (VisionConstants.kUseVision) {
       // Update LimeLight with current robot orientation
-      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), Math.toDegrees(m_poseEstimator.getGyroRate()), 0.0, 0.0, 0.0, 0.0);
 
       // Get the pose estimate
       LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers
@@ -157,6 +157,10 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public Pose2d getPose() {
     return m_poseEstimator.getEstimatedPosition();
+  }
+
+  public Pose2d getSimulatedPose() {
+    return m_poseEstimator.getSimulatedPosition();
   }
 
   /**
@@ -230,6 +234,17 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
+  public void resetSimulatedOdometry(Pose2d pose) {
+    m_poseEstimator.resetSimulatedPosition(
+        new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition()
+        },
+        pose);
+  }
+
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     m_poseEstimator.resetGyro();
@@ -248,6 +263,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearLeft.setDesiredState(m_desiredStates[2]);
     m_rearRight.setDesiredState(m_desiredStates[3]);
 
-    m_poseEstimator.simulate(DriveConstants.kDriveKinematics, m_desiredStates);
+    m_poseEstimator.update(DriveConstants.kDriveKinematics, m_swerveModulePositions, m_desiredStates, Constants.kFastPeriodicPeriod);
   }
 }

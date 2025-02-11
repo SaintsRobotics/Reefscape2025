@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -47,8 +49,7 @@ public class Robot extends TimedRobot {
         /*
          * Create testing fiducials here
          */
-        m_virutalLimelight.setFiducials(new Fiducial[] {new Fiducial(1, 0, 
-          0, 0, 0.9)});
+        m_virutalLimelight.setFiducials(new Fiducial[] {new Fiducial(1, .1)});
        }
     }
 
@@ -59,6 +60,8 @@ public class Robot extends TimedRobot {
     }
 
     m_robotContainer = new RobotContainer();
+
+    m_robotContainer.getDriveSubsystem().resetSimulatedOdometry(new Pose2d(5, 5, new Rotation2d(1)));
 
     //m_virutalLimelight.update(m_robotContainer.getDriveSubsystem().getPose());
     this.addPeriodic(m_robotContainer::fastPeriodic, Constants.kFastPeriodicPeriod);
@@ -78,7 +81,7 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     if (m_virutalLimelight != null) {
-      m_virutalLimelight.update(m_robotContainer.getDriveSubsystem().getPose());
+      m_virutalLimelight.update(m_robotContainer.getDriveSubsystem().getSimulatedPose());
     }
     CommandScheduler.getInstance().run();
   }

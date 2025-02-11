@@ -6,9 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.networktables.BooleanEntry;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.BooleanTopic;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArrayTopic;
@@ -55,36 +53,20 @@ public class VirtualLimelight {
     }
 
     public final static class Fiducial {
+        private final int m_id;
         private final Pose2d m_pose;
-        private double m_dx;
-        private double m_dy;
-        private double m_drot;
         private final double m_ambiguity;
 
         // all WPILib ecosystem position based, rotation in degrees
-        public Fiducial(int id, double dx, double dy, double drot, double ambiguity) {
-            m_dx = dx;
-            m_dy = dy;
-            m_drot = drot;
+        public Fiducial(int id, double ambiguity) {
+            m_id = id;
             m_ambiguity = ambiguity;
 
             final Pose3d pose3d = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(id).orElse(new Pose3d());
             m_pose = new Pose2d(pose3d.getX(), pose3d.getY(), pose3d.getRotation().toRotation2d());
         }
 
-        /**
-         * Shift deltas of the fiducials
-         * @param dx
-         * @param dy
-         * @param drot
-         */
-        public void shift(double dx, double dy, double drot) {
-            m_dx += dx;
-            m_dy += dy;
-            m_drot += drot;
-        }
-
-        public static double[] calculate(Fiducial[] fiducials) {
+        public static double[] calculate(Fiducial[] fiducials, Pose2d realpose) {
             double[] ret = new double[VirtualLimelightConstants.kbotpose_orb_wpiblue_header_size
                     + VirtualLimelightConstants.kValsPerFiducial * fiducials.length];
 
@@ -93,9 +75,9 @@ public class VirtualLimelight {
              * header with 11 doubles with the following structure:
              * 0: Robot position X
              * 1: Robot Position Y
-             * 2: Reserved
-             * 3: Reserved
-             * 4: Reserved
+             * 2: Rotation Yaw (degrees)
+             * 3: Rotation Pitch (degrees)
+             * 4: Rotation Roll (degrees)
              * 5: Robot rotation in degrees
              * 6: Latency
              * 7: Tag count
@@ -117,34 +99,35 @@ public class VirtualLimelight {
              * 4: Distance to camera
              * 5: Distance to robot
              * 6: Ambiguity
-             * 
-             * Only the distance to camera and ambiguity are needed for pose
-             * estimation.
              */
-
-            // average pose
-            double sx = 0;
-            double sy = 0;
-            double srot = 0;
 
             // populate packet
             int fiducialBase = VirtualLimelightConstants.kbotpose_orb_wpiblue_header_size;
             for (Fiducial f : fiducials) {
-                sx += f.m_pose.getX() - f.m_dx;
-                sy += f.m_pose.getY() - f.m_dy;
-                srot += f.m_pose.getRotation().getDegrees() - f.m_drot;
+                final Transform2d dpose = f.m_pose.minus(realpose);
 
-                ret[fiducialBase + 4] = Math.sqrt(f.m_dx * f.m_dx + f.m_dy * f.m_dy);
-                ret[fiducialBase + 6] = f.m_ambiguity;
+                ret[fiducialBase + VirtualLimelightConstants.kFiducialOffset_id] = f.m_id;
+                ret[fiducialBase + VirtualLimelightConstants.kFiducialOffset_tx] = dpose.getX();
+                ret[fiducialBase + VirtualLimelightConstants.kFiducialOffset_ty] = dpose.getY();
+                ret[fiducialBase + VirtualLimelightConstants.kFiducialOffset_rot] = dpose.getRotation().getDegrees();
+                ret[fiducialBase + VirtualLimelightConstants.kFiducialOffset_distcam] = Math.sqrt(dpose.getX() * dpose.getX() + dpose.getY() * dpose.getY());
+                //ret[fiducialBase + VirtualLimelightConstants.kFiducialOffset_distrobot]
+                ret[fiducialBase + VirtualLimelightConstants.kFiducialOffset_ambiguity] = f.m_ambiguity;
 
                 fiducialBase += VirtualLimelightConstants.kValsPerFiducial;
             }
 
-            ret[0] = sx / fiducials.length;
-            ret[1] = sy / fiducials.length;
-            ret[5] = srot / fiducials.length;
-            ret[6] = VirtualLimelightConstants.kLatency;
-            ret[7] = fiducials.length;
+            ret[VirtualLimelightConstants.kHeaderOffset_posX] = 5; //realpose.getX();
+            ret[VirtualLimelightConstants.kHeaderOffset_posY] = realpose.getY();
+            //ret[VirtualLimelightConstants.kHeaderOffset_posZ]
+            //ret[VirtualLimelightConstants.kHeaderOffset_rotP]
+            //ret[VirtualLimelightConstants.kHeaderOffset_rotR]
+            ret[VirtualLimelightConstants.kHeaderOffset_rotY] = realpose.getRotation().getDegrees();
+            ret[VirtualLimelightConstants.kHeaderOffset_latency] = VirtualLimelightConstants.kLatency;
+            ret[VirtualLimelightConstants.kHeaderOffset_tagcount] = fiducials.length;
+            //ret[VirtualLimelightConstants.kHeaderOffset_tagspan]
+            //ret[VirtualLimelightConstants.kHeaderOffset_tagdistance]
+            //ret[VirtualLimelightConstants.kHeaderOffset_tagarea]
 
             return ret;
         }
@@ -159,12 +142,12 @@ public class VirtualLimelight {
     @SuppressWarnings("unused")
     private double[] m_robot_orientation = new double[6];
 
-    private final DoubleArrayPublisher m_camerapose_robotspace_pub;
     private final DoublePublisher m_imumode_pub;
+
+    private final DoubleArrayPublisher m_camerapose_robotspace_pub;
     private final DoubleArrayPublisher m_robot_orientation_pub;
     private final DoubleArrayPublisher m_botpose_orb_wpiblue_pub;
-
-    private final BooleanPublisher m_lock_pub;
+    private final DoubleArrayPublisher m_hw_pub;
 
     private Fiducial[] m_fiducials = new Fiducial[0];
 
@@ -173,15 +156,8 @@ public class VirtualLimelight {
     public VirtualLimelight(String name) {
         m_table = name;
 
-        // check for real limelight. This works by seeing if NT has HW metric fps is -1
-        // or nonexistant (virtual always sets this to -1)
-        if (getDoubleArrayEntry("limelight", "hw").get(VirtualLimelightConstants.kHWMetrics)[0] != -1) {
-            DriverStation.reportError("Running virtual limelight server alongside real hardware", false);
-            throw new IllegalStateException("Cannot construct virtual limelight instance alongside real hardware");
-        }
-
-        // check for conflicting limelight names
-        if (getBooleanEntry(m_table, "_lock").get()) {
+        // check for existing limelight. This works by seeing if NT has HW metric fps
+        if (getDoubleArrayEntry(m_table, "hw").get(VirtualLimelightConstants.kHWMetricsFree)[0] != -2) {
             DriverStation.reportError("Running two virtual limelight servers with the same name", false);
             throw new IllegalStateException("Cannot construct duplicate virtual limelight instance");
         }
@@ -197,9 +173,9 @@ public class VirtualLimelight {
         m_imumode_pub = getDoubleTopic(m_table, "m_imumode").publish();
         m_robot_orientation_pub = getDoubleArrayTopic(m_table, "m_robot_orientation").publish();
         m_botpose_orb_wpiblue_pub = getDoubleArrayTopic(m_table, "botpose_orb_wpiblue").publish();
+        m_hw_pub = getDoubleArrayTopic(m_table, "hw").publish();
 
-        m_lock_pub = getBooleanTopic(m_table, "_lock").publish();
-        m_lock_pub.set(true);
+        m_hw_pub.set(VirtualLimelightConstants.kHWMetricsVirtual);
 
         m_listenerHandle = NetworkTableInstance.getDefault().getTable(m_table).addListener(EnumSet.of(Kind.kValueAll),
                 new Listener());
@@ -209,9 +185,9 @@ public class VirtualLimelight {
         m_fiducials = fiducials;
     }
 
-    public void update() {
+    public void update(Pose2d realpose) {
         // write botpose_orb_wpiblue
-        double[] botpose_orb_wpiblue = Fiducial.calculate(m_fiducials);
+        double[] botpose_orb_wpiblue = Fiducial.calculate(m_fiducials, realpose);
 
         // verify packet size
         if (botpose_orb_wpiblue.length != VirtualLimelightConstants.kbotpose_orb_wpiblue_header_size
@@ -225,30 +201,16 @@ public class VirtualLimelight {
         NetworkTableInstance.getDefault().flush();
     }
 
-    /**
-     * Shift deltas of the robot (i.e. the negate of the fiducials)
-     * @param dx
-     * @param dy
-     * @param drot
-     */
-    public void update(Pose2d botpose) {
-        //TODO
-        update();
-    }
-
     public void close() {
         NetworkTableInstance.getDefault().removeListener(m_listenerHandle);
-
-        m_lock_pub.set(false);
 
         m_camerapose_robotspace_pub.close();
         m_imumode_pub.close();
         m_robot_orientation_pub.close();
         m_botpose_orb_wpiblue_pub.close();
-    }
 
-    private static BooleanEntry getBooleanEntry(String table, String entry) {
-        return getBooleanTopic(table, entry).getEntry(false);
+        m_hw_pub.set(VirtualLimelightConstants.kHWMetricsFree);
+        m_hw_pub.close();
     }
 
     private static DoubleEntry getDoubleEntry(String table, String entry) {
@@ -257,10 +219,6 @@ public class VirtualLimelight {
 
     private static DoubleArrayEntry getDoubleArrayEntry(String table, String entry) {
         return getDoubleArrayTopic(table, entry).getEntry(new double[0]);
-    }
-
-    private static BooleanTopic getBooleanTopic(String table, String entry) {
-        return NetworkTableInstance.getDefault().getTable(table).getBooleanTopic(entry);
     }
 
     private static DoubleTopic getDoubleTopic(String table, String entry) {

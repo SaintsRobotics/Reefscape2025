@@ -110,21 +110,47 @@ public final class Constants {
 
     public static final Vector<N3> kOdometrySTDDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     public static final class VirtualLimelightConstants {
-      public static final double[] kHWMetrics = new double[] {-1, -1, -1, -1}; //used for detecting real limelight
+      public static final double[] kHWMetricsVirtual = new double[] {-1, -1, -1, -1};
+      public static final double[] kHWMetricsFree = new double[] {-2, -2, -2, -2};
 
       public static final double kLatency = 0.01;
 
       public static final int kbotpose_orb_wpiblue_header_size = 11;
       public static final int kValsPerFiducial = 7;
 
+      public static final int kHeaderOffset_posX =        0;
+      public static final int kHeaderOffset_posY =        1;
+      public static final int kHeaderOffset_posZ =        2;
+      public static final int kHeaderOffset_rotP =        3;
+      public static final int kHeaderOffset_rotR =        4;
+      public static final int kHeaderOffset_rotY =        5;
+      public static final int kHeaderOffset_latency =     6;
+      public static final int kHeaderOffset_tagcount =    7;
+      public static final int kHeaderOffset_tagspan =     8;
+      public static final int kHeaderOffset_tagdistance = 9;
+      public static final int kHeaderOffset_tagarea =     10;
+
+      public static final int kFiducialOffset_id =        0;
+      public static final int kFiducialOffset_tx =        1;
+      public static final int kFiducialOffset_ty =        2;
+      public static final int kFiducialOffset_rot =       3;
+      public static final int kFiducialOffset_distcam =   4;
+      public static final int kFiducialOffset_distrobot = 5;
+      public static final int kFiducialOffset_ambiguity = 6;
+
       public static final double kMaxTranslationError = 0.0001;
       public static final double kMaxRotationError = 1; // Degrees
-
-      public static final Random kRandom = new Random();
     }
 
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
 
     public static final boolean kUseVision = true;
+  }
+
+  public static final class SimulationConstants {
+    public static final Random kRandom = new Random();
+    
+    public static final double kMaxTranslationError = .01; // meters
+    public static final double kMaxRotationError = .01; // randians
   }
 }
