@@ -9,6 +9,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
 
@@ -95,22 +96,21 @@ public final class Constants {
 
   public static final class VisionConstants {
     // TODO: Update cam pose relative to center of bot
-    public static final Pose3d kCamPose = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
-    public static final double[] kLimelightCamPose = {
-        kCamPose.getX(),
-        kCamPose.getY(),
-        kCamPose.getZ(),
-        kCamPose.getRotation().getX(),
-        kCamPose.getRotation().getY(),
-        kCamPose.getRotation().getZ() };
+    public static final Pose3d kCamPos = new Pose3d(
+      new Translation3d(0.3048,0.254,0),
+      new Rotation3d(0,0,0)
+    );
+
+    public static final String kLimelightName = "limelight-sr";
+
+    // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
+    public static final int kIMUMode = 0;
 
     // TODO: Experiment with different std devs in the pose estimator
     public static final Vector<N3> kOdometrySTDDevs = VecBuilder.fill(0.1, 0.1, 0.1);
-    public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.9, 0.9, 0.9);
+    public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
 
-    // Field size in meters
-    public static final double kFieldWidth = 8.21055;
-    public static final double kFieldLength = 16.54175;
+    public static final boolean kUseVision = true;
   }
 
 }
