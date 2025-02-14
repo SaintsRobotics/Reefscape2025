@@ -37,6 +37,11 @@ public final class Constants {
 
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
+
+    public static final int kDPadUp = 0;
+    public static final int kDPadRight = 90;
+    public static final int kDPadDown = 180;
+    public static final int kDPadLeft = 270;
   }
 
   public static final class DriveConstants {
@@ -135,11 +140,6 @@ public final class Constants {
     public static final double kL2Height = 0.5;
     public static final double kL3Height = 0.7;
     public static final double kL4Height = 0.9;
-
-    public static final int kDPadUp = 0;
-    public static final int kDPadRight = 90;
-    public static final int kDPadDown = 180;
-    public static final int kDPadLeft = 270;
   }
 
 }

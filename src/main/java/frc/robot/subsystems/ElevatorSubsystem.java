@@ -34,6 +34,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
 
     m_elevatorMotor = new SparkFlex(ElevatorConstants.kElevatorMotorPort, MotorType.kBrushless);
+    // TODO: set to reset and persist after testing
     m_elevatorMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
