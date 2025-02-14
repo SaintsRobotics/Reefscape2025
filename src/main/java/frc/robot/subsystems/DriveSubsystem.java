@@ -21,11 +21,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.Robot;
+import frc.robot.constants.Constants;
+import frc.robot.constants.Constants.DriveConstants;
+import frc.robot.constants.Constants.VisionConstants;
 
 public class DriveSubsystem extends SubsystemBase {
   private final SwerveModule m_frontLeft = new SwerveModule(
