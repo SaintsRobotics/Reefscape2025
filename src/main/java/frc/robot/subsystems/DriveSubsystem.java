@@ -169,7 +169,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getSimulatedPose() {
-    return ((SimulatedEstimator)m_poseEstimator).getAbsolutePosition();
+    return m_poseEstimator.getAbsolutePosition();
   }
 
   /**
@@ -244,7 +244,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetSimulatedOdometry(Pose2d pose) {
-    ((SimulatedEstimator)m_poseEstimator).resetAbsolutePosition(
+    m_poseEstimator.resetAbsolutePosition(
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -272,6 +272,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearLeft.setDesiredState(m_desiredStates[2]);
     m_rearRight.setDesiredState(m_desiredStates[3]);
 
-    ((SimulatedEstimator)m_poseEstimator).updateGyro(DriveConstants.kDriveKinematics, m_swerveModulePositions, m_desiredStates, Constants.kFastPeriodicPeriod);
+    m_poseEstimator.updateInternal(DriveConstants.kDriveKinematics, m_swerveModulePositions, m_desiredStates, Constants.kFastPeriodicPeriod);
   }
 }

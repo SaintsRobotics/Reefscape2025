@@ -84,7 +84,7 @@ public class SimulatedEstimator implements IEstimatorWrapper{
       m_prevGyro = 0;
     }
 
-    public void updateGyro(SwerveDriveKinematics kinematics, SwerveModulePosition[] swerveModulePositions, SwerveModuleState[] desiredStates, double deltatime) {
+    public void updateInternal(SwerveDriveKinematics kinematics, SwerveModulePosition[] swerveModulePositions, SwerveModuleState[] desiredStates, double deltatime) {
       m_prevGyro = m_simulatedGyro;
 
       m_simulatedGyro += kinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
