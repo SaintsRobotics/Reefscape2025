@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveToPose extends Command {
 
   private final DriveSubsystem m_driveSubsystem;
@@ -19,6 +18,7 @@ public class DriveToPose extends Command {
   private final Pose2d m_targetPose;
   private Timer m_timer = new Timer();
 
+  // TODO: Move to Constants AND DO NOT TEST THIS ON THE GROUND
   private final PIDController xController = new PIDController(8.0, 0.0, 0.0);
   private final PIDController yController = new PIDController(8.0, 0.0, 0.0);
   private final PIDController thetaController = new PIDController(8.0, 0.0, 0.0);
@@ -67,7 +67,7 @@ public class DriveToPose extends Command {
   @Override
   public boolean isFinished() {
     currentPose = m_driveSubsystem.getPose();
-    return DriveConstants.kAutoDriving || (m_timer.get() > 5) || (currentPose.getTranslation().getDistance(m_targetPose.getTranslation()) <= 0.05) // meters, add to constants later
+    return !DriveConstants.kAutoDriving || (m_timer.get() > 5) || (currentPose.getTranslation().getDistance(m_targetPose.getTranslation()) <= 0.05) // meters, add to constants later
       && Math.abs(currentPose.getRotation().minus(m_targetPose.getRotation()).getRadians()) <= Math.toRadians(1.5); // 1.5 degrees, add to constants later
   }
 }

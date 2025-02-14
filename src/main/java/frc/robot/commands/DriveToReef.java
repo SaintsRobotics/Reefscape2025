@@ -14,7 +14,7 @@ import frc.robot.utils.FindNearest;
 public class DriveToReef extends Command {
 
   private final DriveSubsystem m_driveSubsystem;
-  private Pose2d m_targetPose = new Pose2d(0, 0, null);
+  private Pose2d m_targetPose = new Pose2d();
 
   private Command m_driveToPose;
 
@@ -49,6 +49,6 @@ public class DriveToReef extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return DriveConstants.kAutoDriving || m_driveToPose.isFinished();
+    return !DriveConstants.kAutoDriving || m_driveToPose.isFinished();
   }
 }
