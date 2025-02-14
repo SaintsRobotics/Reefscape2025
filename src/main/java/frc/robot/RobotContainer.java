@@ -14,11 +14,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -29,8 +32,10 @@ import frc.robot.subsystems.DriveSubsystem;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  // private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
+  private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -68,14 +73,48 @@ public class RobotContainer {
                     * -1,
                 !m_driverController.getRightBumperButton()),
             m_robotDrive));
+    
+    /* Temporarily commented out to merge
+    m_elevator.setDefaultCommand(
+        new RunCommand(
+            () -> m_elevator.trackPosition(
+                MathUtil.applyDeadband(
+                    -m_operatorController.getLeftY(),
+                    IOConstants.kControllerDeadband)),
+            m_elevator));
+     */
+    
   }
 
   /**
    * Use this method to define your button->command mappings.
    */
   private void configureBindings() {
+    
     new JoystickButton(m_driverController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
+
+    new JoystickButton(m_driverController, Button.kBack.value)
+        .onTrue(new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d());}, m_robotDrive));
+    
+    /* Temporarily commented out to merge
+    new POVButton(m_operatorController, ElevatorConstants.kDPadUp) // Up - L1
+        .onTrue(new InstantCommand(
+            () -> m_elevator.setHeight(ElevatorConstants.kL1Height)
+        ));
+    new POVButton(m_operatorController, ElevatorConstants.kDPadRight) // Right - L2
+        .onTrue(new InstantCommand(
+            () -> m_elevator.setHeight(ElevatorConstants.kL2Height)
+        ));
+    new POVButton(m_operatorController, ElevatorConstants.kDPadDown) // Down - L3
+        .onTrue(new InstantCommand(
+            () -> m_elevator.setHeight(ElevatorConstants.kL3Height)
+        ));
+    new POVButton(m_operatorController, ElevatorConstants.kDPadLeft) // Left - L4
+        .onTrue(new InstantCommand(
+            () -> m_elevator.setHeight(ElevatorConstants.kL4Height)
+        ));
+    */
 
     new JoystickButton(m_driverController, Button.kA.value)
       .onTrue(new DriveToReef(m_robotDrive));
@@ -92,5 +131,18 @@ public class RobotContainer {
     // return new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));}, m_robotDrive);
     // return new DriveToPose(m_robotDrive, new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));
     // return new DriveToReef(m_robotDrive);
+  }
+
+  /**
+   * This periodic loop runs every 10ms (100Hz)
+   * 
+   * <p>
+   * Should be used for any code that needs to be run more frequently than the
+   * default 20ms loop (50Hz) such as PID Controllers.
+   * </p>
+   */
+  public void fastPeriodic() {
+    m_robotDrive.fastPeriodic();
+    //m_elevator.fastPeriodic(); // Temporarily commented out to merge
   }
 }
