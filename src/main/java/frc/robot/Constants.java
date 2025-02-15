@@ -142,4 +142,24 @@ public final class Constants {
     public static final double kL4Height = 0.9;
   }
 
+  public static final class EndEffectorConstants{
+    // TODO: Set these constants
+    public static final int kPivotMotorPort = 0;
+    public static final int kCoralMotorPort = 0;
+    public static final int kAlgaeMotorPort = 0;
+    public static final int kEndEffectorCANrangePort = 0;
+
+    public static final double kPEndEffector = 0.03;
+    public static final double kPivotMaxSpeed = 1;
+
+    public static final double kL1Pivot = 0.5;
+    public static final double kL23Pivot = 0.5;
+    public static final double kL4Pivot = 0.5;
+
+    public static final double kAlgaeIntakeSpeed = 1;
+    public static final double kCoralIntakeSpeed = 1;
+    public static final double kAlgaeOuttakeSpeed = 1;
+    public static final double kCoralOuttakeSpeed = 1;
+
+  }
 }
