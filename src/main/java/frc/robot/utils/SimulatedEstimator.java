@@ -72,11 +72,11 @@ public class SimulatedEstimator implements IEstimatorWrapper{
     }
 
     public void resetPosition(SwerveModulePosition[] swerveModulePositions, Pose2d pose) {
-      m_poseEstimator.resetPosition(getGyroAngle(), swerveModulePositions, pose);
+      m_poseEstimator.resetPosition(getGyroAngle(), swerveModulePositions, new Pose2d(pose.getX(), pose.getY(), new Rotation2d(m_simulatedGyro)));
     }
 
     public void resetAbsolutePosition(SwerveModulePosition[] swerveModulePositions, Pose2d pose) {
-      m_absoluteOdometry.resetPosition(getGyroAngle(), swerveModulePositions, pose);
+      m_absoluteOdometry.resetPosition(getGyroAngle(), swerveModulePositions, new Pose2d(pose.getX(), pose.getY(), new Rotation2d(m_simulatedGyro)));
     }
 
     public void resetGyro() {

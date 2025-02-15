@@ -48,7 +48,7 @@ public class RealEstimator implements IEstimatorWrapper {
     }
 
     public void resetPosition(SwerveModulePosition[] swerveModulePositions, Pose2d pose) {
-      m_poseEstimator.resetPosition(getGyroAngle(), swerveModulePositions, pose);
+      m_poseEstimator.resetPosition(getGyroAngle(), swerveModulePositions, new Pose2d(pose.getX(), pose.getY(), m_gyro.getRotation2d()));
     }
 
     public void resetGyro() {
