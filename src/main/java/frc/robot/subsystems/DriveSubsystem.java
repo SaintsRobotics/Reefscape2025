@@ -114,7 +114,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
 
-    boolean limelightReal = LimelightHelpers.getLatency_Pipeline(getName()) != 0.0;
+    boolean limelightReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightName) != 0.0;
     if (VisionConstants.kUseVision && Robot.isReal() && limelightReal) {
       // Update LimeLight with current robot orientation
       LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
