@@ -8,7 +8,6 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -226,21 +225,23 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
+    final Rotation2d angle = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
     m_poseEstimator.resetPosition(
-        Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
+        angle,
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         },
-        pose);
+        new Pose2d(pose.getX(), pose.getY(), angle));
   }
 
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     m_gyro.reset();
     m_gyroAngle = 0;
+    resetOdometry(getPose());
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
