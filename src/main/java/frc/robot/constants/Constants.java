@@ -8,17 +8,17 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
 
 public record Constants() {
-	private static Robots robot = Robots.DRIFTWOOD;
+	private static Robots robot = Robots.TLJR;
 
 	private enum Robots {
-		DRIFTWOOD
+		TLJR
 	}
 
 	static {
 		switch (robot) {
 			default:
-			case DRIFTWOOD:
-				for (Field field : DriftwoodConstants.class.getDeclaredFields()) {
+			case TLJR:
+				for (Field field : TLJR.class.getDeclaredFields()) {
 					field.setAccessible(true);
 					try {
 						Constants.class.getField(field.getName()).set(null, field.get(null));
@@ -39,8 +39,8 @@ public record Constants() {
 		static {
 			switch (robot) {
 				default:
-				case DRIFTWOOD:
-					for (Field field : DriftwoodConstants.IOConstants.class.getDeclaredFields()) {
+				case TLJR:
+					for (Field field : TLJR.IOConstants.class.getDeclaredFields()) {
 						field.setAccessible(true);
 						try {
 							IOConstants.class.getField(field.getName()).set(null, field.get(null));
@@ -68,8 +68,8 @@ public record Constants() {
 		static {
 			switch (robot) {
 				default:
-				case DRIFTWOOD:
-					for (Field field : DriftwoodConstants.DriveConstants.class.getDeclaredFields()) {
+				case TLJR:
+					for (Field field : TLJR.DriveConstants.class.getDeclaredFields()) {
 						field.setAccessible(true);
 						try {
 							DriveConstants.class.getField(field.getName()).set(null, field.get(null));
@@ -131,8 +131,8 @@ public record Constants() {
 		static {
 			switch (robot) {
 				default:
-				case DRIFTWOOD:
-					for (Field field : DriftwoodConstants.VisionConstants.class.getDeclaredFields()) {
+				case TLJR:
+					for (Field field : TLJR.VisionConstants.class.getDeclaredFields()) {
 						field.setAccessible(true);
 						try {
 							VisionConstants.class.getField(field.getName()).set(null, field.get(null));
@@ -161,8 +161,8 @@ public record Constants() {
 		static {
 			switch (robot) {
 				default:
-				case DRIFTWOOD:
-					for (Field field : DriftwoodConstants.ElevatorConstants.class.getDeclaredFields()) {
+				case TLJR:
+					for (Field field : TLJR.ElevatorConstants.class.getDeclaredFields()) {
 						field.setAccessible(true);
 						try {
 							ElevatorConstants.class.getField(field.getName()).set(null, field.get(null));
