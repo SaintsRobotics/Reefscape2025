@@ -4,12 +4,15 @@
 
 package frc.robot.subsystems;
 
+import java.lang.reflect.Field;
+
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -260,5 +263,16 @@ public class DriveSubsystem extends SubsystemBase {
     // simulator
     m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates).omegaRadiansPerSecond
         * Constants.kFastPeriodicPeriod;
+  }
+
+  public Field2d getField(){
+    return m_field;
+  }
+
+  public AHRS getGyro(){
+    return m_gyro;
+  }
+  public SwerveDrivePoseEstimator getPoseEstimator(){
+    return m_poseEstimator;
   }
 }

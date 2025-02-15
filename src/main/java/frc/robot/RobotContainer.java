@@ -33,6 +33,7 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
+  private final ShuffleBoard m_shuffleBoard = new ShuffleBoard(m_robotDrive);
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
