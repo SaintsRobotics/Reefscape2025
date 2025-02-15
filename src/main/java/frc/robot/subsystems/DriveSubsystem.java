@@ -114,7 +114,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
 
-    if (VisionConstants.kUseVision && Robot.isReal()) {
+    boolean limelightReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightName) != 0.0;
+    if (VisionConstants.kUseVision && Robot.isReal() && limelightReal) {
       // Update LimeLight with current robot orientation
       LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -135,6 +136,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
     SmartDashboard.putNumber("odometryX", m_poseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("odometryY", m_poseEstimator.getEstimatedPosition().getY());
+    SmartDashboard.putBoolean("Limelight isreal", limelightReal);
 
     // AdvantageScope Logging
     // max speed = 1 (for ease of use in AdvantageScope)
