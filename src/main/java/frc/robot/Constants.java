@@ -47,20 +47,20 @@ public final class Constants {
 
   public static final class DriveConstants {
     // TODO: set motor and encoder constants
-    public static final int kFrontLeftDriveMotorPort = 4;
-    public static final int kRearLeftDriveMotorPort = 5;
-    public static final int kFrontRightDriveMotorPort = 12;
+    public static final int kFrontLeftDriveMotorPort = 32;
+    public static final int kRearLeftDriveMotorPort = 29;
+    public static final int kFrontRightDriveMotorPort = 36;
     public static final int kRearRightDriveMotorPort = 34;
 
-    public static final int kFrontLeftTurningMotorPort = 11;
-    public static final int kRearLeftTurningMotorPort = 9;
-    public static final int kFrontRightTurningMotorPort = 36;
-    public static final int kRearRightTurningMotorPort = 16;
+    public static final int kFrontLeftTurningMotorPort = 28;
+    public static final int kRearLeftTurningMotorPort = 22;
+    public static final int kFrontRightTurningMotorPort = 37;
+    public static final int kRearRightTurningMotorPort = 26;
 
-    public static final int kFrontLeftTurningEncoderPort = 19;
-    public static final int kRearLeftTurningEncoderPort = 20;
-    public static final int kFrontRightTurningEncoderPort = 18;
-    public static final int kRearRightTurningEncoderPort = 17;
+    public static final int kFrontLeftTurningEncoderPort = 5;
+    public static final int kRearLeftTurningEncoderPort = 6;
+    public static final int kFrontRightTurningEncoderPort = 3;
+    public static final int kRearRightTurningEncoderPort = 4;
 
     // TODO: Test motor orientations before driving on an actual robot
     public static final boolean kFrontLeftDriveMotorReversed = false;
@@ -69,10 +69,10 @@ public final class Constants {
     public static final boolean kRearRightDriveMotorReversed = true;
 
     /** Distance between centers of right and left wheels on robot (in meters). */
-    public static final double kTrackWidth = 0.5;
+    public static final double kTrackWidth = 0.57785;
 
     /** Distance between front and back wheels on robot (in meters). */
-    public static final double kWheelBase = 0.5;
+    public static final double kWheelBase = 0.57785;
 
     /** Diameter of each wheel in the SDS MK4i swerve module (in meters) */
     public static final double kWheelDiameterMeters = 0.1;
@@ -90,22 +90,27 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
     /** For a a SDS Mk4i L1 swerve base with Neos */
-    public static final double kMaxSpeedMetersPerSecond = 3.6576;
+    public static final double kMaxSpeedMetersPerSecond = 4.4196;
+
+    // TODO: Set max acceleration constants
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    
     /** For a a SDS Mk4i L1 swerve base with Neos */
-    public static final double kMaxAngularSpeedRadiansPerSecond = 15.24 / 3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 10.8164;
 
     /** Heading Correction */
     public static final double kHeadingCorrectionTurningStopTime = 0.2;
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPHeadingCorrectionController = 5;
 
-    public static final boolean kAutoDriving = false;
+    public static final boolean kAutoDriving = true;
   }
 
   public static final class VisionConstants {
     // TODO: Update cam pose relative to center of bot
     public static final Pose3d kCamPos = new Pose3d(
-      new Translation3d(0.3048,0.254,0),
+      // new Translation3d(0.3048,0.254,0),
+      new Translation3d(0, 0, 0),
       new Rotation3d(0,0,0)
     );
 
