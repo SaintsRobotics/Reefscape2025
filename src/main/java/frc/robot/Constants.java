@@ -158,8 +158,8 @@ public final class Constants {
   public static final class SimulationConstants {
     public static final Random kRandom = new Random();
     
-    public static final double kMaxTranslationError = .01; // meters
-    public static final double kMaxRotationError = .01; // randians
+    public static final double kMaxAngleError = .01;
+    public static final double kMaxDistanceError = .01;
   }
   
   public static final class ElevatorConstants {

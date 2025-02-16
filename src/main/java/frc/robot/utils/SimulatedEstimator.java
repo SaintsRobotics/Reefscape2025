@@ -4,13 +4,12 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.SimulationConstants;
 import frc.robot.Constants.VisionConstants;
@@ -18,14 +17,20 @@ import frc.robot.Constants.VisionConstants;
 public class SimulatedEstimator implements IEstimatorWrapper{
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final SwerveDriveOdometry m_absoluteOdometry;
+    private final SwerveDriveKinematics m_kinematics;
 
     private double m_simulatedGyro = 0;
     private double m_prevGyro = 0;
 
-    private Transform2d m_jitter;
+    private double m_prevTime;
+
+    private SwerveModulePosition[] m_prevPositions;
 
     public SimulatedEstimator(SwerveDriveKinematics kinematics, SwerveModulePosition[] swerveModulePositions) {
-      m_jitter = new Transform2d();
+      m_prevTime = Timer.getFPGATimestamp();
+      m_prevPositions = swerveModulePositions;
+
+      m_kinematics = kinematics;
 
       m_poseEstimator = new SwerveDrivePoseEstimator(kinematics,
       getGyroAngle(), swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
@@ -42,20 +47,36 @@ public class SimulatedEstimator implements IEstimatorWrapper{
       return new Rotation2d(m_simulatedGyro);
     }
 
-    public void update(SwerveModulePosition[] swerveModulePositions) {
-      final Pose2d initialPose = m_poseEstimator.getEstimatedPosition();
+    public void update(SwerveModulePosition[] swerveModulePositions, SwerveModuleState[] desiredStates) {
+      m_prevGyro = m_simulatedGyro;
+
+      final double timestamp = Timer.getFPGATimestamp();
+      final double dt = timestamp - m_prevTime;
+
+      m_simulatedGyro += m_kinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
+        * (m_prevTime - timestamp);
+
+      final double randomA = SimulationConstants.kRandom.nextDouble(-1, 1) * SimulationConstants.kMaxAngleError;
+      final double randomD = SimulationConstants.kRandom.nextDouble(-1, 1) * SimulationConstants.kMaxDistanceError;
+
+      for (int i = 0; i < 4; i++) {
+        final double dA = swerveModulePositions[i].angle.getRadians() - m_prevPositions[i].angle.getRadians();
+        final double dD = swerveModulePositions[i].distanceMeters - m_prevPositions[i].distanceMeters;
+
+        swerveModulePositions[i].angle = new Rotation2d(swerveModulePositions[i].angle.getRadians() + (randomA * dA / dt));
+        swerveModulePositions[i].distanceMeters += randomD * dD / dt;
+      }
 
       m_poseEstimator.update(getGyroAngle(), swerveModulePositions);
 
-      // add error
-      final Transform2d dPose = m_poseEstimator.getEstimatedPosition().minus(initialPose);
-      m_jitter = m_jitter.plus(new Transform2d(new Translation2d(SimulationConstants.kRandom.nextDouble() * SimulationConstants.kMaxTranslationError * dPose.getX(), SimulationConstants.kRandom.nextDouble() * SimulationConstants.kMaxTranslationError * dPose.getY()), new Rotation2d(SimulationConstants.kRandom.nextDouble() * SimulationConstants.kMaxRotationError * dPose.getRotation().getRadians())));
-
       m_absoluteOdometry.update(getGyroAngle(), swerveModulePositions);
+
+      m_prevTime = timestamp;
+      m_prevPositions = swerveModulePositions;
     }
 
     public Pose2d getEstimatedPosition() {
-      return m_poseEstimator.getEstimatedPosition().plus(m_jitter);
+      return m_poseEstimator.getEstimatedPosition();
     }
 
 
@@ -82,12 +103,5 @@ public class SimulatedEstimator implements IEstimatorWrapper{
     public void resetGyro() {
       m_simulatedGyro = 0;
       m_prevGyro = 0;
-    }
-
-    public void updateInternal(SwerveDriveKinematics kinematics, SwerveModulePosition[] swerveModulePositions, SwerveModuleState[] desiredStates, double deltatime) {
-      m_prevGyro = m_simulatedGyro;
-
-      m_simulatedGyro += kinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
-        * deltatime;
     }
 }

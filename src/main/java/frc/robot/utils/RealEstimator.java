@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.VisionConstants;
 
@@ -31,7 +32,7 @@ public class RealEstimator implements IEstimatorWrapper {
         return m_gyro.getRotation2d();
     }
 
-    public void update(SwerveModulePosition[] swerveModulePositions) {
+    public void update(SwerveModulePosition[] swerveModulePositions, SwerveModuleState[] desiredStates) {
       m_poseEstimator.update(getGyroAngle(), swerveModulePositions);
     }
 

@@ -24,7 +24,6 @@ import frc.robot.utils.SimulatedEstimator;
 import frc.robot.utils.IEstimatorWrapper;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.RealEstimator;
-import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -115,7 +114,7 @@ public class DriveSubsystem extends SubsystemBase {
     };
 
     m_poseEstimator.update(
-        m_swerveModulePositions);
+        m_swerveModulePositions, m_desiredStates);
 
     boolean limelightReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightName) != 0.0;
     
@@ -171,8 +170,13 @@ public class DriveSubsystem extends SubsystemBase {
     return m_poseEstimator.getEstimatedPosition();
   }
 
-  public Pose2d getSimulatedPose() {
-    return m_poseEstimator.getAbsolutePosition();
+  /**
+   * Gets the true simulated position.
+   * Should only be used by simulation support code.
+   * @return The true simulated pose. new Pose2d() for real robots 
+   */
+  public Pose2d getTruePose() {
+    return m_poseEstimator.getTruePosition();
   }
 
   /**
@@ -246,8 +250,14 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
-  public void resetSimulatedOdometry(Pose2d pose) {
-    m_poseEstimator.resetAbsolutePosition(
+  /**
+   * Sets the simulated true pose
+   * Should only be used by simulation support code
+   * Does nothing when called from a real robot
+   * @param pose
+   */
+  public void resetTrueOdometry(Pose2d pose) {
+    m_poseEstimator.resetTruePosition(
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -274,7 +284,5 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.setDesiredState(m_desiredStates[1]);
     m_rearLeft.setDesiredState(m_desiredStates[2]);
     m_rearRight.setDesiredState(m_desiredStates[3]);
-
-    m_poseEstimator.updateInternal(DriveConstants.kDriveKinematics, m_swerveModulePositions, m_desiredStates, Constants.kFastPeriodicPeriod);
   }
 }

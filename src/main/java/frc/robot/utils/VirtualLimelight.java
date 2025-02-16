@@ -62,7 +62,7 @@ public class VirtualLimelight {
             m_id = id;
             m_ambiguity = ambiguity;
 
-            final Pose3d pose3d = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(id).orElse(new Pose3d());
+            final Pose3d pose3d = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded).getTagPose(id).orElse(new Pose3d());
             m_pose = new Pose2d(pose3d.getX(), pose3d.getY(), pose3d.getRotation().toRotation2d());
         }
 
