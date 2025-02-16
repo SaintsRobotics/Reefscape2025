@@ -8,11 +8,8 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -23,8 +20,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants;
+import frc.robot.utils.SimulatedEstimator;
+import frc.robot.utils.IEstimatorWrapper;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.RealEstimator;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -52,9 +51,6 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightTurningEncoderPort,
       DriveConstants.kRearRightDriveMotorReversed);
 
-  private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
-  private double m_gyroAngle;
-
   private final Timer m_headingCorrectionTimer = new Timer();
   private final PIDController m_headingCorrectionPID = new PIDController(DriveConstants.kPHeadingCorrectionController,
       0, 0);
@@ -65,16 +61,22 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearRight.getPosition()
   };
 
-  private SwerveModuleState[] m_desiredStates;
+  private final IEstimatorWrapper m_poseEstimator;
 
-  private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
-      m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
-      VisionConstants.kVisionSTDDevs);
+
+  private SwerveModuleState[] m_desiredStates;
 
   private final Field2d m_field = new Field2d();
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
+    if (Robot.isReal()) {
+      m_poseEstimator = new RealEstimator(DriveConstants.kDriveKinematics, m_swerveModulePositions, new AHRS(NavXComType.kMXP_SPI));
+    }
+    else {
+      m_poseEstimator = new SimulatedEstimator(DriveConstants.kDriveKinematics, m_swerveModulePositions);
+    }
+
     this.zeroHeading();
     this.resetOdometry(new Pose2d());
     SmartDashboard.putData("Field", m_field);
@@ -111,20 +113,21 @@ public class DriveSubsystem extends SubsystemBase {
         m_rearRight.getPosition()
     };
 
-    m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
-        m_swerveModulePositions);
+    m_poseEstimator.update(
+        m_swerveModulePositions, m_desiredStates);
 
     boolean limelightReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightName) != 0.0;
-    if (VisionConstants.kUseVision && Robot.isReal() && limelightReal) {
+    
+    if (VisionConstants.kUseVision) {
       // Update LimeLight with current robot orientation
-      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), Math.toDegrees(m_poseEstimator.getGyroRate()), 0.0, 0.0, 0.0, 0.0);
 
       // Get the pose estimate
       LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers
           .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
 
       // Add it to your pose estimator if it is a valid measurement
-      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
+      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_poseEstimator.getGyroRate() < 720) {
         m_poseEstimator.addVisionMeasurement(
             limelightMeasurement.pose,
             limelightMeasurement.timestampSeconds);
@@ -133,7 +136,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
-    SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
+    SmartDashboard.putNumber("gyro angle", m_poseEstimator.getGyroAngle().getDegrees());
     SmartDashboard.putNumber("odometryX", m_poseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("odometryY", m_poseEstimator.getEstimatedPosition().getY());
     SmartDashboard.putBoolean("Limelight isreal", limelightReal);
@@ -168,6 +171,15 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
+   * Gets the true simulated position.
+   * Should only be used by simulation support code.
+   * @return The true simulated pose. new Pose2d() for real robots 
+   */
+  public Pose2d getTruePose() {
+    return m_poseEstimator.getTruePosition();
+  }
+
+  /**
    * Method to drive the robot using joystick info.
    *
    * @param xSpeed        Speed of the robot in the x direction (forward).
@@ -199,7 +211,7 @@ public class DriveSubsystem extends SubsystemBase {
     // adjustments to
     double calculatedRotation = rotation;
 
-    double currentAngle = MathUtil.angleModulus(m_gyro.getRotation2d().getRadians());
+    double currentAngle = MathUtil.angleModulus(m_poseEstimator.getGyroAngle().getRadians());
 
     // If we are not translating or if not enough time has passed since the last
     // time we rotated
@@ -218,7 +230,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
-                Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
+                m_poseEstimator.getGyroAngle())
             : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
   }
 
@@ -229,7 +241,23 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     m_poseEstimator.resetPosition(
-        Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
+        new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition()
+        },
+        pose);
+  }
+
+  /**
+   * Sets the simulated true pose
+   * Should only be used by simulation support code
+   * Does nothing when called from a real robot
+   * @param pose
+   */
+  public void resetTrueOdometry(Pose2d pose) {
+    m_poseEstimator.resetTruePosition(
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -241,8 +269,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
-    m_gyro.reset();
-    m_gyroAngle = 0;
+    m_poseEstimator.resetGyro();
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
@@ -257,10 +284,5 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.setDesiredState(m_desiredStates[1]);
     m_rearLeft.setDesiredState(m_desiredStates[2]);
     m_rearRight.setDesiredState(m_desiredStates[3]);
-
-    // Takes the integral of the rotation speed to find the current angle for the
-    // simulator
-    m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates).omegaRadiansPerSecond
-        * Constants.kFastPeriodicPeriod;
   }
 }
