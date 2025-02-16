@@ -14,16 +14,23 @@ import frc.robot.Robot;
 
 public final record Constants() {
 	private static Robots robot = null;
+	//private static Robots robot = Robots.COMPETITION;
 
 	private enum Robots {
-		DEFAULT,
+		COMPETITION,
 		TLJR
+	}
+
+	private static final class RobotNameNotFound extends ExceptionInInitializerError {
+		public RobotNameNotFound(String s) {
+			super(s);
+		}
 	}
 
 	private static void setRobot() {
 		// First detect robot using roborio
 		if (Robot.isSimulation()) {
-			robot = Robots.DEFAULT;
+			robot = Robots.COMPETITION;
 		} else {
 			BufferedReader reader = null;
 			String line;
@@ -37,14 +44,10 @@ public final record Constants() {
 						}
 					}
 					if (robot == null) {
-						robot = Robots.DEFAULT;
-						DriverStation.reportWarning(
-								"Warning: Robot name not found. Assuming default robot. Is roborio correctly configured?", false);
+						throw new RobotNameNotFound("Robot name not found in /etc/machine-info");
 					}
 				} catch (FileNotFoundException e) {
-					robot = Robots.TLJR;
-					DriverStation.reportWarning(
-							"Warning: Machine info not found. Assuming default robot. Is roborio correctly configured?", false);
+						throw new RobotNameNotFound("Robot name not found in /etc/machine-info");
 				} finally {
 					if (reader != null) {
 						reader.close();
