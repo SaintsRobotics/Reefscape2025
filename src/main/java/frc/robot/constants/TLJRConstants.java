@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.constants;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -25,14 +25,13 @@ import edu.wpi.first.math.numbers.N3;
  * wherever the
  * constants are needed, to reduce verbosity.
  */
-public final class Constants {
-
+public final record TLJRConstants() {
   public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
 
   /**
    * Input/Output constants
    */
-  public static final class IOConstants {
+  public static final record IOConstants() {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
 
@@ -45,7 +44,7 @@ public final class Constants {
     public static final int kDPadLeft = 270;
   }
 
-  public static final class DriveConstants {
+  public static final record DriveConstants() {
     // TODO: set motor and encoder constants
     public static final int kFrontLeftDriveMotorPort = 4;
     public static final int kRearLeftDriveMotorPort = 5;
@@ -100,7 +99,7 @@ public final class Constants {
     public static final double kPHeadingCorrectionController = 5;
   }
 
-  public static final class VisionConstants {
+  public static final record VisionConstants() {
     // TODO: Update cam pose relative to center of bot
     public static final Pose3d kCamPos = new Pose3d(
       new Translation3d(0.3048,0.254,0),
@@ -119,7 +118,7 @@ public final class Constants {
     public static final boolean kUseVision = true;
   }
 
-  public static final class ElevatorConstants {
+  public static final record ElevatorConstants() {
     // TODO: Set motor and distance sensor ports
     public static final int kElevatorMotorPort = 0;
     public static final int kElevatorCANrangePort = 0;
@@ -141,5 +140,4 @@ public final class Constants {
     public static final double kL3Height = 0.7;
     public static final double kL4Height = 0.9;
   }
-
 }
