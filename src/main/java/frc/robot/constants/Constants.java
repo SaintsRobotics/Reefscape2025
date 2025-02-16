@@ -1,22 +1,70 @@
 package frc.robot.constants;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Robot;
 
 public final record Constants() {
-	private static final Robots robot = Robots.DRIFTWOOD;
+	private static Robots robot = null;
 
 	private enum Robots {
-		DRIFTWOOD
+		DEFAULT,
+		TLJR
+	}
+
+	private static void setRobot() {
+		// First detect robot using roborio
+		if (Robot.isSimulation()) {
+			robot = Robots.DEFAULT;
+		} else {
+			BufferedReader reader = null;
+			String line;
+			try {
+				try {
+					reader = new BufferedReader(new FileReader("/etc/machine-info"));
+					while ((line = reader.readLine()) != null) {
+						if (line.contains("driftwood")) {
+							robot = Robots.TLJR;
+							break;
+						}
+					}
+					if (robot == null) {
+						robot = Robots.DEFAULT;
+						DriverStation.reportWarning(
+								"Warning: Robot name not found. Assuming default robot. Is roborio correctly configured?", false);
+					}
+				} catch (FileNotFoundException e) {
+					robot = Robots.TLJR;
+					DriverStation.reportWarning(
+							"Warning: Machine info not found. Assuming default robot. Is roborio correctly configured?", false);
+				} finally {
+					if (reader != null) {
+						reader.close();
+					}
+				}
+			} catch (IOException e) {
+				DriverStation.reportError("Error: Something went fatally wrong when detecting robot", e.getStackTrace());
+			}
+		}
 	}
 
 	static {
+		if (robot == null) {
+			setRobot();
+		}
+
 		switch (robot) {
 			default:
-			case DRIFTWOOD:
-				kFastPeriodicPeriod = DriftwoodConstants.kFastPeriodicPeriod;
+			case TLJR:
+				kFastPeriodicPeriod = TLJRConstants.kFastPeriodicPeriod;
 				break;
 		}
 	}
@@ -28,17 +76,21 @@ public final record Constants() {
 	 */
 	public static final record IOConstants() {
 		static {
+			if (robot == null) {
+				setRobot();
+			}
+
 			switch (robot) {
 				default:
-				case DRIFTWOOD:
-					kDriverControllerPort = DriftwoodConstants.IOConstants.kDriverControllerPort;
-					kOperatorControllerPort = DriftwoodConstants.IOConstants.kOperatorControllerPort;
-					kControllerDeadband = DriftwoodConstants.IOConstants.kControllerDeadband;
-					kSlowModeScalar = DriftwoodConstants.IOConstants.kSlowModeScalar;
-					kDPadUp = DriftwoodConstants.IOConstants.kDPadUp;
-					kDPadRight = DriftwoodConstants.IOConstants.kDPadRight;
-					kDPadDown = DriftwoodConstants.IOConstants.kDPadDown;
-					kDPadLeft = DriftwoodConstants.IOConstants.kDPadLeft;
+				case TLJR:
+					kDriverControllerPort = TLJRConstants.IOConstants.kDriverControllerPort;
+					kOperatorControllerPort = TLJRConstants.IOConstants.kOperatorControllerPort;
+					kControllerDeadband = TLJRConstants.IOConstants.kControllerDeadband;
+					kSlowModeScalar = TLJRConstants.IOConstants.kSlowModeScalar;
+					kDPadUp = TLJRConstants.IOConstants.kDPadUp;
+					kDPadRight = TLJRConstants.IOConstants.kDPadRight;
+					kDPadDown = TLJRConstants.IOConstants.kDPadDown;
+					kDPadLeft = TLJRConstants.IOConstants.kDPadLeft;
 					break;
 			}
 		}
@@ -57,42 +109,46 @@ public final record Constants() {
 
 	public static final record DriveConstants() {
 		static {
+			if (robot == null) {
+				setRobot();
+			}
+
 			switch (robot) {
 				default:
-				case DRIFTWOOD:
-					kFrontLeftDriveMotorPort = DriftwoodConstants.DriveConstants.kFrontLeftDriveMotorPort;
-					kRearLeftDriveMotorPort = DriftwoodConstants.DriveConstants.kRearLeftDriveMotorPort;
-					kFrontRightDriveMotorPort = DriftwoodConstants.DriveConstants.kFrontRightDriveMotorPort;
-					kRearRightDriveMotorPort = DriftwoodConstants.DriveConstants.kRearRightDriveMotorPort;
-					
-					kFrontLeftTurningMotorPort = DriftwoodConstants.DriveConstants.kFrontLeftTurningMotorPort;
-					kRearLeftTurningMotorPort = DriftwoodConstants.DriveConstants.kRearLeftTurningMotorPort;
-					kFrontRightTurningMotorPort = DriftwoodConstants.DriveConstants.kFrontRightTurningMotorPort;
-					kRearRightTurningMotorPort = DriftwoodConstants.DriveConstants.kRearRightTurningMotorPort;
+				case TLJR:
+					kFrontLeftDriveMotorPort = TLJRConstants.DriveConstants.kFrontLeftDriveMotorPort;
+					kRearLeftDriveMotorPort = TLJRConstants.DriveConstants.kRearLeftDriveMotorPort;
+					kFrontRightDriveMotorPort = TLJRConstants.DriveConstants.kFrontRightDriveMotorPort;
+					kRearRightDriveMotorPort = TLJRConstants.DriveConstants.kRearRightDriveMotorPort;
 
-					kFrontLeftTurningEncoderPort = DriftwoodConstants.DriveConstants.kFrontLeftTurningEncoderPort;
-					kRearLeftTurningEncoderPort = DriftwoodConstants.DriveConstants.kRearLeftTurningEncoderPort;
-					kFrontRightTurningEncoderPort = DriftwoodConstants.DriveConstants.kFrontRightTurningEncoderPort;
-					kRearRightTurningEncoderPort = DriftwoodConstants.DriveConstants.kRearRightTurningEncoderPort;
+					kFrontLeftTurningMotorPort = TLJRConstants.DriveConstants.kFrontLeftTurningMotorPort;
+					kRearLeftTurningMotorPort = TLJRConstants.DriveConstants.kRearLeftTurningMotorPort;
+					kFrontRightTurningMotorPort = TLJRConstants.DriveConstants.kFrontRightTurningMotorPort;
+					kRearRightTurningMotorPort = TLJRConstants.DriveConstants.kRearRightTurningMotorPort;
 
-					kFrontLeftDriveMotorReversed = DriftwoodConstants.DriveConstants.kFrontLeftDriveMotorReversed;
-					kRearLeftDriveMotorReversed = DriftwoodConstants.DriveConstants.kRearLeftDriveMotorReversed;
-					kFrontRightDriveMotorReversed = DriftwoodConstants.DriveConstants.kFrontRightDriveMotorReversed;
-					kRearRightDriveMotorReversed = DriftwoodConstants.DriveConstants.kRearRightDriveMotorReversed;
+					kFrontLeftTurningEncoderPort = TLJRConstants.DriveConstants.kFrontLeftTurningEncoderPort;
+					kRearLeftTurningEncoderPort = TLJRConstants.DriveConstants.kRearLeftTurningEncoderPort;
+					kFrontRightTurningEncoderPort = TLJRConstants.DriveConstants.kFrontRightTurningEncoderPort;
+					kRearRightTurningEncoderPort = TLJRConstants.DriveConstants.kRearRightTurningEncoderPort;
 
-					kTrackWidth = DriftwoodConstants.DriveConstants.kTrackWidth;
-					kWheelBase = DriftwoodConstants.DriveConstants.kWheelBase;
-					kWheelDiameterMeters = DriftwoodConstants.DriveConstants.kWheelDiameterMeters;
-					kDrivingGearRatio = DriftwoodConstants.DriveConstants.kDrivingGearRatio;
+					kFrontLeftDriveMotorReversed = TLJRConstants.DriveConstants.kFrontLeftDriveMotorReversed;
+					kRearLeftDriveMotorReversed = TLJRConstants.DriveConstants.kRearLeftDriveMotorReversed;
+					kFrontRightDriveMotorReversed = TLJRConstants.DriveConstants.kFrontRightDriveMotorReversed;
+					kRearRightDriveMotorReversed = TLJRConstants.DriveConstants.kRearRightDriveMotorReversed;
 
-					kPModuleTurningController = DriftwoodConstants.DriveConstants.kPModuleTurningController;
-					kDriveKinematics = DriftwoodConstants.DriveConstants.kDriveKinematics;
+					kTrackWidth = TLJRConstants.DriveConstants.kTrackWidth;
+					kWheelBase = TLJRConstants.DriveConstants.kWheelBase;
+					kWheelDiameterMeters = TLJRConstants.DriveConstants.kWheelDiameterMeters;
+					kDrivingGearRatio = TLJRConstants.DriveConstants.kDrivingGearRatio;
 
-					kMaxSpeedMetersPerSecond = DriftwoodConstants.DriveConstants.kMaxSpeedMetersPerSecond;
-					kMaxAngularSpeedRadiansPerSecond = DriftwoodConstants.DriveConstants.kMaxAngularSpeedRadiansPerSecond;
+					kPModuleTurningController = TLJRConstants.DriveConstants.kPModuleTurningController;
+					kDriveKinematics = TLJRConstants.DriveConstants.kDriveKinematics;
 
-					kHeadingCorrectionTurningStopTime = DriftwoodConstants.DriveConstants.kHeadingCorrectionTurningStopTime;
-					kPHeadingCorrectionController = DriftwoodConstants.DriveConstants.kPHeadingCorrectionController;
+					kMaxSpeedMetersPerSecond = TLJRConstants.DriveConstants.kMaxSpeedMetersPerSecond;
+					kMaxAngularSpeedRadiansPerSecond = TLJRConstants.DriveConstants.kMaxAngularSpeedRadiansPerSecond;
+
+					kHeadingCorrectionTurningStopTime = TLJRConstants.DriveConstants.kHeadingCorrectionTurningStopTime;
+					kPHeadingCorrectionController = TLJRConstants.DriveConstants.kPHeadingCorrectionController;
 					break;
 			}
 		}
@@ -145,17 +201,21 @@ public final record Constants() {
 
 	public static final record VisionConstants() {
 		static {
+			if (robot == null) {
+				setRobot();
+			}
+
 			switch (robot) {
 				default:
-				case DRIFTWOOD:
-					kCamPos = DriftwoodConstants.VisionConstants.kCamPos;
-					kLimelightName = DriftwoodConstants.VisionConstants.kLimelightName;
-					kIMUMode = DriftwoodConstants.VisionConstants.kIMUMode;
+				case TLJR:
+					kCamPos = TLJRConstants.VisionConstants.kCamPos;
+					kLimelightName = TLJRConstants.VisionConstants.kLimelightName;
+					kIMUMode = TLJRConstants.VisionConstants.kIMUMode;
 
-					kOdometrySTDDevs = DriftwoodConstants.VisionConstants.kOdometrySTDDevs;
-					kVisionSTDDevs = DriftwoodConstants.VisionConstants.kVisionSTDDevs;
+					kOdometrySTDDevs = TLJRConstants.VisionConstants.kOdometrySTDDevs;
+					kVisionSTDDevs = TLJRConstants.VisionConstants.kVisionSTDDevs;
 
-					kUseVision = DriftwoodConstants.VisionConstants.kUseVision;
+					kUseVision = TLJRConstants.VisionConstants.kUseVision;
 					break;
 			}
 		}
@@ -175,26 +235,30 @@ public final record Constants() {
 
 	public static final record ElevatorConstants() {
 		static {
+			if (robot == null) {
+				setRobot();
+			}
+
 			switch (robot) {
 				default:
-				case DRIFTWOOD:
-					kElevatorMotorPort = DriftwoodConstants.ElevatorConstants.kElevatorMotorPort;
-					kElevatorCANrangePort = DriftwoodConstants.ElevatorConstants.kElevatorCANrangePort;
+				case TLJR:
+					kElevatorMotorPort = TLJRConstants.ElevatorConstants.kElevatorMotorPort;
+					kElevatorCANrangePort = TLJRConstants.ElevatorConstants.kElevatorCANrangePort;
 
-					kPElevator = DriftwoodConstants.ElevatorConstants.kPElevator;
+					kPElevator = TLJRConstants.ElevatorConstants.kPElevator;
 
-					kElevatorGearing = DriftwoodConstants.ElevatorConstants.kElevatorGearing;
-					kElevatorMaxSpeed = DriftwoodConstants.ElevatorConstants.kElevatorMaxSpeed;
-					kElevatorFeedForward = DriftwoodConstants.ElevatorConstants.kElevatorFeedForward;
-					kElevatorSpeedScalar = DriftwoodConstants.ElevatorConstants.kElevatorSpeedScalar;
-					kElevatorBottom = DriftwoodConstants.ElevatorConstants.kElevatorBottom;
-					kElevatorTop = DriftwoodConstants.ElevatorConstants.kElevatorTop;
-					kElevatorDistanceThreshold = DriftwoodConstants.ElevatorConstants.kElevatorDistanceThreshold;
+					kElevatorGearing = TLJRConstants.ElevatorConstants.kElevatorGearing;
+					kElevatorMaxSpeed = TLJRConstants.ElevatorConstants.kElevatorMaxSpeed;
+					kElevatorFeedForward = TLJRConstants.ElevatorConstants.kElevatorFeedForward;
+					kElevatorSpeedScalar = TLJRConstants.ElevatorConstants.kElevatorSpeedScalar;
+					kElevatorBottom = TLJRConstants.ElevatorConstants.kElevatorBottom;
+					kElevatorTop = TLJRConstants.ElevatorConstants.kElevatorTop;
+					kElevatorDistanceThreshold = TLJRConstants.ElevatorConstants.kElevatorDistanceThreshold;
 
-					kL1Height = DriftwoodConstants.ElevatorConstants.kL1Height;
-					kL2Height = DriftwoodConstants.ElevatorConstants.kL2Height;
-					kL3Height = DriftwoodConstants.ElevatorConstants.kL3Height;
-					kL4Height = DriftwoodConstants.ElevatorConstants.kL4Height;
+					kL1Height = TLJRConstants.ElevatorConstants.kL1Height;
+					kL2Height = TLJRConstants.ElevatorConstants.kL2Height;
+					kL3Height = TLJRConstants.ElevatorConstants.kL3Height;
+					kL4Height = TLJRConstants.ElevatorConstants.kL4Height;
 					break;
 			}
 		}

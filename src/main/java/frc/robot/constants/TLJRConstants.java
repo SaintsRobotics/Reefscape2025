@@ -25,7 +25,7 @@ import edu.wpi.first.math.numbers.N3;
  * wherever the
  * constants are needed, to reduce verbosity.
  */
-public final record DriftwoodConstants() {
+public final record TLJRConstants() {
   public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
 
   /**
