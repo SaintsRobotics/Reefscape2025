@@ -12,7 +12,10 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -21,11 +24,13 @@ import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
-  private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
+  // private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
-  private final PIDController m_PIDController = new PIDController(ElevatorConstants.kPElevator, 0, 0, Constants.kFastPeriodicPeriod);
+  // private final PIDController m_PIDController = new PIDController(ElevatorConstants.kPElevator, 0, 0, Constants.kFastPeriodicPeriod);
+  private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, new TrapezoidProfile.Constraints(5.0, 1), Constants.kFastPeriodicPeriod);
+  private final ElevatorFeedforward m_elevatorFeedForward = new ElevatorFeedforward(0, 0.1, 0, 1, Constants.kFastPeriodicPeriod);
 
-  private double m_targetPosition = 0;
+  private double m_targetPosition = 12.5;
   private double m_motorOffset = 0;
 
   /** Creates a new ElevatorSubsystem. */
@@ -41,20 +46,34 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    /*
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
       // This offset is set when the distance sensor detects that the elevator is at the bottom 
       // At the bottom, the motor's position + offset should equal 0
       m_motorOffset = -m_elevatorMotor.getEncoder().getPosition();
     }
+      */
   }
 
   public void fastPeriodic() {
+    /*
     double output = m_PIDController.calculate(
       m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
     output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
     m_elevatorMotor.set(output);
+    */
 
+    // volts
+    double output = 1;
+
+    output = m_PIDController.calculate(m_elevatorMotor.getEncoder().getPosition(), m_targetPosition)
+              + m_elevatorFeedForward.calculate(m_PIDController.getSetpoint().velocity);
+
+    // m_elevatorMotor.setVoltage(output);
+
+    SmartDashboard.putNumber("target elevator", m_targetPosition);
+    SmartDashboard.putNumber("current height", m_elevatorMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("elevator motor output", output);
   }
 

@@ -125,10 +125,11 @@ public final class Constants {
     public static final int kElevatorCANrangePort = 0;
 
     // TODO: Tune PID for elevator
-    public static final double kPElevator = 0.03;
+    public static final double kPElevator = 0.3;
 
     // TODO: Set these constants
-    public static final double kElevatorGearing = 1;
+    public static final double kElevatorGearing = 0.2;
+    // 20 rotations of the motor is 4 inches of the first stage
     public static final double kElevatorMaxSpeed = 0.7;
     public static final double kElevatorFeedForward = 0.1;
     public static final double kElevatorSpeedScalar = 1;
