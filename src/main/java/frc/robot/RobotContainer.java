@@ -117,7 +117,7 @@ public class RobotContainer {
     */
 
     new JoystickButton(m_driverController, Button.kA.value)
-      .onTrue(new DriveToReef(m_robotDrive));
+      .whileTrue(new DriveToReef(m_robotDrive));
   }
 
   /**
