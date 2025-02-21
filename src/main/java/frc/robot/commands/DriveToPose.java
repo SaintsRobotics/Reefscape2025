@@ -5,9 +5,12 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
@@ -21,16 +24,13 @@ public class DriveToPose extends Command {
   private Timer m_timer = new Timer();
   private int ticksOn;
 
-  // TODO: Create a feedforwards so the DriveToPose doesn't crash into the reef
-
-  private final SimpleMotorFeedforward m_xFeedforward = new SimpleMotorFeedforward(0, 0);
-  private final SimpleMotorFeedforward m_yFeedforward = new SimpleMotorFeedforward(0, 0);
-
   // TODO: Move to Constants AND DO NOT TEST THIS ON THE GROUND
 
-  private final PIDController xController = new PIDController(3.0, 0.0, 0.3);
-  private final PIDController yController = new PIDController(3.0, 0.0, 0.3);
-  private final PIDController thetaController = new PIDController(6.0, 0.0, 0.0);
+  private final TrapezoidProfile.Constraints constraints = new Constraints(3.5, 5);
+
+  private final ProfiledPIDController xController = new ProfiledPIDController(3.0, 0.0, 0.3, constraints);
+  private final ProfiledPIDController yController = new ProfiledPIDController(3.0, 0.0, 0.3, constraints);
+  private final ProfiledPIDController thetaController = new ProfiledPIDController(6.0, 0.0, 0.0, constraints);
 
   /** Creates a new DriveToPose. */
   public DriveToPose(DriveSubsystem driveSubsystem, Pose2d targetPose) {
@@ -48,9 +48,10 @@ public class DriveToPose extends Command {
   public void initialize() {
     m_timer.restart();
 
-    xController.reset();
-    yController.reset();
-    thetaController.reset();
+    currentPose = m_driveSubsystem.getPose();
+    xController.reset(new State(currentPose.getX(), 0));
+    yController.reset(new State(currentPose.getY(), 0));
+    thetaController.reset(new State(currentPose.getRotation().getRadians(), 0));
 
     ticksOn = 0;
   }
