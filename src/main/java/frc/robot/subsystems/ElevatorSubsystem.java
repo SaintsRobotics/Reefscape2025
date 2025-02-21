@@ -27,8 +27,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   // private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
   // private final PIDController m_PIDController = new PIDController(ElevatorConstants.kPElevator, 0, 0, Constants.kFastPeriodicPeriod);
-  private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, new TrapezoidProfile.Constraints(5.0, 1), Constants.kFastPeriodicPeriod);
-  private final ElevatorFeedforward m_elevatorFeedForward = new ElevatorFeedforward(0, 0.1, 0, 1, Constants.kFastPeriodicPeriod);
+  private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0.0, 0.0, new TrapezoidProfile.Constraints(5.0, 1), Constants.kFastPeriodicPeriod);
+  private final ElevatorFeedforward m_elevatorFeedForward = new ElevatorFeedforward(0.0, 0.1, 0.1, 0.5, Constants.kFastPeriodicPeriod);
 
   private double m_targetPosition = 12.5;
   private double m_motorOffset = 0;
