@@ -26,7 +26,13 @@ public class SimulatedEstimator implements IEstimatorWrapper{
 
     private SwerveModulePosition[] m_prevPositions;
 
+    private final boolean m_addNoise;
+
     public SimulatedEstimator(SwerveDriveKinematics kinematics, SwerveModulePosition[] swerveModulePositions) {
+      this(kinematics, swerveModulePositions, true);
+    }
+
+    public SimulatedEstimator(SwerveDriveKinematics kinematics, SwerveModulePosition[] swerveModulePositions, boolean addNoise) {
       m_prevTime = Timer.getFPGATimestamp();
       m_prevPositions = swerveModulePositions;
 
@@ -37,6 +43,8 @@ public class SimulatedEstimator implements IEstimatorWrapper{
       VisionConstants.kVisionSTDDevs);
 
       m_absoluteOdometry = new SwerveDriveOdometry(kinematics, getGyroAngle(), swerveModulePositions);
+
+      m_addNoise = addNoise;
     }
 
     public void setVisionMeasurementStdDevs(Vector<N3> visionStddevs) {
@@ -56,16 +64,18 @@ public class SimulatedEstimator implements IEstimatorWrapper{
       m_simulatedGyro += m_kinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
         * (m_prevTime - timestamp);
 
-      final double randomA = SimulationConstants.kRandom.nextDouble(-1, 1) * SimulationConstants.kMaxAngleError;
-      final double randomD = SimulationConstants.kRandom.nextDouble(-1, 1) * SimulationConstants.kMaxDistanceError;
-
-      for (int i = 0; i < 4; i++) {
-        final double dA = swerveModulePositions[i].angle.getRadians() - m_prevPositions[i].angle.getRadians();
-        final double dD = swerveModulePositions[i].distanceMeters - m_prevPositions[i].distanceMeters;
-
-        swerveModulePositions[i].angle = new Rotation2d(swerveModulePositions[i].angle.getRadians() + (randomA * dA / dt));
-        swerveModulePositions[i].distanceMeters += randomD * dD / dt;
-      }
+      if (m_addNoise) {
+				final double randomA = SimulationConstants.kRandom.nextDouble(-1, 1) * SimulationConstants.kMaxAngleError;
+				final double randomD = SimulationConstants.kRandom.nextDouble(-1, 1) * SimulationConstants.kMaxDistanceError;
+	
+				for (int i = 0; i < 4; i++) {
+					final double dA = swerveModulePositions[i].angle.getRadians() - m_prevPositions[i].angle.getRadians();
+					final double dD = swerveModulePositions[i].distanceMeters - m_prevPositions[i].distanceMeters;
+	
+					swerveModulePositions[i].angle = new Rotation2d(swerveModulePositions[i].angle.getRadians() + (randomA * dA / dt));
+					swerveModulePositions[i].distanceMeters += randomD * dD / dt;
+				}
+			}
 
       m_poseEstimator.update(getGyroAngle(), swerveModulePositions);
 
