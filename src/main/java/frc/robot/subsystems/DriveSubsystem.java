@@ -4,19 +4,27 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -73,6 +81,13 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d m_field = new Field2d();
 
+  // meters per second (per second)
+  private Vector<N2> m_prevTranSpeed;
+  private double m_maxLinearAcceleration;
+  
+  // radians per second
+  private SlewRateLimiter m_rotationRateFilter;
+
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     this.zeroHeading();
@@ -97,12 +112,17 @@ public class DriveSubsystem extends SubsystemBase {
       LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, VisionConstants.kIMUMode);
     }
 
+    m_prevTranSpeed = VecBuilder.fill(0, 0);
+    m_maxLinearAcceleration = DriveConstants.kMaxLinearAcceleration.in(MetersPerSecondPerSecond);
+
+    m_rotationRateFilter = new SlewRateLimiter(DriveConstants.kMaxAngularAcceleration.in(RadiansPerSecondPerSecond));
+
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds());
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
+	@Override
+	public void periodic() {
+		// This method will be called once per scheduler run
 
     m_swerveModulePositions = new SwerveModulePosition[] {
         m_frontLeft.getPosition(),
@@ -213,20 +233,72 @@ public class DriveSubsystem extends SubsystemBase {
       calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
     }
 
-    // Depending on whether the robot is being driven in field relative, calculate
-    // the desired states for each of the modules
-    m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
-                Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
-            : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
-  }
+	// Depending on whether the robot is being driven in field relative, calculate
+	// the desired states for each of the modules
+	m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+			fieldRelative
+					? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
+							Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
+					: new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
 
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
-   */
+	SwerveDriveKinematics.desaturateWheelSpeeds(
+			m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+
+	// acceleration limits
+
+	// convert to chassis speeds for calculations
+	ChassisSpeeds originalSpeeds = DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates);
+
+	// slew rate limiter only works in one dimension so it can't be used for
+	// translation
+
+	// calculate speed vector delta magnitude
+	final Vector<N2> dv = VecBuilder
+			.fill(originalSpeeds.vxMetersPerSecond, originalSpeeds.vyMetersPerSecond)
+			.minus(m_prevTranSpeed);
+
+	final double dvMagnitude = dv.norm();
+
+	// calculate maximum speed vector detla magnitude
+	final double maxdvMagnitude = m_maxLinearAcceleration * Robot.kDefaultPeriod;
+
+	// if dv exceeds maxdv, then add maxdv to the old velocity in the same direction as dv
+	if (dvMagnitude > maxdvMagnitude) {
+		// calculate a vector with direction of dv (normalized) and magnitude maxdv
+		final Vector<N2> dvLimited = dv.times(maxdvMagnitude/dvMagnitude);
+
+		// calculate new velocity vector
+		final Vector<N2> newV = m_prevTranSpeed.plus(dvLimited);
+
+		// correct chassis speeds
+		originalSpeeds.vxMetersPerSecond = newV.get(0);
+		originalSpeeds.vyMetersPerSecond = newV.get(1);
+
+		// inverse kinematics back to module states
+		m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(originalSpeeds);
+	}
+
+	// recalculate chassis speed for rotation limits
+	originalSpeeds = DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates);
+
+	// calculate new rotation speed
+	final double limitedOmega = m_rotationRateFilter.calculate(originalSpeeds.omegaRadiansPerSecond);
+
+	// scale all modules to limit rotation
+	final double rotationScalar = originalSpeeds.omegaRadiansPerSecond == 0 ? 1
+			: limitedOmega / originalSpeeds.omegaRadiansPerSecond;
+	for (SwerveModuleState state : m_desiredStates) {
+		state.speedMetersPerSecond *= rotationScalar;
+	}
+
+	m_prevTranSpeed = VecBuilder.fill(originalSpeeds.vxMetersPerSecond, originalSpeeds.vyMetersPerSecond);
+}
+
+/**
+ * Resets the odometry to the specified pose.
+ *
+ * @param pose The pose to which to set the odometry.
+ */
   public void resetOdometry(Pose2d pose) {
     m_poseEstimator.resetPosition(
         Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
@@ -249,18 +321,31 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.addVisionMeasurement(pose, timestamp);
   }
 
-  /** Sets the module states every 10ms (100Hz), faster than the regular periodic loop */
-  public void fastPeriodic() {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(m_desiredStates[0]);
-    m_frontRight.setDesiredState(m_desiredStates[1]);
-    m_rearLeft.setDesiredState(m_desiredStates[2]);
-    m_rearRight.setDesiredState(m_desiredStates[3]);
-
-    // Takes the integral of the rotation speed to find the current angle for the
-    // simulator
-    m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates).omegaRadiansPerSecond
-        * Constants.kFastPeriodicPeriod;
+  /**
+   * Changes the acceleration limits
+   * @param linearAccelerationLimit translation acceleration limit
+   * @param angularAccelerationLimit rotation acceleration limit
+   */
+  public void setAccelerationLimits(LinearAcceleration linearAccelerationLimit,
+      AngularAcceleration angularAccelerationLimit) {
+    m_maxLinearAcceleration = linearAccelerationLimit.in(MetersPerSecondPerSecond);
+    m_rotationRateFilter = new SlewRateLimiter(angularAccelerationLimit.in(RadiansPerSecondPerSecond),
+        angularAccelerationLimit.in(RadiansPerSecondPerSecond), m_rotationRateFilter.lastValue());
   }
+
+ 	/**
+	 * Sets the module states every 10ms (100Hz), faster than the regular periodic
+	 * loop
+	 */
+	public void fastPeriodic() {
+		m_frontLeft.setDesiredState(m_desiredStates[0]);
+		m_frontRight.setDesiredState(m_desiredStates[1]);
+		m_rearLeft.setDesiredState(m_desiredStates[2]);
+		m_rearRight.setDesiredState(m_desiredStates[3]);
+
+		// Takes the integral of the rotation speed to find the current angle for the
+		// simulator
+		m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates).omegaRadiansPerSecond
+				* Constants.kFastPeriodicPeriod;
+	}
 }

@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -12,6 +15,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.LinearAcceleration;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -28,6 +33,7 @@ import edu.wpi.first.math.numbers.N3;
 public final class Constants {
 
   public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
+  public static final double kFastPeriodicFreq = 1.0 / kFastPeriodicPeriod;
 
   /**
    * Input/Output constants
@@ -83,6 +89,9 @@ public final class Constants {
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPModuleTurningController = 0.3;
 
+    // TODO: tune PID
+    public static final double[] kDrivePIDConstants = new double[] {1, 0, 0};
+
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         new Translation2d(kWheelBase / 2, kTrackWidth / 2),
         new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
@@ -98,6 +107,10 @@ public final class Constants {
     public static final double kHeadingCorrectionTurningStopTime = 0.2;
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPHeadingCorrectionController = 5;
+
+    // TODO: tune values
+    public static final LinearAcceleration kMaxLinearAcceleration = MetersPerSecondPerSecond.of(1);
+    public static final AngularAcceleration kMaxAngularAcceleration = RadiansPerSecondPerSecond.of(3);
   }
 
   public static final class VisionConstants {
