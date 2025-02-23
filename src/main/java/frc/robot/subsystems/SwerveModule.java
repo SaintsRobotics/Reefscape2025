@@ -30,6 +30,7 @@ public class SwerveModule {
   private final CANcoder m_turningEncoder;
 
   private final PIDController m_turningPIDController = new PIDController(DriveConstants.kPModuleTurningController, 0, 0, Constants.kFastPeriodicPeriod);
+  private final PIDController m_drivingPIDController = new PIDController(DriveConstants.kDrivePIDConstants[0], DriveConstants.kDrivePIDConstants[1], DriveConstants.kDrivePIDConstants[2], Constants.kFastPeriodicPeriod);
 
   private SwerveModuleState m_state = new SwerveModuleState();
   private double m_distance;
@@ -57,6 +58,8 @@ public class SwerveModule {
     // converts default units to meters per second
     m_driveMotorConfig.encoder.positionConversionFactor(
         DriveConstants.kWheelDiameterMeters * Math.PI / DriveConstants.kDrivingGearRatio);
+    m_driveMotorConfig.encoder.velocityConversionFactor(
+		DriveConstants.kWheelDiameterMeters * Math.PI / DriveConstants.kDrivingGearRatio);
     m_driveMotorConfig.inverted(driveMotorReversed);
 
     m_turningMotorConfig.idleMode(IdleMode.kBrake);
@@ -95,12 +98,11 @@ public class SwerveModule {
   public void setDesiredState(SwerveModuleState desiredState) {
     m_state = desiredState;
     m_state.optimize(getEncoderAngle(m_turningEncoder));
-    driveOutput = m_state.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond;
 
     turnOutput = -m_turningPIDController.calculate(getEncoderAngle(m_turningEncoder).getRadians(),
         m_state.angle.getRadians());
 
-    m_driveMotor.set(driveOutput);
+    m_driveMotor.set(m_drivingPIDController.calculate(m_driveMotor.getEncoder().getVelocity(), m_state.speedMetersPerSecond));
     m_turningMotor.set(turnOutput);
   }
 
