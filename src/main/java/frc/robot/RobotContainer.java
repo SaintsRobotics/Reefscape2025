@@ -40,7 +40,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     //TODO: uncomment
-    //m_elevator.setEndEffectorVerify(m_endEffector::verifyPosition);
+    //m_elevator.setEndEffectorSuppliers(m_endEffector::ensureSafeState, m_endEffector::pivotWithinLimits);
 
     // Configure the trigger bindings
     configureBindings();

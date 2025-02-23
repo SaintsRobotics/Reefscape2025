@@ -166,6 +166,8 @@ public final class Constants {
     public static final double kAlgaeOuttakeSpeed = 1;
     public static final double kCoralOuttakeSpeed = 1;
 
+    public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
+
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height

@@ -14,15 +14,16 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
 
 public class EndEffectorSubsystem extends SubsystemBase {
   private final SparkFlex m_pivotMotor;
   private final SparkFlex m_coralMotor; //TODO: confirm with mech that these are actually two different motors
   private final SparkFlex m_algaeMotor;
-  private final CANrange m_EndEffectorRange = new CANrange(0);
+  private final CANrange m_EndEffectorRange = new CANrange(EndEffectorConstants.kEndEffectorCANrangePort);
 
-  private final PIDController m_PIDController = new PIDController(EndEffectorConstants.kPEndEffector, 0, 0);
+  private final PIDController m_PIDController = new PIDController(EndEffectorConstants.kPEndEffector, 0, 0, Constants.kFastPeriodicPeriod);
 
   private double targetRotation = 0;
 
@@ -39,6 +40,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     m_algaeMotor = new SparkFlex(EndEffectorConstants.kAlgaeMotorPort, MotorType.kBrushless);
 
     m_elevatorHeightSupplier = elevatorHeightSupplier;
+    m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
   }
 
   @Override
@@ -59,10 +61,20 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   /**
-   * Verifies the current pivot position based on the elevator height
+   * Checks is pivot is within elevator limits
+   * @return true if pivot is within limits
+   */
+  public boolean pivotWithinLimits() {
+    final double elevatorHeight = m_elevatorHeightSupplier.getAsDouble();
+    final Pair<Double, Double> limits = EndEffectorConstants.kSafePivotPositions.floorEntry(elevatorHeight).getValue();
+    return targetRotation >= limits.getFirst() && targetRotation <= limits.getSecond(); 
+  }
+
+  /**
+   * Ensures pivot is at a safe state for elevator
    * Should be called whenever elevator height is changed
    */
-  public void verifyPosition() {
+  public void ensureSafeState() {
     pivotTo(targetRotation); // will re-evaluate clamp
   }
 
