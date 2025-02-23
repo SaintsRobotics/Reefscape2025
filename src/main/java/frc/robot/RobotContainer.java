@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -30,8 +29,8 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  // private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
-  private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem();
+  //private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
+  private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(() -> 0 /* m_elevator::getHeight */); //TODO: provide supplier
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
@@ -40,6 +39,9 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    //TODO: uncomment
+    //m_elevator.setEndEffectorVerify(m_endEffector::verifyPosition);
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -137,5 +139,6 @@ public class RobotContainer {
   public void fastPeriodic() {
     m_robotDrive.fastPeriodic();
     //m_elevator.fastPeriodic(); // Temporarily commented out to merge
+    m_endEffector.fastPeriodic();
   }
 }

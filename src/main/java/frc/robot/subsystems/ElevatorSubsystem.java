@@ -28,7 +28,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private double m_targetPosition = 0;
   private double m_motorOffset = 0;
 
-  /** Creates a new ElevatorSubsystem. */
+  private Runnable m_endEffectorVerify = () -> {};
+
   public ElevatorSubsystem() {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
@@ -36,6 +37,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_elevatorMotor = new SparkFlex(ElevatorConstants.kElevatorMotorPort, MotorType.kBrushless);
     // TODO: set to reset and persist after testing
     m_elevatorMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
+  /**
+   * Sets the callback for setHeight
+   * Should be called before any calls to setHeight
+   * @param endEffectorVerify the callback for setHeight
+   */
+  public void setEndEffectorVerify(Runnable endEffectorVerify) {
+    m_endEffectorVerify = endEffectorVerify;
   }
 
   @Override
@@ -69,5 +79,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
     m_targetPosition = level;
+    m_endEffectorVerify.run();
+  }
+
+  /**
+   * Gets the height of elevator
+   * @return The height of the elevator in meters
+   */
+  public double getHeight() {
+    return m_targetPosition;
   }
 }

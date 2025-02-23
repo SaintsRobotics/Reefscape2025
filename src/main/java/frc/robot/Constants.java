@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -161,5 +166,32 @@ public final class Constants {
     public static final double kAlgaeOuttakeSpeed = 1;
     public static final double kCoralOuttakeSpeed = 1;
 
+    /**
+     * Holds the safe minimum and maximum limits of end effector's pivot based on
+     * elevator height
+     * Each key is the starting (from zero) elevator height for the limit
+     * Each value is a Pair with the minimum and maximum pivot angle in radians,
+     * respectively
+     * 
+     * For exampple:
+     * 
+     * Map.ofEntries(
+     * Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+     * Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
+     * Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI))
+     * );
+     * 
+     * means that:
+     * pivot angles between elevator heights [-1, 0) must be from 0 to 90 degrees
+     *  this acts as a safeguard for negative values
+     * pivot angles between elevator heights [0, 1) must be from 0 to 90 degrees,
+     * pivot angles between elevator heights [1, infinity) must be from 90 to 180
+     * degrees
+     */
+    public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
+        Map.ofEntries(
+            Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+            Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
+            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
   }
 }
