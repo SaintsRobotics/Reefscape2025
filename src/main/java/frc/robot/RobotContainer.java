@@ -4,14 +4,22 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.AutonConstants;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
@@ -26,20 +34,31 @@ import frc.robot.subsystems.ElevatorSubsystem;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  // private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
+    // The robot's subsystems and commands are defined here
+    private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+    
+    // private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
+    private final SendableChooser<Command> m_autoChooser;
 
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+        AutoBuilder.configure(m_robotDrive::getPose, (pose) -> m_robotDrive.resetOdometry(pose), null,
+                (speeds) -> m_robotDrive.autonDrive(speeds),
+                new PPHolonomicDriveController(AutonConstants.kTranslationConstants, AutonConstants.kRotationConstants),
+                AutonConstants.kBotConfig,
+                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, m_robotDrive);
+
+        m_autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData(m_autoChooser);
+
+        // Configure the trigger bindings
+        configureBindings();
     m_robotDrive.setDefaultCommand(
         new RunCommand(
             () -> m_robotDrive.drive(
@@ -113,14 +132,8 @@ public class RobotContainer {
     */
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return null;
+    return m_autoChooser.getSelected();
   }
 
   /**
