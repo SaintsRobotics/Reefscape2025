@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,6 +33,10 @@ public class RobotContainer {
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
+
+  public DriveSubsystem getDriveSubsystem(){
+    return m_robotDrive;
+  }
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -122,7 +127,7 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return null;
   }
-
+  
   /**
    * This periodic loop runs every 10ms (100Hz)
    * 
