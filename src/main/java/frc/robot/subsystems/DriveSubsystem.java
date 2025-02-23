@@ -233,28 +233,31 @@ public class DriveSubsystem extends SubsystemBase {
       calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
     }
 
-	// Depending on whether the robot is being driven in field relative, calculate
-	// the desired states for each of the modules
-	m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-			fieldRelative
-					? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
-							Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
-					: new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
+  // create chassis speeds
+  ChassisSpeeds unlimitedSpeeds = fieldRelative
+  ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
+      Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
+  : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation);
 
-	SwerveDriveKinematics.desaturateWheelSpeeds(
-			m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+  // inverse kinematics to module states
+  m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(unlimitedSpeeds);
 
-	// acceleration limits
+  // limit max velocity
+  SwerveDriveKinematics.desaturateWheelSpeeds(
+      m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
 
-	// convert to chassis speeds for calculations
-	ChassisSpeeds originalSpeeds = DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates);
+  // acceleration limiting code needs desaturated speeds, so convert desaturated
+  // module states back to chassis speeds
+  unlimitedSpeeds = DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates);
+
+  // acceleration limits
 
 	// slew rate limiter only works in one dimension so it can't be used for
 	// translation
 
 	// calculate speed vector delta magnitude
 	final Vector<N2> dv = VecBuilder
-			.fill(originalSpeeds.vxMetersPerSecond, originalSpeeds.vyMetersPerSecond)
+			.fill(unlimitedSpeeds.vxMetersPerSecond, unlimitedSpeeds.vyMetersPerSecond)
 			.minus(m_prevTranSpeed);
 
 	final double dvMagnitude = dv.norm();
@@ -271,27 +274,21 @@ public class DriveSubsystem extends SubsystemBase {
 		final Vector<N2> newV = m_prevTranSpeed.plus(dvLimited);
 
 		// correct chassis speeds
-		originalSpeeds.vxMetersPerSecond = newV.get(0);
-		originalSpeeds.vyMetersPerSecond = newV.get(1);
-
-		// inverse kinematics back to module states
-		m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(originalSpeeds);
+		unlimitedSpeeds.vxMetersPerSecond = newV.get(0);
+		unlimitedSpeeds.vyMetersPerSecond = newV.get(1);
 	}
 
-	// recalculate chassis speed for rotation limits
-	originalSpeeds = DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates);
+  // calculate new rotation speed
+	final double limitedOmega = m_rotationRateFilter.calculate(unlimitedSpeeds.omegaRadiansPerSecond);
 
-	// calculate new rotation speed
-	final double limitedOmega = m_rotationRateFilter.calculate(originalSpeeds.omegaRadiansPerSecond);
+  // correct chassis speeds
+  unlimitedSpeeds.omegaRadiansPerSecond = limitedOmega;
 
-	// scale all modules to limit rotation
-	final double rotationScalar = originalSpeeds.omegaRadiansPerSecond == 0 ? 1
-			: limitedOmega / originalSpeeds.omegaRadiansPerSecond;
-	for (SwerveModuleState state : m_desiredStates) {
-		state.speedMetersPerSecond *= rotationScalar;
-	}
+  // inverse kinematics back to module states
+  m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(unlimitedSpeeds);
 
-	m_prevTranSpeed = VecBuilder.fill(originalSpeeds.vxMetersPerSecond, originalSpeeds.vyMetersPerSecond);
+  // update past speeds
+	m_prevTranSpeed = VecBuilder.fill(unlimitedSpeeds.vxMetersPerSecond, unlimitedSpeeds.vyMetersPerSecond);
 }
 
 /**
