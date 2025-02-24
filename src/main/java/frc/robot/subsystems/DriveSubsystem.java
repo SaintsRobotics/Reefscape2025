@@ -25,6 +25,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.SlewRateLimiter;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -73,7 +74,12 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d m_field = new Field2d();
 
+  private final SlewRateLimiter m_xSpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAccelerationUnitsPerSecond);
+  private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAccelerationUnitsPerSecond);
+  private final SlewRateLimiter m_rotationSpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAngularAccelerationUnitsPerSecond);
+
   /** Creates a new DriveSubsystem. */
+  @SuppressWarnings("unused")
   public DriveSubsystem() {
     this.zeroHeading();
     this.resetOdometry(new Pose2d());
@@ -100,6 +106,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds());
   }
 
+  @SuppressWarnings("unused")
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -212,6 +219,15 @@ public class DriveSubsystem extends SubsystemBase {
       // then maintain our desired angle
       calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
     }
+
+    // TODO: set speed limiter rate based on elevator height using interlocks/constraints
+    // m_xSpeedLimiter.setRateLimit(DriveConstants.kMaxAccelerationUnitsPerSecond);
+    // m_ySpeedLimiter.setRateLimit(DriveConstants.kMaxAccelerationUnitsPerSecond);
+    // m_rotationSpeedLimiter.setRateLimit(DriveConstants.kMaxAngularAccelerationUnitsPerSecond);
+
+    xSpeed = m_xSpeedLimiter.calculate(xSpeed);
+    ySpeed = m_ySpeedLimiter.calculate(ySpeed);
+    calculatedRotation = m_rotationSpeedLimiter.calculate(calculatedRotation);
 
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
