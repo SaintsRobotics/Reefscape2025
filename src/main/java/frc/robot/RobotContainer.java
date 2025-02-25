@@ -20,9 +20,11 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
+import frc.robot.commands.ElevatorCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.utils.Interlocks;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -32,9 +34,10 @@ import frc.robot.subsystems.EndEffectorSubsystem;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
+  private final Interlocks m_interlocks = new Interlocks();
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  //private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
-  //private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(() -> 0 /* m_elevator::getHeight */); //TODO: provide supplier // Temporarily commented out
+  private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(m_interlocks);
+  private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(m_interlocks);
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
@@ -43,9 +46,6 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    //TODO: uncomment
-    //m_elevator.setEndEffectorSuppliers(m_endEffector::ensureSafeState, m_endEffector::pivotWithinLimits);
-
     // Configure the trigger bindings
     configureBindings();
 
@@ -78,17 +78,6 @@ public class RobotContainer {
                     * -1,
                 !m_driverController.getRightBumperButton()),
             m_robotDrive));
-    
-    /* Temporarily commented out to merge
-    m_elevator.setDefaultCommand(
-        new RunCommand(
-            () -> m_elevator.trackPosition(
-                MathUtil.applyDeadband(
-                    -m_operatorController.getLeftY(),
-                    IOConstants.kControllerDeadband)),
-            m_elevator));
-     */
-    
   }
 
   /**
@@ -123,6 +112,14 @@ public class RobotContainer {
 
     new JoystickButton(m_driverController, Button.kA.value)
       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+    new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+    new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+    new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+    new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
   }
 
   /**
