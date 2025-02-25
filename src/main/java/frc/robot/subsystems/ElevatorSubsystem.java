@@ -50,6 +50,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    m_interlocks.setElevatorHeight(m_elevatorMotor.getEncoder().getPosition() + m_motorOffset);
+
     // This method will be called once per scheduler run
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
       // This offset is set when the distance sensor detects that the elevator is at the bottom 
@@ -88,5 +90,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public double getCurrentHeight() {
     return m_elevatorMotor.getEncoder().getPosition() + m_motorOffset;
+  }
+
+  public boolean atSetpoint() {
+    return m_PIDController.atSetpoint();
   }
 }

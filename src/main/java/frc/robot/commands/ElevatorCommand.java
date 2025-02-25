@@ -19,7 +19,8 @@ public class ElevatorCommand extends Command {
   private final double m_desiredHeight;
 
   /** Creates a new ElevatorCommand. */
-  public ElevatorCommand(double desiredHeight, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
+  public ElevatorCommand(double desiredHeight, ElevatorSubsystem elevatorSubsystem,
+      EndEffectorSubsystem endEffectorSubsystem) {
     addRequirements(elevatorSubsystem, endEffectorSubsystem);
 
     m_desiredHeight = desiredHeight;
@@ -41,24 +42,27 @@ public class ElevatorCommand extends Command {
     Pair<Double, Double> pivotLimits;
 
     // check direction
-    if (currentPosition < m_desiredHeight) { //going up
+    if (currentPosition < m_desiredHeight) { // going up
       pivotLimits = EndEffectorConstants.kSafePivotPositions.higherEntry(currentPosition).getValue();
-    }
-    else { //going down
+    } else { // going down
       pivotLimits = EndEffectorConstants.kSafePivotPositions.lowerEntry(currentPosition).getValue();
     }
 
-    final double pivotPosition = MathUtil.clamp(m_endEffectorSubsystem.getSetpoint(), pivotLimits.getFirst(), pivotLimits.getSecond());
+    final double pivotPosition = MathUtil.clamp(m_endEffectorSubsystem.getSetpoint(), pivotLimits.getFirst(),
+        pivotLimits.getSecond());
     m_endEffectorSubsystem.pivotTo(pivotPosition);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_elevatorSubsystem.setHeight(m_elevatorSubsystem.getCurrentHeight()); // TODO: replace with default command that
+                                                                           // stops elevator (unless manually driven)
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_elevatorSubsystem.atSetpoint();
   }
 }

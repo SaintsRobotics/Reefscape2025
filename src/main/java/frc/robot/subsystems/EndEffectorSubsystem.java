@@ -44,6 +44,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    m_interlocks.setPivotPosition(m_pivotMotor.getEncoder().getPosition());
+    // TODO: change to absolute encoder
+
     // This method will be called once per scheduler run
   }
 
@@ -55,7 +58,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void pivotTo(double setpoint) {
-    targetRotation = setpoint;
+    targetRotation = m_interlocks.clampPivotMotorSetpoint(setpoint);
   }
 
   public double getSetpoint() {

@@ -30,9 +30,9 @@ import frc.robot.utils.Interlocks;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Interlocks m_interlocks = new Interlocks();
-  private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(m_interlocks); // Temporarily commented out to merge
+  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(m_interlocks);
   private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(m_interlocks);
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);

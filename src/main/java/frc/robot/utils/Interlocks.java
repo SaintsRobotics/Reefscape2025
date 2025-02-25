@@ -17,20 +17,33 @@ public class Interlocks {
         m_pivotPosition = position;
     }
 
-    public double clampElevatorMotorSet(double in) {
-        final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight).getValue();
-        
+    public double clampElevatorMotorSet(double speed) {
+        final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
+                .getValue();
+
         // check if in limits
         if (m_pivotPosition > pivotLimits.getSecond() || m_pivotPosition < pivotLimits.getFirst()) {
-            return ElevatorConstants.kElevatorFeedForward; //TODO: check is needed
+            return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
         }
 
-        return in; //TODO: implement speed limiters
+        return speed;
     }
 
-    public double clampPivotMotorSet(double in) {
-        final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight).getValue();
-        
-        return MathUtil.clamp(in, pivotLimits.getFirst(), pivotLimits.getSecond());
+    public double clampPivotMotorSetpoint(double setpoint) {
+        final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
+                .getValue();
+
+        return MathUtil.clamp(setpoint, pivotLimits.getFirst(), pivotLimits.getSecond());
+    }
+
+    public double clampPivotMotorSet(double speed) {
+        final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
+                .getValue();
+
+        if (m_pivotPosition < pivotLimits.getFirst() || m_pivotPosition > pivotLimits.getSecond()) {
+            return 0; // TODO: check if needs feedforwards
+        }
+
+        return speed;
     }
 }
