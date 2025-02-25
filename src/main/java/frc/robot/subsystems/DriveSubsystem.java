@@ -250,6 +250,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
           Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle)));
+
+    SwerveDriveKinematics.desaturateWheelSpeeds(m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
   }
 
   /**
@@ -281,8 +283,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Sets the module states every 10ms (100Hz), faster than the regular periodic loop */
   public void fastPeriodic() {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(m_desiredStates[0]);
     m_frontRight.setDesiredState(m_desiredStates[1]);
     m_rearLeft.setDesiredState(m_desiredStates[2]);
