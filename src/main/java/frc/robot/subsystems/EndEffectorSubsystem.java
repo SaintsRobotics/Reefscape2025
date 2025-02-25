@@ -19,9 +19,8 @@ import frc.robot.Constants.EndEffectorConstants;
 
 public class EndEffectorSubsystem extends SubsystemBase {
   private final SparkFlex m_pivotMotor;
-  private final SparkFlex m_coralMotor; //TODO: confirm with mech that these are actually two different motors
-  private final SparkFlex m_algaeMotor;
-  private final CANrange m_EndEffectorRange = new CANrange(EndEffectorConstants.kEndEffectorCANrangePort);
+  private final SparkFlex m_effectorMotor; //TODO: confirm with mech that these are actually two different motors
+  private final CANrange m_endEffectorRange = new CANrange(EndEffectorConstants.kEndEffectorCANrangePort);
 
   private final PIDController m_PIDController = new PIDController(EndEffectorConstants.kPEndEffector, 0, 0, Constants.kFastPeriodicPeriod);
 
@@ -36,8 +35,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem(DoubleSupplier elevatorHeightSupplier) {
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
-    m_coralMotor = new SparkFlex(EndEffectorConstants.kCoralMotorPort, MotorType.kBrushless);
-    m_algaeMotor = new SparkFlex(EndEffectorConstants.kAlgaeMotorPort, MotorType.kBrushless);
+    m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
 
     m_elevatorHeightSupplier = elevatorHeightSupplier;
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
@@ -81,20 +79,19 @@ public class EndEffectorSubsystem extends SubsystemBase {
   // commented out because this code does not make sense
   // pivot motor should be controlled with a pid in fastperiodic
   // maybe these should be m_coralMotor or m_algaeMotor?
-  // public void intakeAlgae(){
-  //   m_pivotMotor.set(EndEffectorConstants.kAlgaeIntakeSpeed);
-  // }
+  public void intakeAlgae(){
+    m_effectorMotor.set(EndEffectorConstants.kAlgaeIntakeSpeed);
+  }
 
-  // public void intakeCoral(){
-  //   if (m_EndEffectorRange.getDistance().getValueAsDouble() != 0) m_pivotMotor.set(EndEffectorConstants.kCoralIntakeSpeed);
+  public void intakeCoral(){
+    if (m_endEffectorRange.getDistance().getValueAsDouble() != 0) m_effectorMotor.set(EndEffectorConstants.kCoralIntakeSpeed);
+  }
 
-  // }
+  public void outtakeAlgae(){
+    m_effectorMotor.set(EndEffectorConstants.kAlgaeOuttakeSpeed);
+  }
 
-  // public void outtakeAlgae(){
-  //   m_pivotMotor.set(EndEffectorConstants.kAlgaeOuttakeSpeed);
-  // }
-
-  // public void outtakeCoral(){
-  //   m_pivotMotor.set(EndEffectorConstants.kCoralOuttakeSpeed);
-  // }
+  public void outtakeCoral(){
+    m_effectorMotor.set(EndEffectorConstants.kCoralOuttakeSpeed);
+  }
 }

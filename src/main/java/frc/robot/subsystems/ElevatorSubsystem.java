@@ -30,10 +30,16 @@ public class ElevatorSubsystem extends SubsystemBase {
   private double m_targetPosition = 0;
   private double m_motorOffset = 0;
 
+  private double m_elevatorMin;
+  private double m_elevatorMax;
+
   private Runnable m_endEffectorVerify = () -> {};
   private BooleanSupplier m_endEffectorIsSafe = () -> false;
 
   public ElevatorSubsystem() {
+    m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
+    m_elevatorMax = Constants.ElevatorConstants.kElevatorTop;
+
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
 
@@ -78,10 +84,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("elevator motor output", output);
   }
 
-  public void trackPosition(double leftY) {
-    // Moves the target position by leftY multiplied by the constant kSpeed, clamped between the top and bottom heights
-    m_targetPosition += leftY * ElevatorConstants.kElevatorSpeedScalar * Robot.kDefaultPeriod;
-    m_targetPosition = MathUtil.clamp(m_targetPosition, ElevatorConstants.kElevatorBottom, ElevatorConstants.kElevatorTop);
+  public void joystickMovement(double joystickY) {
+    // Moves the target position by joystickY multiplied by the constant kSpeed, clamped between the top and bottom heights
+    m_targetPosition += joystickY * ElevatorConstants.kElevatorSpeedScalar * Robot.kDefaultPeriod;
+    m_targetPosition = MathUtil.clamp(m_targetPosition, m_elevatorMin, m_elevatorMax);
     // Display this number for now so we can see it
     SmartDashboard.putNumber("elevator targetPosition", m_targetPosition);
   }

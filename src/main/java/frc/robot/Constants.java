@@ -150,8 +150,7 @@ public final class Constants {
   public static final class EndEffectorConstants{
     // TODO: Set these constants
     public static final int kPivotMotorPort = 0;
-    public static final int kCoralMotorPort = 0;
-    public static final int kAlgaeMotorPort = 0;
+    public static final int kEffectorMotorPort = 0;
     public static final int kEndEffectorCANrangePort = 0;
 
     public static final double kPEndEffector = 0.03;
