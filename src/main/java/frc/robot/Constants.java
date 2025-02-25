@@ -180,19 +180,25 @@ public final class Constants {
      * Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
      * Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
      * Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI))
+     * Map.entry(5.0, Pair.of(Math.PI / 2, Math.PI))
      * );
      * 
      * means that:
      * pivot angles between elevator heights [-1, 0) must be from 0 to 90 degrees
-     *  this acts as a safeguard for negative values
+     *  this acts as a safeguard for negative values, should be less than min
+     *  physical height
      * pivot angles between elevator heights [0, 1) must be from 0 to 90 degrees,
-     * pivot angles between elevator heights [1, infinity) must be from 90 to 180
+     * pivot angles between elevator heights [1, 5) must be from 90 to 180
+     * pivot angles between elevator heights [5, infinity) must be from 90 to 180
      * degrees
+     *  this acts as a safeguard for very high values, should be greater than max
+     *  physical height
      */
     public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
             Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
             Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
-            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
+            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)),
+            Map.entry(5.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
   }
 }

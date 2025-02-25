@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.EndEffectorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
@@ -74,6 +75,8 @@ public class ElevatorSubsystem extends SubsystemBase {
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
     output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
 
+    m_endEffectorVerify.run();
+
     if (m_endEffectorIsSafe.getAsBoolean()) {
       m_elevatorMotor.set(output);
     }
@@ -95,14 +98,24 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
     m_targetPosition = level;
-    m_endEffectorVerify.run();
   }
 
   /**
    * Gets the height of elevator
+   * Does not return the final setpoint, but instead the next height where a pivot
+   * change might be necessary
+   * 
    * @return The height of the elevator in meters
    */
   public double getHeight() {
-    return m_targetPosition;
+    final double currentPosition = m_elevatorMotor.getEncoder().getPosition() + m_motorOffset;
+    
+    // check direction
+    if (currentPosition < m_targetPosition) { //going up
+      return EndEffectorConstants.kSafePivotPositions.higherKey(currentPosition);
+    }
+    else { //going down
+      return EndEffectorConstants.kSafePivotPositions.lowerKey(currentPosition);
+    }
   }
 }
