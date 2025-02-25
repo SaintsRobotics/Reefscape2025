@@ -5,12 +5,12 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -21,11 +21,11 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class SwerveModule {
-  private final SparkMax m_driveMotor;
-  private final SparkMax m_turningMotor;
+  private final SparkFlex m_driveMotor;
+  private final SparkFlex m_turningMotor;
 
-  private final SparkMaxConfig m_driveMotorConfig = new SparkMaxConfig();
-  private final SparkMaxConfig m_turningMotorConfig = new SparkMaxConfig();
+  private final SparkFlexConfig m_driveMotorConfig = new SparkFlexConfig();
+  private final SparkFlexConfig m_turningMotorConfig = new SparkFlexConfig();
 
   private final CANcoder m_turningEncoder;
 
@@ -50,8 +50,8 @@ public class SwerveModule {
       int turningMotorPort,
       int turningEncoderPort,
       boolean driveMotorReversed) {
-    m_driveMotor = new SparkMax(driveMotorPort, MotorType.kBrushless);
-    m_turningMotor = new SparkMax(turningMotorPort, MotorType.kBrushless);
+    m_driveMotor = new SparkFlex(driveMotorPort, MotorType.kBrushless);
+    m_turningMotor = new SparkFlex(turningMotorPort, MotorType.kBrushless);
     m_turningEncoder = new CANcoder(turningEncoderPort);
 
     // converts default units to meters per second
@@ -97,7 +97,7 @@ public class SwerveModule {
     m_state.optimize(getEncoderAngle(m_turningEncoder));
     driveOutput = m_state.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond;
 
-    turnOutput = m_turningPIDController.calculate(getEncoderAngle(m_turningEncoder).getRadians(),
+    turnOutput = -m_turningPIDController.calculate(getEncoderAngle(m_turningEncoder).getRadians(),
         m_state.angle.getRadians());
 
     m_driveMotor.set(driveOutput);
