@@ -21,6 +21,7 @@ import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorCommand;
+import frc.robot.commands.ElevatorDefaultCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -77,8 +78,11 @@ public class RobotContainer {
                         * IOConstants.kSlowModeScalar)
                     * -1,
                 !m_driverController.getRightBumperButton()),
-            m_robotDrive));
-  }
+                    m_robotDrive));
+
+    m_elevator.setDefaultCommand(
+            new ElevatorDefaultCommand(m_operatorController::getLeftY, m_operatorController::getYButton, m_elevator));
+}
 
   /**
    * Use this method to define your button->command mappings.
@@ -145,7 +149,7 @@ public class RobotContainer {
    */
   public void fastPeriodic() {
     m_robotDrive.fastPeriodic();
-    //m_elevator.fastPeriodic(); // Temporarily commented out to merge
-    //m_endEffector.fastPeriodic(); // Temporarily commented out
+    m_elevator.fastPeriodic(); // Temporarily commented out to merge
+    m_endEffector.fastPeriodic(); // Temporarily commented out
   }
 }
