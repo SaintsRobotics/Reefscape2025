@@ -250,6 +250,8 @@ public class DriveSubsystem extends SubsystemBase {
   // module states back to chassis speeds
   unlimitedSpeeds = DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates);
 
+  unlimitedSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(unlimitedSpeeds, Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle));
+
   // acceleration limits
 
 	// slew rate limiter only works in one dimension so it can't be used for
@@ -284,11 +286,13 @@ public class DriveSubsystem extends SubsystemBase {
   // correct chassis speeds
   unlimitedSpeeds.omegaRadiansPerSecond = limitedOmega;
 
-  // inverse kinematics back to module states
-  m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(unlimitedSpeeds);
-
   // update past speeds
 	m_prevTranSpeed = VecBuilder.fill(unlimitedSpeeds.vxMetersPerSecond, unlimitedSpeeds.vyMetersPerSecond);
+
+  unlimitedSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(unlimitedSpeeds, Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle));
+  
+  // inverse kinematics back to module states
+  m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(unlimitedSpeeds);
 }
 
 /**
