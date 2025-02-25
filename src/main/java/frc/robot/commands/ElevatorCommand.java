@@ -41,11 +41,15 @@ public class ElevatorCommand extends Command {
 
     Pair<Double, Double> pivotLimits;
 
-    // check direction
-    if (currentPosition < m_desiredHeight) { // going up
+    // check if mobing to next pivot limit
+    if (m_desiredHeight >= EndEffectorConstants.kSafePivotPositions.higherEntry(currentPosition).getKey()) { // going up
       pivotLimits = EndEffectorConstants.kSafePivotPositions.higherEntry(currentPosition).getValue();
-    } else { // going down
-      pivotLimits = EndEffectorConstants.kSafePivotPositions.lowerEntry(currentPosition).getValue();
+    } else if (m_desiredHeight < EndEffectorConstants.kSafePivotPositions.lowerEntry(
+EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition).getKey()).getKey()) { // going down
+      pivotLimits = EndEffectorConstants.kSafePivotPositions.lowerEntry(
+EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition).getKey()).getValue();
+    } else { // staying at level
+      pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition).getValue();
     }
 
     final double pivotPosition = MathUtil.clamp(m_endEffectorSubsystem.getSetpoint(), pivotLimits.getFirst(),
