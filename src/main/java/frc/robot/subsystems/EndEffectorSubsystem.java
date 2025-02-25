@@ -33,6 +33,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem(Interlocks interlocks) {
+    //TODO: explicity set pivot motor to breaking mode
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
     m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
 
@@ -51,7 +52,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void fastPeriodic(){
-    double output = m_PIDController.calculate(m_pivotMotor.getEncoder().getPosition(), targetRotation);
+    double output = m_PIDController.calculate(m_pivotMotor.getEncoder().getPosition(), targetRotation); //TODO: change to absolute encoder
     output = MathUtil.clamp(output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
     m_pivotMotor.set(m_interlocks.clampPivotMotorSet(output));
     m_effectorMotor.set(effectorOutput);
