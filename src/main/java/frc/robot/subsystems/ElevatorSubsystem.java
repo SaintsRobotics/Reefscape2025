@@ -35,6 +35,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final Interlocks m_interlocks;
 
   public ElevatorSubsystem(Interlocks interlocks) {
+    //TODO: explicitly set motor to breaking mode
     m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
     m_elevatorMax = Constants.ElevatorConstants.kElevatorTop;
 
@@ -81,7 +82,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
-    m_targetPosition = level;
+    //TODO: if the code does not work, try removing the clamp here
+    m_targetPosition = m_interlocks.clampElevatorMotorSetpoint(level);
   }
 
   public double getHeightSetpoint() {

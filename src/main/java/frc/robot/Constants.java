@@ -44,6 +44,8 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
+    public static final double kElevatorAxisScalar = 0.5; //TODO: tune
+
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;
     public static final int kDPadDown = 180;
