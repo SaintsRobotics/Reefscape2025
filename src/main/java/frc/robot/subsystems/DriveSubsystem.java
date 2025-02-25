@@ -226,11 +226,19 @@ public class DriveSubsystem extends SubsystemBase {
     // m_ySpeedLimiter.setRateLimit(DriveConstants.kMaxAccelerationUnitsPerSecond);
     // m_rotationSpeedLimiter.setRateLimit(DriveConstants.kMaxAngularAccelerationUnitsPerSecond);
 
+    /**
+    * To prevent jerks when swapping to robot relative driving, 
+    * we convert our robot relative speeds to field relative early
+    * so the previous value stored in the slew rate limiter filter is always valid
+    */
+
+    // If we are not driving in field relative, then convert our robot relative speeds to field relative
     if (!fieldRelative) {
       Translation2d fieldRelativeTranslation = new Translation2d(xSpeed, ySpeed).rotateBy(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle));
 
       xSpeed = fieldRelativeTranslation.getX();
       ySpeed = fieldRelativeTranslation.getY();
+      // rotation doesn't need to be updated because it is the same in both field and robot relative
     }
 
     xSpeed = m_xSpeedLimiter.calculate(xSpeed);
