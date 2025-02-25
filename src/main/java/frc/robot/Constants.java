@@ -89,9 +89,6 @@ public final class Constants {
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPModuleTurningController = 0.3;
 
-    // TODO: tune PID
-    public static final double[] kDrivePIDConstants = new double[] {1, 0, 0};
-
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         new Translation2d(kWheelBase / 2, kTrackWidth / 2),
         new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
