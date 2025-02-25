@@ -13,6 +13,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -225,6 +226,13 @@ public class DriveSubsystem extends SubsystemBase {
     // m_ySpeedLimiter.setRateLimit(DriveConstants.kMaxAccelerationUnitsPerSecond);
     // m_rotationSpeedLimiter.setRateLimit(DriveConstants.kMaxAngularAccelerationUnitsPerSecond);
 
+    if (!fieldRelative) {
+      Translation2d fieldRelativeTranslation = new Translation2d(xSpeed, ySpeed).rotateBy(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle));
+
+      xSpeed = fieldRelativeTranslation.getX();
+      ySpeed = fieldRelativeTranslation.getY();
+    }
+
     xSpeed = m_xSpeedLimiter.calculate(xSpeed);
     ySpeed = m_ySpeedLimiter.calculate(ySpeed);
     calculatedRotation = m_rotationSpeedLimiter.calculate(calculatedRotation);
@@ -232,10 +240,8 @@ public class DriveSubsystem extends SubsystemBase {
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
-                Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
-            : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
+        ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
+          Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle)));
   }
 
   /**
