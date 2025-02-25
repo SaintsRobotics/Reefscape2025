@@ -18,6 +18,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.EndEffectorSubsystem;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -28,7 +29,8 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  // private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
+  //private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
+  //private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(() -> 0 /* m_elevator::getHeight */); //TODO: provide supplier // Temporarily commented out
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
@@ -37,6 +39,9 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    //TODO: uncomment
+    //m_elevator.setEndEffectorSuppliers(m_endEffector::ensureSafeState, m_endEffector::pivotWithinLimits);
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -134,5 +139,6 @@ public class RobotContainer {
   public void fastPeriodic() {
     m_robotDrive.fastPeriodic();
     //m_elevator.fastPeriodic(); // Temporarily commented out to merge
+    //m_endEffector.fastPeriodic(); // Temporarily commented out
   }
 }
