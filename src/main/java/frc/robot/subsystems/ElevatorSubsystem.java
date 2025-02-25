@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.hardware.CANrange;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -20,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.utils.Interlocks;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
@@ -33,10 +32,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   private double m_elevatorMin;
   private double m_elevatorMax;
 
-  private Runnable m_endEffectorVerify = () -> {};
-  private BooleanSupplier m_endEffectorIsSafe = () -> false;
+  private final Interlocks m_interlocks;
 
-  public ElevatorSubsystem() {
+  public ElevatorSubsystem(Interlocks interlocks) {
     m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
     m_elevatorMax = Constants.ElevatorConstants.kElevatorTop;
 
@@ -46,20 +44,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_elevatorMotor = new SparkFlex(ElevatorConstants.kElevatorMotorPort, MotorType.kBrushless);
     // TODO: set to reset and persist after testing
     m_elevatorMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-  }
 
-  /**
-   * Should be called before any calls to setHeight
-   * @param ensureEndEffectorState the callback for setHeight
-   * @param endEffectorIsSafe supplier that returns true is elevator can move
-   */
-  public void setEndEffectorSuppliers(Runnable ensureEndEffectorState, BooleanSupplier endEffectorIsSafe) {
-    m_endEffectorVerify = ensureEndEffectorState;
-    m_endEffectorIsSafe = endEffectorIsSafe;
+    m_interlocks = interlocks;
   }
 
   @Override
   public void periodic() {
+    m_interlocks.setElevatorHeight(m_elevatorMotor.getEncoder().getPosition() + m_motorOffset);
+
     // This method will be called once per scheduler run
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
       // This offset is set when the distance sensor detects that the elevator is at the bottom 
@@ -74,12 +66,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
     output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
 
-    if (m_endEffectorIsSafe.getAsBoolean()) {
-      m_elevatorMotor.set(output);
-    }
-    else {
-      m_elevatorMotor.set(ElevatorConstants.kElevatorFeedForward); //TODO: test if this is needed
-    }
+    m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(output));
 
     SmartDashboard.putNumber("elevator motor output", output);
   }
@@ -95,14 +82,17 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
     m_targetPosition = level;
-    m_endEffectorVerify.run();
   }
 
-  /**
-   * Gets the height of elevator
-   * @return The height of the elevator in meters
-   */
-  public double getHeight() {
+  public double getHeightSetpoint() {
     return m_targetPosition;
+  }
+
+  public double getCurrentHeight() {
+    return m_elevatorMotor.getEncoder().getPosition() + m_motorOffset;
+  }
+
+  public boolean atSetpoint() {
+    return m_PIDController.atSetpoint();
   }
 }
