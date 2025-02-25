@@ -160,10 +160,10 @@ public final class Constants {
     public static final double kL23Pivot = 0.5;
     public static final double kL4Pivot = 0.5;
 
-    public static final double kAlgaeIntakeSpeed = 1;
-    public static final double kCoralIntakeSpeed = 1;
-    public static final double kAlgaeOuttakeSpeed = 1;
-    public static final double kCoralOuttakeSpeed = 1;
+    public static final double kAlgaeIntakeSpeed = 0.25;
+    public static final double kCoralIntakeSpeed = 0.25;
+    public static final double kAlgaeOuttakeSpeed = -0.25;
+    public static final double kCoralOuttakeSpeed = -0.25;
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
 

@@ -14,17 +14,17 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
 
 public class EndEffectorSubsystem extends SubsystemBase {
   private final SparkFlex m_pivotMotor;
-  private final SparkFlex m_effectorMotor; //TODO: confirm with mech that these are actually two different motors
+  private final SparkFlex m_effectorMotor;
   private final CANrange m_endEffectorRange = new CANrange(EndEffectorConstants.kEndEffectorCANrangePort);
 
   private final PIDController m_PIDController = new PIDController(EndEffectorConstants.kPEndEffector, 0, 0, Constants.kFastPeriodicPeriod);
 
   private double targetRotation = 0;
+  private double effectorOutput = 0;
 
   private final DoubleSupplier m_elevatorHeightSupplier;
 
@@ -36,6 +36,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public EndEffectorSubsystem(DoubleSupplier elevatorHeightSupplier) {
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
     m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
+
+    // TODO: maybe reverse effector motor
 
     m_elevatorHeightSupplier = elevatorHeightSupplier;
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
@@ -49,7 +51,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void fastPeriodic(){
     double output = m_PIDController.calculate(m_pivotMotor.getEncoder().getPosition(), targetRotation);
     output = MathUtil.clamp(output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
-    m_pivotMotor.set(output);
+    // m_pivotMotor.set(output);
+    // m_effectorMotor.set(effectorOutput);
   }
 
   public void pivotTo(double setpoint) {
@@ -80,18 +83,20 @@ public class EndEffectorSubsystem extends SubsystemBase {
   // pivot motor should be controlled with a pid in fastperiodic
   // maybe these should be m_coralMotor or m_algaeMotor?
   public void intakeAlgae(){
-    m_effectorMotor.set(EndEffectorConstants.kAlgaeIntakeSpeed);
+    effectorOutput = EndEffectorConstants.kAlgaeIntakeSpeed;
   }
 
   public void intakeCoral(){
-    if (m_endEffectorRange.getDistance().getValueAsDouble() != 0) m_effectorMotor.set(EndEffectorConstants.kCoralIntakeSpeed);
+    if (m_endEffectorRange.getDistance().getValueAsDouble() != 0) {
+      effectorOutput = EndEffectorConstants.kCoralIntakeSpeed;
+    }
   }
 
   public void outtakeAlgae(){
-    m_effectorMotor.set(EndEffectorConstants.kAlgaeOuttakeSpeed);
+    effectorOutput = EndEffectorConstants.kAlgaeOuttakeSpeed;
   }
 
   public void outtakeCoral(){
-    m_effectorMotor.set(EndEffectorConstants.kCoralOuttakeSpeed);
+    effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
   }
 }
