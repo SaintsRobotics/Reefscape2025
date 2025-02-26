@@ -128,7 +128,7 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
-    public static final int kElevatorMotorPort = 0;
+    public static final int kElevatorMotorPort = 90;
     public static final int kElevatorCANrangePort = 0;
 
     // TODO: Tune PID for elevator
@@ -151,8 +151,8 @@ public final class Constants {
 
   public static final class EndEffectorConstants{
     // TODO: Set these constants
-    public static final int kPivotMotorPort = 0;
-    public static final int kEffectorMotorPort = 0;
+    public static final int kPivotMotorPort = 91;
+    public static final int kEffectorMotorPort = 92;
     public static final int kEndEffectorCANrangePort = 0;
 
     public static final double kPEndEffector = 0.03;

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.Math;
 import java.util.NavigableMap;
-import java.util.TreeMap;
 
 import edu.wpi.first.math.Pair;
 import frc.robot.Constants.ElevatorConstants;
@@ -18,7 +17,7 @@ public class InterlocksTest {
     private Interlocks m_interlocks;
 
     private static void assertExactlyEquals(double a, double b) {
-        assertEquals(a, b, Math.ulp(a));
+        assertEquals(a - b, 0.d, Math.ulp(a - b));
     }
 
     @BeforeEach
