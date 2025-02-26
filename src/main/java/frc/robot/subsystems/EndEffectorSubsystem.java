@@ -45,14 +45,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_interlocks.setPivotPosition(m_pivotMotor.getEncoder().getPosition());
-    // TODO: change to absolute encoder
+    m_interlocks.setPivotPosition(m_pivotMotor.getAbsoluteEncoder().getPosition());
 
     // This method will be called once per scheduler run
   }
 
   public void fastPeriodic(){
-    double output = m_PIDController.calculate(m_pivotMotor.getEncoder().getPosition(), targetRotation); //TODO: change to absolute encoder
+    double output = m_PIDController.calculate(m_pivotMotor.getAbsoluteEncoder().getPosition(), targetRotation);
     output = MathUtil.clamp(output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
     m_pivotMotor.set(m_interlocks.clampPivotMotorSet(output));
     m_effectorMotor.set(effectorOutput);
