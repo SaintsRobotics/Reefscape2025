@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -35,12 +36,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final Interlocks m_interlocks;
 
   public ElevatorSubsystem(Interlocks interlocks) {
-    //TODO: explicitly set motor to breaking mode
     m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
     m_elevatorMax = Constants.ElevatorConstants.kElevatorTop;
 
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
+    motorConfig.idleMode(IdleMode.kBrake);
 
     m_elevatorMotor = new SparkFlex(ElevatorConstants.kElevatorMotorPort, MotorType.kBrushless);
     // TODO: set to reset and persist after testing
@@ -82,7 +83,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
-    //TODO: if the code does not work, try removing the clamp here
     m_targetPosition = m_interlocks.clampElevatorMotorSetpoint(level);
   }
 
