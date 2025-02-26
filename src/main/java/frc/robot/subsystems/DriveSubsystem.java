@@ -260,21 +260,24 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
+    final Rotation2d rot = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
+
     m_poseEstimator.resetPosition(
-        Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
+        rot,
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         },
-        pose);
+        new Pose2d(pose.getTranslation(), rot));
   }
 
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     m_gyro.reset();
     m_gyroAngle = 0;
+    resetOdometry(getPose());
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
