@@ -29,41 +29,46 @@ public class Interlocks {
 
     /**
      * clamps the setpoint to valid elevator setpoints
-     * assumes elevator is currently in a valid position, otherwise undefined behavior
-     * TODO: either simplify or entirely remove, this might be too slow and likely has many bugs
      * @param setpoint The desired setpoint
      * @return The clamped setpoint
      */
     public double clampElevatorMotorSetpoint(double setpoint) {
-        Entry<Double, Pair<Double,Double>> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight);
+        // first clamp setpoint to extension limits;
+        setpoint = MathUtil.clamp(setpoint, ElevatorConstants.kElevatorBottom, ElevatorConstants.kElevatorTop);
+
+        final Entry<Double, Pair<Double, Double>> currentLimit = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight);
+        final Entry<Double, Pair<Double, Double>> setpointLimts = EndEffectorConstants.kSafePivotPositions.floorEntry(setpoint);
+
+        Entry<Double, Pair<Double, Double>> iteratedLimit = currentLimit;
+        Entry<Double, Pair<Double, Double>> lastValidLimit;
 
         /*
-         * The way this algorithm works is by incrementing the entry until we find an invalid configuration, then use the last found valid configuration
-         * Assumes we start at a valid configuration
+         * This algorithm works by iterating each limit until we find a limit where m_pivotPosition does not satisfy
+         * The limit immediatly before this invalid limit is the max/min setpoint
          */
-        Entry<Double, Pair<Double,Double>> lastValid = pivotLimits;
-        
-        if (setpoint > m_elevatorHeight) { // going up
-            while (m_pivotPosition >= pivotLimits.getValue().getFirst() && m_pivotPosition <= pivotLimits.getValue().getSecond()) { // check if still in limits
-                // try next limit
-                lastValid = pivotLimits;
-                pivotLimits = EndEffectorConstants.kSafePivotPositions.higherEntry(pivotLimits.getKey());
+        while (iteratedLimit != setpointLimts) {
+            // save previous valid since that must be valid
+            lastValidLimit = iteratedLimit;
+
+            // determine direction
+            if (iteratedLimit.getKey() < setpointLimts.getKey()) { // going up
+                iteratedLimit = EndEffectorConstants.kSafePivotPositions.higherEntry(iteratedLimit.getKey());
             }
-        }
-        else { // going down
-            while (m_pivotPosition >= pivotLimits.getValue().getFirst() && m_pivotPosition <= pivotLimits.getValue().getSecond()) { // check if still in limits
-                // try next limit
-                lastValid = pivotLimits;
-                pivotLimits = EndEffectorConstants.kSafePivotPositions.lowerEntry(pivotLimits.getKey());
+            else { // going down
+                iteratedLimit = EndEffectorConstants.kSafePivotPositions.lowerEntry(iteratedLimit.getKey());
+            }
+
+            // check if setpoint is valid in iteratedLimit
+            if (m_pivotPosition < iteratedLimit.getValue().getFirst() || m_pivotPosition > iteratedLimit.getValue().getSecond()) { // out of bounds
+                // clamp to between lastValidLimit and one higher
+                final Entry<Double, Pair<Double, Double>> oneHigherLimit = EndEffectorConstants.kSafePivotPositions.higherEntry(lastValidLimit.getKey());
+
+                return MathUtil.clamp(setpoint, lastValidLimit.getKey(), oneHigherLimit.getKey());
             }
         }
 
-        /*
-         * At this point, the minimum setpoint is the lastValid entry key, and the maximum setpoint is the higher entry key
-         */
-
-         final Entry<Double, Pair<Double,Double>> maxValid = EndEffectorConstants.kSafePivotPositions.higherEntry(lastValid.getKey());
-         return MathUtil.clamp(setpoint, lastValid.getKey(), maxValid.getKey());
+        // if the code reaches here, that means there was no issue with the setpoint
+        return setpoint;
     }
 
     /**
