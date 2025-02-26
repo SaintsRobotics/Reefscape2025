@@ -4,9 +4,7 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -22,20 +20,23 @@ public class DriveToPose extends Command {
   private Pose2d currentPose;
   private final Pose2d m_targetPose;
   private Timer m_timer = new Timer();
-  private int ticksOn;
 
-  // TODO: Move to Constants AND DO NOT TEST THIS ON THE GROUND
+  private final TrapezoidProfile.Constraints constraints = new Constraints(DriveConstants.kMaxSpeedMetersPerSecond, 5);
+  private final TrapezoidProfile.Constraints angularConstraints = new Constraints(
+      DriveConstants.kMaxAngularSpeedRadiansPerSecond, 5);
 
-  private final TrapezoidProfile.Constraints constraints = new Constraints(3.5, 5);
-
-  private final ProfiledPIDController xController = new ProfiledPIDController(3.0, 0.0, 0.3, constraints);
-  private final ProfiledPIDController yController = new ProfiledPIDController(3.0, 0.0, 0.3, constraints);
-  private final ProfiledPIDController thetaController = new ProfiledPIDController(6.0, 0.0, 0.0, constraints);
+  private final ProfiledPIDController xController = new ProfiledPIDController(3.0, 0.01, 0, constraints);
+  private final ProfiledPIDController yController = new ProfiledPIDController(3.0, 0.01, 0, constraints);
+  private final ProfiledPIDController thetaController = new ProfiledPIDController(8.0, 0.0, 0.0, angularConstraints);
 
   /** Creates a new DriveToPose. */
   public DriveToPose(DriveSubsystem driveSubsystem, Pose2d targetPose) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveSubsystem);
+
+    xController.setTolerance(0.01, 0.05);
+    yController.setTolerance(0.01, 0.05);
+    thetaController.setTolerance(Math.toRadians(1.5), 0.05);
 
     thetaController.enableContinuousInput(0, Math.PI * 2);
 
@@ -48,12 +49,11 @@ public class DriveToPose extends Command {
   public void initialize() {
     m_timer.restart();
 
+    // TODO: reset state with current chassis speeds
     currentPose = m_driveSubsystem.getPose();
     xController.reset(new State(currentPose.getX(), 0));
     yController.reset(new State(currentPose.getY(), 0));
     thetaController.reset(new State(currentPose.getRotation().getRadians(), 0));
-
-    ticksOn = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -66,14 +66,9 @@ public class DriveToPose extends Command {
     double thetaSpeed = thetaController.calculate(currentPose.getRotation().getRadians(),
         m_targetPose.getRotation().getRadians());
 
-    if (DriveConstants.kAutoDriving) m_driveSubsystem.drive(xSpeed, ySpeed, thetaSpeed, true);
-
-    currentPose = m_driveSubsystem.getPose();
-    if((m_timer.get() > 5) || (currentPose.getTranslation().getDistance(m_targetPose.getTranslation()) <= 0.05) // meters, add to constants later
-      && Math.abs(currentPose.getRotation().minus(m_targetPose.getRotation()).getRadians()) <= Math.toRadians(1.5)) {
-        ticksOn++; // 1.5 degrees, add to constants later
-      }
-    else ticksOn = 0;
+    if (DriveConstants.kAutoDriving) {
+      m_driveSubsystem.drive(xSpeed, ySpeed, thetaSpeed, true);
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -85,6 +80,8 @@ public class DriveToPose extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !DriveConstants.kAutoDriving || ticksOn >= 5;
+    return !DriveConstants.kAutoDriving || (xController.atGoal() &&
+        yController.atGoal() &&
+        thetaController.atGoal());
   }
 }

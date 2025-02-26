@@ -114,7 +114,7 @@ public final class Constants {
       new Rotation3d(0,0,0)
     );
 
-    public static final String kLimelightName = "limelight-sr";
+    public static final String kLimelightName = "limelight";
 
     // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
     public static final int kIMUMode = 0;
