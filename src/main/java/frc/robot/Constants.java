@@ -44,6 +44,8 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
+    public static final double kElevatorAxisScalar = 0.5; //TODO: tune
+
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;
     public static final int kDPadDown = 180;
@@ -130,7 +132,7 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
-    public static final int kElevatorMotorPort = 0;
+    public static final int kElevatorMotorPort = 90;
     public static final int kElevatorCANrangePort = 0;
 
     // TODO: Tune PID for elevator
@@ -153,8 +155,8 @@ public final class Constants {
 
   public static final class EndEffectorConstants{
     // TODO: Set these constants
-    public static final int kPivotMotorPort = 0;
-    public static final int kEffectorMotorPort = 0;
+    public static final int kPivotMotorPort = 91;
+    public static final int kEffectorMotorPort = 92;
     public static final int kEndEffectorCANrangePort = 0;
 
     public static final double kPEndEffector = 0.03;
@@ -174,29 +176,35 @@ public final class Constants {
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height
-     * Each key is the starting (from zero) elevator height for the limit
-     * Each value is a Pair with the minimum and maximum pivot angle in radians,
+     * Each key is the starting (from zero) elevator height for the limit. Height is inclusive
+     * Each value is a Pair with the minimum and maximum pivot angles (inclusive) in radians,
      * respectively
      * 
-     * For exampple:
+     * For example:
      * 
      * Map.ofEntries(
-     * Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+     * Map.entry(-100000.0, Pair.of(0.0, Math.PI / 2)),
      * Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
      * Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI))
+     * Map.entry(100000.0, Pair.of(Math.PI / 2, Math.PI))
      * );
      * 
      * means that:
      * pivot angles between elevator heights [-1, 0) must be from 0 to 90 degrees
-     *  this acts as a safeguard for negative values
+     *  this acts as a safeguard for negative values, should be less than min
+     *  physical height
      * pivot angles between elevator heights [0, 1) must be from 0 to 90 degrees,
-     * pivot angles between elevator heights [1, infinity) must be from 90 to 180
+     * pivot angles between elevator heights [1, 5) must be from 90 to 180
+     * pivot angles between elevator heights [5, infinity) must be from 90 to 180
      * degrees
+     *  this acts as a safeguard for very high values, should be greater than max
+     *  physical height
      */
     public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+            Map.entry(-100000.0, Pair.of(0.0, Math.PI / 2)),
             Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
-            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
+            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)),
+            Map.entry(100000.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
   }
 }
