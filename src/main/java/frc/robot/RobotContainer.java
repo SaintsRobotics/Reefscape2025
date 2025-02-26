@@ -95,7 +95,7 @@ public class RobotContainer {
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
 
     new JoystickButton(m_driverController, Button.kBack.value)
-        .onTrue(new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d());}, m_robotDrive));
+        .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
     
     /* Temporarily commented out to merge
     new POVButton(m_operatorController, ElevatorConstants.kDPadUp) // Up - L1
@@ -117,7 +117,7 @@ public class RobotContainer {
     */
 
     new JoystickButton(m_driverController, Button.kA.value)
-      .whileTrue(new DriveToReef(m_robotDrive));
+      .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
   }
 
   /**

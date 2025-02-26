@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
@@ -18,11 +20,14 @@ public class DriveToReef extends Command {
 
   private Command m_driveToPose;
 
+  private BooleanSupplier m_safetyCheck;
+
   /** Creates a new DriveToReef. */
-  public DriveToReef(DriveSubsystem driveSubsystem) {
+  public DriveToReef(DriveSubsystem driveSubsystem, BooleanSupplier safetyCheck) {
     // Use addRequirements() here to declare subsystem dependencies.
 
     m_driveSubsystem = driveSubsystem;
+    m_safetyCheck = safetyCheck;
 
     // Safety net in case the pose is not set
     m_targetPose = m_driveSubsystem.getPose();
@@ -40,7 +45,11 @@ public class DriveToReef extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    if (!m_safetyCheck.getAsBoolean()) {
+      this.cancel();
+    }
+  }
 
   // Called once the command ends or is interrupted.
   @Override
