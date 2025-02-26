@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.hardware.CANrange;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -28,14 +30,32 @@ public class ElevatorSubsystem extends SubsystemBase {
   private double m_targetPosition = 0;
   private double m_motorOffset = 0;
 
-  /** Creates a new ElevatorSubsystem. */
+  private double m_elevatorMin;
+  private double m_elevatorMax;
+
+  private Runnable m_endEffectorVerify = () -> {};
+  private BooleanSupplier m_endEffectorIsSafe = () -> false;
+
   public ElevatorSubsystem() {
+    m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
+    m_elevatorMax = Constants.ElevatorConstants.kElevatorTop;
+
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
 
     m_elevatorMotor = new SparkFlex(ElevatorConstants.kElevatorMotorPort, MotorType.kBrushless);
     // TODO: set to reset and persist after testing
     m_elevatorMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
+  /**
+   * Should be called before any calls to setHeight
+   * @param ensureEndEffectorState the callback for setHeight
+   * @param endEffectorIsSafe supplier that returns true is elevator can move
+   */
+  public void setEndEffectorSuppliers(Runnable ensureEndEffectorState, BooleanSupplier endEffectorIsSafe) {
+    m_endEffectorVerify = ensureEndEffectorState;
+    m_endEffectorIsSafe = endEffectorIsSafe;
   }
 
   @Override
@@ -53,15 +73,21 @@ public class ElevatorSubsystem extends SubsystemBase {
       m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
     output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
-    m_elevatorMotor.set(output);
+
+    if (m_endEffectorIsSafe.getAsBoolean()) {
+      m_elevatorMotor.set(output);
+    }
+    else {
+      m_elevatorMotor.set(ElevatorConstants.kElevatorFeedForward); //TODO: test if this is needed
+    }
 
     SmartDashboard.putNumber("elevator motor output", output);
   }
 
-  public void trackPosition(double leftY) {
-    // Moves the target position by leftY multiplied by the constant kSpeed, clamped between the top and bottom heights
-    m_targetPosition += leftY * ElevatorConstants.kElevatorSpeedScalar * Robot.kDefaultPeriod;
-    m_targetPosition = MathUtil.clamp(m_targetPosition, ElevatorConstants.kElevatorBottom, ElevatorConstants.kElevatorTop);
+  public void joystickMovement(double joystickY) {
+    // Moves the target position by joystickY multiplied by the constant kSpeed, clamped between the top and bottom heights
+    m_targetPosition += joystickY * ElevatorConstants.kElevatorSpeedScalar * Robot.kDefaultPeriod;
+    m_targetPosition = MathUtil.clamp(m_targetPosition, m_elevatorMin, m_elevatorMax);
     // Display this number for now so we can see it
     SmartDashboard.putNumber("elevator targetPosition", m_targetPosition);
   }
@@ -69,5 +95,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
     m_targetPosition = level;
+    m_endEffectorVerify.run();
+  }
+
+  /**
+   * Gets the height of elevator
+   * @return The height of the elevator in meters
+   */
+  public double getHeight() {
+    return m_targetPosition;
   }
 }
