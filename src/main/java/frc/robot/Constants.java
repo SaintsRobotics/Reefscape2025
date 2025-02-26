@@ -109,6 +109,10 @@ public final class Constants {
     public static final double kPHeadingCorrectionController = 5;
 
     public static final boolean kAutoDriving = true;
+    
+    // TODO: set these on real robot
+    public static final double kMaxAccelerationUnitsPerSecond = 100;
+    public static final double kMaxAngularAccelerationUnitsPerSecond = 100;
   }
 
   public static final class VisionConstants {
