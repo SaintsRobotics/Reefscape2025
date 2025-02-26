@@ -172,17 +172,17 @@ public final class Constants {
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height
-     * Each key is the starting (from zero) elevator height for the limit
-     * Each value is a Pair with the minimum and maximum pivot angle in radians,
+     * Each key is the starting (from zero) elevator height for the limit. Height is inclusive
+     * Each value is a Pair with the minimum and maximum pivot angles (inclusive) in radians,
      * respectively
      * 
-     * For exampple:
+     * For example:
      * 
      * Map.ofEntries(
-     * Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+     * Map.entry(-100000.0, Pair.of(0.0, Math.PI / 2)),
      * Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
      * Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI))
-     * Map.entry(5.0, Pair.of(Math.PI / 2, Math.PI))
+     * Map.entry(100000.0, Pair.of(Math.PI / 2, Math.PI))
      * );
      * 
      * means that:
@@ -198,9 +198,9 @@ public final class Constants {
      */
     public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+            Map.entry(-100000.0, Pair.of(0.0, Math.PI / 2)),
             Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
             Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)),
-            Map.entry(5.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
+            Map.entry(100000.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
   }
 }

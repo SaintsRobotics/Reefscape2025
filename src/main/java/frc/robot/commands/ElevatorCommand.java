@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.Map.Entry;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,17 +41,26 @@ public class ElevatorCommand extends Command {
   public void execute() {
     final double currentPosition = m_elevatorSubsystem.getCurrentHeight();
 
-    Pair<Double, Double> pivotLimits;
+    final Entry<Double, Pair<Double, Double>> currentLimit = EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition);
+    final Entry<Double, Pair<Double, Double>> higherLimit = EndEffectorConstants.kSafePivotPositions.higherEntry(currentPosition);
+    final Entry<Double, Pair<Double, Double>> lowerLimit = EndEffectorConstants.kSafePivotPositions.lowerEntry(currentLimit.getKey());
 
-    // check if mobing to next pivot limit
-    if (m_desiredHeight >= EndEffectorConstants.kSafePivotPositions.higherEntry(currentPosition).getKey()) { // going up
-      pivotLimits = EndEffectorConstants.kSafePivotPositions.higherEntry(currentPosition).getValue();
-    } else if (m_desiredHeight < EndEffectorConstants.kSafePivotPositions.lowerEntry(
-EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition).getKey()).getKey()) { // going down
-      pivotLimits = EndEffectorConstants.kSafePivotPositions.lowerEntry(
-EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition).getKey()).getValue();
-    } else { // staying at level
-      pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition).getValue();
+    final Pair<Double, Double> pivotLimits;
+
+    // check if moving to next pivot limit
+
+    // check if greater than or equal to minimum elevator height for next limit
+    if (higherLimit != null && m_desiredHeight >= higherLimit.getKey()) { // going up
+      pivotLimits = higherLimit.getValue();
+    }
+    
+    // check is less than the minimum elevator height for current limit
+    else if (lowerLimit != null && m_desiredHeight < currentLimit.getKey()) { // going down
+      pivotLimits = lowerLimit.getValue();
+    }
+    
+    else { // staying at level
+      pivotLimits = currentLimit.getValue();
     }
 
     final double pivotPosition = MathUtil.clamp(m_endEffectorSubsystem.getSetpoint(), pivotLimits.getFirst(),
