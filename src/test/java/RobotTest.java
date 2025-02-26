@@ -18,6 +18,9 @@ public class RobotTest {
     @BeforeEach
     void setup() {}
 
+    /**
+     * Tests for robot code crashing within the first 5 seconds of the code starting
+     */
     @Test
     void test_Robot() {
         try (Robot robot = new Robot()) {
@@ -35,7 +38,7 @@ public class RobotTest {
                     future.cancel(true);
                 }
                 executor.shutdown();
-            });
+            }, "Robot code crashed");
         }
     }
 
