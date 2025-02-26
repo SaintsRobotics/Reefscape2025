@@ -99,8 +99,9 @@ public final class Constants {
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPHeadingCorrectionController = 5;
 
-    public static final double kMaxAccelerationUnitsPerSecond = 2.5;
-    public static final double kMaxAngularAccelerationUnitsPerSecond = 2.5;
+    // TODO: set these on real robot
+    public static final double kMaxAccelerationUnitsPerSecond = 100;
+    public static final double kMaxAngularAccelerationUnitsPerSecond = 100;
   }
 
   public static final class VisionConstants {
