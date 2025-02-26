@@ -65,8 +65,6 @@ public class SwerveModule {
     m_driveMotor.configure(m_driveMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_turningMotor.configure(m_turningMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // TODO: CANcoder offsets are now set on the encoder using Pheonix Tuner X
-
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
 

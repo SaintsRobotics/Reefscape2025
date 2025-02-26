@@ -6,7 +6,11 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANrange;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -33,9 +37,14 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem(Interlocks interlocks) {
-    //TODO: explicity set pivot motor to breaking mode
+    SparkFlexConfig pivotConfig = new SparkFlexConfig();
+    pivotConfig.idleMode(IdleMode.kBrake);
+
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
     m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
+
+    // TODO: set to reset and persist after testing
+    m_pivotMotor.configure(pivotConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
     // TODO: maybe reverse effector motor
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
@@ -45,14 +54,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_interlocks.setPivotPosition(m_pivotMotor.getEncoder().getPosition());
-    // TODO: change to absolute encoder
+    m_interlocks.setPivotPosition(m_pivotMotor.getAbsoluteEncoder().getPosition());
 
     // This method will be called once per scheduler run
   }
 
   public void fastPeriodic(){
-    double output = m_PIDController.calculate(m_pivotMotor.getEncoder().getPosition(), targetRotation); //TODO: change to absolute encoder
+    double output = m_PIDController.calculate(m_pivotMotor.getAbsoluteEncoder().getPosition(), targetRotation);
     output = MathUtil.clamp(output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
     m_pivotMotor.set(m_interlocks.clampPivotMotorSet(output));
     m_effectorMotor.set(effectorOutput);
