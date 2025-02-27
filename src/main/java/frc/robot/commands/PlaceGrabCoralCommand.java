@@ -13,13 +13,19 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 public class PlaceGrabCoralCommand extends SequentialCommandGroup {
   /** Creates a new PlaceGrabCoralCommand. */
   public PlaceGrabCoralCommand(EndEffectorSubsystem endEffectorSubsystem) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-
-    // TODO: detect if placing or grabbing
-    
-    // TODO: create a command sequence
-
-    // TODO: ensure each command has an end interrupted handler to return to original state
+    if (endEffectorSubsystem.isHolding()) { //TODO: tune constants, and make dynamic based on elevator height?
+      addCommands(
+        new PivotCommand(endEffectorSubsystem, 0),
+        new TimedCommand(() -> endEffectorSubsystem.outtakeCoral(), 0),
+        new PivotCommand(endEffectorSubsystem, 0)
+        );
+    }
+    else {
+      addCommands(
+        new PivotCommand(endEffectorSubsystem, 0),
+        new TimedCommand(() -> endEffectorSubsystem.intakeCoral(), 0),
+        new PivotCommand(endEffectorSubsystem, 0)
+        );
+    }
   }
 }

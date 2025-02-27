@@ -22,6 +22,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.ElevatorCommand;
+import frc.robot.commands.PivotCommand;
 import frc.robot.commands.PlaceGrabAlgaeCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
 import frc.robot.subsystems.DriveSubsystem;
@@ -83,6 +84,8 @@ public class RobotContainer {
                     m_robotDrive));
 
     m_elevator.setDefaultCommand(new RunCommand(() -> m_elevator.setHeight(m_elevator.getCurrentHeight()), m_elevator));
+    m_endEffector.setDefaultCommand(
+            new RunCommand(() -> m_endEffector.pivotTo(m_endEffector.getPivotPosition()), m_endEffector));
 }
 
   /**
@@ -186,8 +189,13 @@ public class RobotContainer {
             }, m_endEffector));
 
     // auto intake/outake
-    new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband).whileTrue(new PlaceGrabAlgaeCommand(m_endEffector));
-    new Trigger(() -> m_operatorController.getLeftTriggerAxis() > IOConstants.kControllerDeadband).whileTrue(new PlaceGrabCoralCommand(m_endEffector));
+    //TODO: put actual setpoints for onFalse
+    new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
+            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector))
+            .onFalse(new PivotCommand(m_endEffector, 0));
+    new Trigger(() -> m_operatorController.getLeftTriggerAxis() > IOConstants.kControllerDeadband)
+            .whileTrue(new PlaceGrabCoralCommand(m_endEffector))
+            .onFalse(new PivotCommand(m_endEffector, 0));
 
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1
         .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));

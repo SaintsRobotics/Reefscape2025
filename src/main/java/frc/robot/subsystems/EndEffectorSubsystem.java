@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
@@ -60,6 +61,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void periodic() {
     m_interlocks.setPivotPosition(m_pivotMotor.getAbsoluteEncoder().getPosition());
 
+    SmartDashboard.putBoolean("Is Holding", isHolding());
+
     // This method will be called once per scheduler run
   }
 
@@ -103,5 +106,21 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void setSpeed(double speed) {
     m_speedOverride = speed;
     m_overrideSetpoint = true;
+  }
+
+  public double getPivotPosition() {
+    return m_pivotMotor.getAbsoluteEncoder().getPosition();
+  }
+
+  /**
+   * Checks if currently holding
+   * @return True if either a coral or algae is currently being held
+   */
+  public boolean isHolding() {
+    return m_endEffectorRange.getDistance().getValueAsDouble() <= EndEffectorConstants.kSensorDistanceThreshold;
+  }
+
+  public boolean atSetpoint() {
+    return m_PIDController.atSetpoint();
   }
 }

@@ -170,6 +170,8 @@ public final class Constants {
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
 
+    public static final double kSensorDistanceThreshold = 1; // meters, TODO: tune
+
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height
