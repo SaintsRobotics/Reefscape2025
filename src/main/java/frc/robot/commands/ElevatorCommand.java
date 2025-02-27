@@ -63,9 +63,16 @@ public class ElevatorCommand extends Command {
       pivotLimits = currentLimit.getValue();
     }
 
-    final double pivotPosition = MathUtil.clamp(m_endEffectorSubsystem.getSetpoint(), pivotLimits.getFirst(),
+
+    // first clamp using setpoint limit
+    final double pivotPositionSetpointClamped = MathUtil.clamp(m_endEffectorSubsystem.getSetpoint(), pivotLimits.getFirst(),
         pivotLimits.getSecond());
-    m_endEffectorSubsystem.pivotTo(pivotPosition);
+
+    // then clamp with current limit
+    final double pivotPositionClamped = MathUtil.clamp(pivotPositionSetpointClamped, currentLimit.getValue().getFirst(),
+        currentLimit.getValue().getSecond());
+
+    m_endEffectorSubsystem.pivotTo(pivotPositionClamped);
   }
 
   // Called once the command ends or is interrupted.
