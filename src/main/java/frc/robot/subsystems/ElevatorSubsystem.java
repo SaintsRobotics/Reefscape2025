@@ -17,7 +17,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.utils.Interlocks;
 
@@ -30,15 +29,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private double m_targetPosition = 0;
   private double m_motorOffset = 0;
 
-  private double m_elevatorMin;
-  private double m_elevatorMax;
-
   private final Interlocks m_interlocks;
 
-  public ElevatorSubsystem(Interlocks interlocks) {
-    m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
-    m_elevatorMax = Constants.ElevatorConstants.kElevatorTop;
+  private boolean m_overrideSetpoint;
+  private double m_speedOverride;
 
+  public ElevatorSubsystem(Interlocks interlocks) {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
     motorConfig.idleMode(IdleMode.kBrake);
@@ -48,6 +44,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_elevatorMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
     m_interlocks = interlocks;
+
+    m_overrideSetpoint = false;
   }
 
   @Override
@@ -68,22 +66,15 @@ public class ElevatorSubsystem extends SubsystemBase {
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
     output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
 
-    m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(output));
+    m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(m_overrideSetpoint ? m_speedOverride : output));
 
     SmartDashboard.putNumber("elevator motor output", output);
-  }
-
-  public void joystickMovement(double joystickY) {
-    // Moves the target position by joystickY multiplied by the constant kSpeed, clamped between the top and bottom heights
-    m_targetPosition += joystickY * ElevatorConstants.kElevatorSpeedScalar * Robot.kDefaultPeriod;
-    m_targetPosition = MathUtil.clamp(m_targetPosition, m_elevatorMin, m_elevatorMax);
-    // Display this number for now so we can see it
-    SmartDashboard.putNumber("elevator targetPosition", m_targetPosition);
   }
 
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
     m_targetPosition = m_interlocks.clampElevatorMotorSetpoint(level);
+    m_overrideSetpoint = false;
   }
 
   public double getHeightSetpoint() {
@@ -96,5 +87,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public boolean atSetpoint() {
     return m_PIDController.atSetpoint();
+  }
+
+  /**
+   * Sets the speed of the elevator and overwrites the setpoint until the next period
+   * @param speed The speed without the feedforwards
+   */
+  public void setSpeed(double speed) {
+    m_speedOverride = speed + ElevatorConstants.kElevatorFeedForward;
+    m_overrideSetpoint = true;
   }
 }
