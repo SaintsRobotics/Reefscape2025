@@ -86,6 +86,11 @@ public class Interlocks {
             return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
         }
 
+        // check if within physical limits
+        if (m_elevatorHeight < ElevatorConstants.kElevatorBottom || m_elevatorHeight > ElevatorConstants.kElevatorTop) {
+            return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
+        }
+
         return speed;
     }
 

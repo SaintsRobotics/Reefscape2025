@@ -44,7 +44,8 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
-    public static final double kElevatorAxisScalar = 0.5; //TODO: tune
+    public static final double kElevatorAxisScalar = 0.01; //TODO: tune
+    public static final double kPivotAxisScalar = 0.01; //TODO: tune
 
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;
@@ -179,6 +180,8 @@ public final class Constants {
     public static final double kCoralOuttakeSpeed = -0.25;
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
+
+    public static final double kSensorDistanceThreshold = 1; // meters, TODO: tune
 
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
