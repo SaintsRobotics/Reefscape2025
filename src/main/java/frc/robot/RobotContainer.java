@@ -13,9 +13,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -43,7 +45,7 @@ import frc.robot.utils.Interlocks;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final Interlocks m_interlocks = new Interlocks();
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  //private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(m_interlocks);
   private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(m_interlocks);
 
@@ -57,37 +59,39 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    m_robotDrive.setDefaultCommand(
-        new RunCommand(
-            () -> m_robotDrive.drive(
-                MathUtil.applyDeadband(
-                    -m_driverController.getLeftY(),
-                    IOConstants.kControllerDeadband)
-                    * DriveConstants.kMaxSpeedMetersPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
-                    * 0.8,
-                MathUtil.applyDeadband(
-                    -m_driverController.getLeftX(),
-                    IOConstants.kControllerDeadband)
-                    * DriveConstants.kMaxSpeedMetersPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
-                    * 0.8,
-                MathUtil.applyDeadband(
-                    m_driverController.getRightX(),
-                    IOConstants.kControllerDeadband)
-                    * DriveConstants.kMaxAngularSpeedRadiansPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
-                    * -1,
-                !m_driverController.getRightBumperButton()),
-                    m_robotDrive));
+    // m_robotDrive.setDefaultCommand(
+    //     new RunCommand(
+    //         () -> m_robotDrive.drive(
+    //             MathUtil.applyDeadband(
+    //                 -m_driverController.getLeftY(),
+    //                 IOConstants.kControllerDeadband)
+    //                 * DriveConstants.kMaxSpeedMetersPerSecond
+    //                 * (1 - m_driverController
+    //                     .getLeftTriggerAxis()
+    //                     * IOConstants.kSlowModeScalar)
+    //                 * 0.8,
+    //             MathUtil.applyDeadband(
+    //                 -m_driverController.getLeftX(),
+    //                 IOConstants.kControllerDeadband)
+    //                 * DriveConstants.kMaxSpeedMetersPerSecond
+    //                 * (1 - m_driverController
+    //                     .getLeftTriggerAxis()
+    //                     * IOConstants.kSlowModeScalar)
+    //                 * 0.8,
+    //             MathUtil.applyDeadband(
+    //                 m_driverController.getRightX(),
+    //                 IOConstants.kControllerDeadband)
+    //                 * DriveConstants.kMaxAngularSpeedRadiansPerSecond
+    //                 * (1 - m_driverController
+    //                     .getLeftTriggerAxis()
+    //                     * IOConstants.kSlowModeScalar)
+    //                 * -1,
+    //             !m_driverController.getRightBumperButton()),
+    //                 m_robotDrive));
 
-    m_elevator.setDefaultCommand(new RunCommand(() -> m_elevator.setHeight(m_elevator.getCurrentHeight()), m_elevator));
+    m_elevator.setDefaultCommand(new StartEndCommand(() -> {
+        m_elevator.setHeight(m_elevator.getCurrentHeight());
+    }, () -> {}, m_elevator));
     m_endEffector.setDefaultCommand(
             new RunCommand(() -> m_endEffector.pivotTo(m_endEffector.getPivotPosition()), m_endEffector));
 }
@@ -104,12 +108,13 @@ public void initSubsystems() {
    * Use this method to define your button->command mappings.
    * 
    * Driver Controls:
-   *    left axis X/Y:                  movement speed
-   *    right axis X:                   turn speed
+   *    left axis X/Y:                  robot translation
+   *    right axis X:                   robot rotation
    *    left trigger:                   slow mode
    *    right bumper:                   robot relative
    *    start:                          zero heading
    *    back:                           reset gyro
+   *    A (left bumper pressed):        auto align to reef
    * 
    * Operator Controls:
    *    left axis Y (B unpressed):      semi-automatic elevator speed
@@ -119,26 +124,31 @@ public void initSubsystems() {
    *    A (right bumper pressed):       outtake algae
    *    X (right bumper unpressed):     intake coral
    *    X (right bumper pressed):       outtake coral
-   *    Y: (left bumper pressed):       increment elevator (see 1)
+   *    start (left bumper pressed):    increment elevator (see 1)
+   *    back (left bumper presssed):    reset elevator (see 2)
    *    Dpad up:                        L1 elevator position
    *    Dpad right:                     L2 elevator position
    *    Dpad down:                      L3 elevator position
    *    Dpad left:                      L4 elevator position
-   *    right trigger:                  place/grab algae
+   *    right trigger:                  grab algae
+   *    Y button:                      place algae
    *    left trigger:                   place/grab coral
    * 
    *    1: Increments both the elevator offset and setpoint.
    *        Does not cause any movement. Used to move elevator
    *        below zero when not calibrated. Effect does not
    *        stack
+   *    2: Resets position, offset and setpoint
+   *        Does not cause any movement. Used to reset elevator
+   *        position when distance sensor fails
    */
   private void configureBindings() {
     
-    new JoystickButton(m_driverController, Button.kStart.value)
-        .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
+    // new JoystickButton(m_driverController, Button.kStart.value)
+    //     .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
 
-    new JoystickButton(m_driverController, Button.kBack.value)
-        .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
+    // new JoystickButton(m_driverController, Button.kBack.value)
+    //     .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
             .and(m_operatorController::getAButton)
@@ -157,23 +167,32 @@ public void initSubsystems() {
             .whileTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector));
 
     new JoystickButton(m_operatorController, Button.kLeftBumper.value)
-            .and(m_operatorController::getYButton)
+            .and(m_operatorController::getStartButton)
             .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(5), m_elevator));
 
+    new JoystickButton(m_operatorController, Button.kLeftBumper.value)
+            .and(m_operatorController::getBackButton)
+            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator));
+
+    SmartDashboard.putBoolean("hit 2", true);
     // full manual elevator
-    new Trigger(m_operatorController::getBButton)
+    new JoystickButton(m_operatorController, Button.kB.value)
             .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
             .whileTrue(new RunCommand(() -> {
+                SmartDashboard.putBoolean("hit y", true);
                 m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar); // no need to apply deadband here because of trigger
             }, m_elevator));
 
+            //TODO: change to joystick button
+
     // semi manual elevator
-    new Trigger(m_operatorController::getBButton).negate()
-            .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
+    new JoystickButton(m_operatorController, Button.kB.value).negate()
+            .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
             .whileTrue(new RunCommand(() -> {
                 // because we cant do position prediction here, we need to use more restrictive
                 // pivot adjustments
                 // always clamp using current, and also clamp to next
+                SmartDashboard.putBoolean("hit k", true);
                 final double speed = -m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar; // no need to apply deadband here because of trigger
 
                 double pivotSetpoint = m_endEffector.getSetpoint();
@@ -204,6 +223,7 @@ public void initSubsystems() {
                 m_elevator.setSpeed(speed);
             }, m_elevator, m_endEffector));
 
+
     // pivot
     new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
             .whileTrue(new RunCommand(() -> {
@@ -213,15 +233,12 @@ public void initSubsystems() {
     // auto intake/outake
     //TODO: put actual setpoints for onFalse
     new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
-            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, true, m_interlocks))
-            .onFalse(new PivotCommand(m_endEffector, 0));
-
-    /*
-    TODO: someone find a unique button for this
-    new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
             .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, false, m_interlocks))
             .onFalse(new PivotCommand(m_endEffector, 0));
-    */
+
+    new JoystickButton(m_operatorController, Button.kY.value)
+            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, true, m_interlocks))
+            .onFalse(new PivotCommand(m_endEffector, 0));
     
     new Trigger(() -> m_operatorController.getLeftTriggerAxis() > IOConstants.kControllerDeadband)
             .whileTrue(new PlaceGrabCoralCommand(m_endEffector))
@@ -259,7 +276,7 @@ public void initSubsystems() {
    * </p>
    */
   public void fastPeriodic() {
-    m_robotDrive.fastPeriodic();
+    // m_robotDrive.fastPeriodic();
     m_elevator.fastPeriodic(); // Temporarily commented out to merge
     m_endEffector.fastPeriodic(); // Temporarily commented out
   }

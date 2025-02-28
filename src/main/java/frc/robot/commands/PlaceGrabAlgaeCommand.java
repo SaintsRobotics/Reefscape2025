@@ -16,21 +16,21 @@ public class PlaceGrabAlgaeCommand extends SequentialCommandGroup {
   /**
    * 
    * @param endEffectorSubsystem
-   * @param intake True if intaking. False if outtaking
+   * @param outtake True if outtaking. False if intaking
    */
-  public PlaceGrabAlgaeCommand(EndEffectorSubsystem endEffectorSubsystem, boolean intake, Interlocks interlocks) {
-    if (intake) { //TODO: tune constants, and make dynamic based on elevator height?
+  public PlaceGrabAlgaeCommand(EndEffectorSubsystem endEffectorSubsystem, boolean outtake, Interlocks interlocks) {
+    if (outtake) { //TODO: tune constants, and make dynamic based on elevator height?
       
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
-        new TimedCommand(() -> endEffectorSubsystem.outtakeAlgae(), 0),
+        new TimedCommand(endEffectorSubsystem::outtakeAlgae, 0),
         new PivotCommand(endEffectorSubsystem, 0)
         );
     }
     else {
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
-        new TimedCommand(() -> endEffectorSubsystem.intakeAlgae(), 0),
+        new TimedCommand(endEffectorSubsystem::intakeAlgae, 0),
         new PivotCommand(endEffectorSubsystem, 0)
         );
       

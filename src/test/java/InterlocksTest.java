@@ -2,7 +2,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.lang.Math;
@@ -15,10 +14,13 @@ import frc.robot.utils.Interlocks;
 
 public class InterlocksTest {
     private NavigableMap<Double, Pair<Double, Double>> m_safePivots = EndEffectorConstants.kSafePivotPositions;
+    private static final double maxSpeedUp = ElevatorConstants.kElevatorUpMaxSpeed; // store here for less typing
+    private static final double maxSpeedDown = ElevatorConstants.kElevatorDownMaxSpeed;
+    private static final double maxSpeed = EndEffectorConstants.kPivotMaxSpeed;
     private Interlocks m_interlocks;
 
     private static void assertExactlyEquals(double a, double b) {
-        assertEquals(a - b, 0.d, Math.ulp(a - b), "Interlocks failed");
+        assertEquals(0, a - b, Math.ulp(a - b), "Interlocks failed");
     }
 
     @BeforeEach
@@ -36,160 +38,150 @@ public class InterlocksTest {
      * Tests for correct elevator clamp behavior
      */
     @Test
-    @Disabled
     void test_ElevatorClamp_NoClamp() {
         m_interlocks.setElevatorHeight(0);
         m_interlocks.setPivotPosition(0);
 
         
         assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0), 0);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), 0.5);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(1), 1);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(-1), -1);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp/2), maxSpeedUp/2);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp*2), maxSpeedUp);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedDown*2), maxSpeedDown);
     }
 
     /**
      * Tests for correct elevator clamp behavior
      */
     @Test
-    @Disabled
     void test_ElevatorClamp_Clamp() {
         m_interlocks.setElevatorHeight(1);
         m_interlocks.setPivotPosition(0);
 
         assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0), ElevatorConstants.kElevatorFeedForward);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), ElevatorConstants.kElevatorFeedForward);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(1), ElevatorConstants.kElevatorFeedForward);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(-1), ElevatorConstants.kElevatorFeedForward);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp/2), ElevatorConstants.kElevatorFeedForward);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp*2), ElevatorConstants.kElevatorFeedForward);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedDown*2), ElevatorConstants.kElevatorFeedForward);
     }
 
     /**
      * Tests for correct elevator clamp behavior
      */
     @Test
-    @Disabled
     void test_ElevatorClamp_Edge() {
         m_interlocks.setElevatorHeight(1);
         m_interlocks.setPivotPosition(10);
 
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), 0.5);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp/2), maxSpeedUp/2);
 
         m_interlocks.setElevatorHeight(2);
         m_interlocks.setPivotPosition(10);
 
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), ElevatorConstants.kElevatorFeedForward);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp/2), ElevatorConstants.kElevatorFeedForward);
     }
 
     /**
      * Tests for correct elevator clamp behavior
      */
     @Test
-    @Disabled
     void test_ElevatorClamp_Many() {
         m_interlocks.setElevatorHeight(0);
         m_interlocks.setPivotPosition(0);
 
         assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0), 0);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), 0.5);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp/2), maxSpeedUp/2);
 
         m_interlocks.setElevatorHeight(1);
         assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0), ElevatorConstants.kElevatorFeedForward);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(-1), ElevatorConstants.kElevatorFeedForward);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedDown/2), ElevatorConstants.kElevatorFeedForward);
 
         m_interlocks.setPivotPosition(99);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), ElevatorConstants.kElevatorFeedForward);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(-1), ElevatorConstants.kElevatorFeedForward);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp/2), ElevatorConstants.kElevatorFeedForward);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedDown*2), ElevatorConstants.kElevatorFeedForward);
 
         m_interlocks.setElevatorHeight(1.99);
 
         assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0), ElevatorConstants.kElevatorFeedForward);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), ElevatorConstants.kElevatorFeedForward);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedDown*2), ElevatorConstants.kElevatorFeedForward);
 
         m_interlocks.setElevatorHeight(2);
 
         assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0), 0.0);
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), 0.5);
-
-        //TODO: fix min/max speeds for all tests
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(maxSpeedUp), maxSpeedUp);
     }
 
     /**
      * Tests for correct pivot clamp behavior
      */
     @Test
-    @Disabled
     void test_PivotClamp_NoClamp() {
         m_interlocks.setElevatorHeight(0);
         m_interlocks.setPivotPosition(0);
 
         
         assertExactlyEquals(m_interlocks.clampPivotMotorSet(0), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(0.5), 0.5);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(1), 1);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(-1), -1);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed), maxSpeed);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed*2), maxSpeed);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(-maxSpeed*2), -maxSpeed);
     }
 
     /**
      * Tests for correct pivot clamp behavior
      */
     @Test
-    @Disabled
     void test_PivotClamp_Clamp() {
         m_interlocks.setElevatorHeight(1);
         m_interlocks.setPivotPosition(0);
 
         assertExactlyEquals(m_interlocks.clampPivotMotorSet(0), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(0.5), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(1), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(-1), 0);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed), 0);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed*2), 0);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(-maxSpeed*2), 0);
     }
 
     /**
      * Tests for correct pivot clamp behavior
      */
     @Test
-    @Disabled
     void test_PivotClamp_Edge() {
         m_interlocks.setElevatorHeight(1);
         m_interlocks.setPivotPosition(10);
 
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(0.5), 0.5);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed), maxSpeed);
 
         m_interlocks.setElevatorHeight(2);
         m_interlocks.setPivotPosition(10);
 
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(0.5), 0);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed), 0);
     }
 
     /**
      * Tests for correct pivot clamp behavior
      */
     @Test
-    @Disabled
     void test_PivotClamp_Many() {
         m_interlocks.setElevatorHeight(0);
         m_interlocks.setPivotPosition(0);
 
         assertExactlyEquals(m_interlocks.clampPivotMotorSet(0), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(0.5), 0.5);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed*2), maxSpeed);
 
         m_interlocks.setElevatorHeight(1);
         assertExactlyEquals(m_interlocks.clampPivotMotorSet(0), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(-1), 0);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(-maxSpeed), 0);
 
         m_interlocks.setPivotPosition(99);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(0.5), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(-1), 0);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed/2), 0);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(-maxSpeed*2), 0);
 
         m_interlocks.setElevatorHeight(1.99);
 
         assertExactlyEquals(m_interlocks.clampPivotMotorSet(0), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(0.5), 0);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed), 0);
 
         m_interlocks.setElevatorHeight(2);
 
         assertExactlyEquals(m_interlocks.clampPivotMotorSet(0), 0);
-        assertExactlyEquals(m_interlocks.clampPivotMotorSet(0.5), 0.5);
+        assertExactlyEquals(m_interlocks.clampPivotMotorSet(maxSpeed/2), maxSpeed/2);
     }
 
     @AfterEach

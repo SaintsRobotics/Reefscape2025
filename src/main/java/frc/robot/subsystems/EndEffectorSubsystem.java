@@ -30,9 +30,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
   private double targetRotation = 0;
   private double effectorOutput = 0;
 
+  private double m_output;
+
   private final Interlocks m_interlocks;
 
-  private boolean m_overrideSetpoint;
   private double m_speedOverride;
 
   // Pivoting controls: A is L1, B is L2 & L3, Y is L4 or use right joystick
@@ -43,6 +44,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public EndEffectorSubsystem(Interlocks interlocks) {
     SparkFlexConfig pivotConfig = new SparkFlexConfig();
     pivotConfig.idleMode(IdleMode.kBrake);
+    pivotConfig.absoluteEncoder.positionConversionFactor(Math.PI * 2); // convert to radians
 
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
     m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
@@ -54,28 +56,46 @@ public class EndEffectorSubsystem extends SubsystemBase {
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
 
     m_interlocks = interlocks;
-    m_overrideSetpoint = false;
   }
 
   @Override
   public void periodic() {
-    m_interlocks.setPivotPosition(m_pivotMotor.getAbsoluteEncoder().getPosition());
+    m_interlocks.setPivotPosition(getPivotPosition());
+
+      /*
+     * The order of callbacks is as follows:
+     *  The timed robot periodic will run
+     *    Then the command command scheduler will run
+     *      Then all periodics will run
+     *      Then all commands will run
+     *    Then the fast periodics will run
+     *    Then the fast periodics will run again
+     * 
+     * This means that we will set overrideSpeed to 0 in each periodic
+     *  Then a command might cause this to become non zero
+     *  In that case, the two fast periodics will use the speed override instead of the setpoint
+     */
+
+     m_speedOverride = 0;
 
     SmartDashboard.putBoolean("Is Holding", isHolding());
-
+    SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
+    SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
+    SmartDashboard.putNumber("Pivot Output", m_output);
     // This method will be called once per scheduler run
   }
 
   public void fastPeriodic(){
-    double output = m_PIDController.calculate(m_pivotMotor.getAbsoluteEncoder().getPosition(), targetRotation);
-    output = MathUtil.clamp(output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
-    m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_overrideSetpoint ? m_speedOverride : output));
-    m_effectorMotor.set(effectorOutput);
+    m_output = m_PIDController.calculate(getPivotPosition(), targetRotation);
+    m_output = MathUtil.clamp(m_output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
+    m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
+
+    //m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
+    //m_effectorMotor.set(effectorOutput);
   }
 
   public void pivotTo(double setpoint) {
-    targetRotation = m_interlocks.clampPivotMotorSetpoint(setpoint);
-    m_overrideSetpoint = false;
+    targetRotation = setpoint; //TODO: clamp setpoint
   }
 
   public double getSetpoint() {
@@ -105,11 +125,11 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public void setSpeed(double speed) {
     m_speedOverride = speed;
-    m_overrideSetpoint = true;
   }
 
   public double getPivotPosition() {
-    return m_pivotMotor.getAbsoluteEncoder().getPosition();
+    final double encoderPosition = m_pivotMotor.getAbsoluteEncoder().getPosition();
+    return encoderPosition >= EndEffectorConstants.kPivotWraparoundPoint ? 0 : encoderPosition;
   }
 
   /**
