@@ -115,12 +115,18 @@ public void initSubsystems() {
    *    A (right bumper pressed):       outtake algae
    *    X (right bumper unpressed):     intake coral
    *    X (right bumper pressed):       outtake coral
+   *    Y: (left bumper pressed):       increment elevator (see 1)
    *    Dpad up:                        L1 elevator position
    *    Dpad right:                     L2 elevator position
    *    Dpad down:                      L3 elevator position
    *    Dpad left:                      L4 elevator position
    *    right trigger:                  place/grab algae
    *    left trigger:                   place/grab coral
+   * 
+   *    1: Increments both the elevator offset and setpoint.
+   *        Does not cause any movement. Used to move elevator
+   *        below zero when not calibrated. Effect does not
+   *        stack
    */
   private void configureBindings() {
     
@@ -145,6 +151,10 @@ public void initSubsystems() {
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
             .and(m_operatorController::getXButton)
             .whileTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector));
+
+    new JoystickButton(m_operatorController, Button.kLeftBumper.value)
+            .and(m_operatorController::getYButton)
+            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(5), m_elevator));
 
     // full manual elevator
     new Trigger(m_operatorController::getBButton)

@@ -56,7 +56,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
       // This offset is set when the distance sensor detects that the elevator is at the bottom 
       // At the bottom, the motor's position + offset should equal 0
-      m_motorOffset = -m_elevatorMotor.getEncoder().getPosition();
+      zeroPosition();
     }
   }
 
@@ -96,5 +96,22 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setSpeed(double speed) {
     m_speedOverride = speed + ElevatorConstants.kElevatorFeedForward;
     m_overrideSetpoint = true;
+  }
+
+  /**
+   * Zeroes the position so that the current elevator position is zero
+   */
+  public void zeroPosition() {
+    zeroPosition(0);
+  }
+
+
+  /**
+   * Zereos the position so that the current elevator position is offset
+   * @param offset
+   */
+  public void zeroPosition(double offset) {
+    m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
+    m_targetPosition = getCurrentHeight();
   }
 }
