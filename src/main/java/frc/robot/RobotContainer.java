@@ -88,6 +88,14 @@ public class RobotContainer {
             new RunCommand(() -> m_endEffector.pivotTo(m_endEffector.getPivotPosition()), m_endEffector));
 }
 
+public void initSubsystems() {
+    // cancel commands
+    new InstantCommand(() -> {}, m_elevator, m_endEffector).schedule();
+
+    m_elevator.setHeight(m_elevator.getCurrentHeight());
+    m_endEffector.pivotTo(m_endEffector.getPivotPosition());
+}
+
   /**
    * Use this method to define your button->command mappings.
    * 
