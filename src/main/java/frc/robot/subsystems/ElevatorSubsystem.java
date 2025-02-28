@@ -12,8 +12,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,7 +24,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
   private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
-  private final PIDController m_PIDController = new PIDController(ElevatorConstants.kPElevator, 0, 0, Constants.kFastPeriodicPeriod);
+  private final TrapezoidProfile.Constraints m_contraints = new TrapezoidProfile.Constraints(ElevatorConstants.kMaxV, ElevatorConstants.kMaxA);
+  private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, m_contraints, Constants.kFastPeriodicPeriod);
 
   private double m_targetPosition = 0;
   private double m_motorOffset = 0;
@@ -56,15 +57,18 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
       // This offset is set when the distance sensor detects that the elevator is at the bottom 
       // At the bottom, the motor's position + offset should equal 0
-      m_motorOffset = -m_elevatorMotor.getEncoder().getPosition();
+      zeroPosition();
     }
+
+    SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
+    SmartDashboard.putNumber("Elevator Setpoint", m_targetPosition);
+    SmartDashboard.putNumber("Elevator output", m_elevatorMotor.get());
   }
 
   public void fastPeriodic() {
-    double output = m_PIDController.calculate(
+    final double output = m_PIDController.calculate(
       m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
-    output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
 
     m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(m_overrideSetpoint ? m_speedOverride : output));
 
@@ -96,5 +100,22 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setSpeed(double speed) {
     m_speedOverride = speed + ElevatorConstants.kElevatorFeedForward;
     m_overrideSetpoint = true;
+  }
+
+  /**
+   * Zeroes the position so that the current elevator position is zero
+   */
+  public void zeroPosition() {
+    zeroPosition(0);
+  }
+
+
+  /**
+   * Zereos the position so that the current elevator position is offset
+   * @param offset
+   */
+  public void zeroPosition(double offset) {
+    m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
+    m_targetPosition = getCurrentHeight();
   }
 }
