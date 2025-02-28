@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import edu.wpi.first.math.Pair;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.Constants.IOConstants;
 
 public class ConstantsTest {
     @BeforeEach
@@ -28,13 +29,55 @@ public class ConstantsTest {
         assertTrue(maxElevator > ElevatorConstants.kElevatorTop, "Missing maximum safegaurd pivot limit");
     }
 
-    //TODO: implement possible continuity test
+    /**
+     * Tests for sane values (e.g. minimum greater than minimum)
+     */
+    @Test
+    void test_SaneValues() {
+        // io
+        assertTrue(IOConstants.kSlowModeScalar < 1, "Slow mode scalar not less than 1");
+
+        // elevator
+        assertTrue(ElevatorConstants.kElevatorBottom < ElevatorConstants.kElevatorTop, "Elevator min greater than max");
+
+        // pivot
+        double min = Double.MAX_VALUE;
+        double max = -Double.MIN_VALUE;
+        for (Entry<Double, Pair<Double, Double>> entry : EndEffectorConstants.kSafePivotPositions.entrySet()) {
+            min = Math.min(min, entry.getValue().getFirst());
+            max = Math.max(max, entry.getValue().getSecond());
+
+            assertTrue(entry.getValue().getFirst() < entry.getValue().getSecond(), "Invalid pivot positions");
+            assertTrue(entry.getValue().getSecond() > EndEffectorConstants.kMinAlgaeExtension, "Pivot max less than algae extension");
+        }
+        assertTrue(min < max, "Pivot min greater than max");
+        assertTrue(max < EndEffectorConstants.kPivotWraparoundPoint, "Pivot max greater than wraparound point");
+    }
+
+    /**
+     * Tests if pivot limits are physically possible
+     */
+    @Test
+    void test_SafePivotPositionsPossible() {
+        Entry<Double, Pair<Double, Double>> limit = EndEffectorConstants.kSafePivotPositions.firstEntry();
+        Pair<Double, Double> prevLimit = limit.getValue();
+        
+        for (limit = EndEffectorConstants.kSafePivotPositions.higherEntry(limit.getKey()); limit != null; limit = EndEffectorConstants.kSafePivotPositions.higherEntry(limit.getKey())) {
+            Pair<Double, Double> curLimit = limit.getValue();
+            assertTrue(
+                (curLimit.getFirst() >= prevLimit.getFirst() && curLimit.getFirst() <= prevLimit.getSecond()) ||
+                (curLimit.getSecond() >= prevLimit.getFirst() && curLimit.getSecond() <= prevLimit.getSecond()) ||
+                (prevLimit.getFirst() >= curLimit.getFirst() && prevLimit.getFirst() <= curLimit.getSecond()) ||
+                (prevLimit.getSecond() >= curLimit.getFirst() && prevLimit.getSecond() <= curLimit.getSecond())
+            );
+        }
+    }
 
     /**
      * Tests for ascending order in kSafePivotPositions
      */
     @Test
-    void test_SafePivotPositionsContinuity() {
+    void test_SafePivotPositionsAscending() {
         Entry<Double, Pair<Double, Double>> limit = EndEffectorConstants.kSafePivotPositions.firstEntry();
         double prevLimit = limit.getKey();
         
