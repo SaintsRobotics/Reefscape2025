@@ -135,7 +135,7 @@ public class Interlocks {
         }
 
         if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension) {
-            return 0l //TODO: check if needs feedforwards
+            return 0; //TODO: check if needs feedforwards
         }
 
         return speed;

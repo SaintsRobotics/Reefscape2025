@@ -141,7 +141,7 @@ public final class Constants {
     public static final double kElevatorFeedForward = 0.1;
     public static final double kElevatorSpeedScalar = 1;
     public static final double kElevatorBottom = 0;
-    public static final double kElevatorTop = 1;
+    public static final double kElevatorTop = 21;
     public static final double kElevatorDistanceThreshold = 1;
 
     public static final double kL1Height = 0.3;

@@ -102,7 +102,7 @@ public class InterlocksTest {
 
         m_interlocks.setElevatorHeight(2);
 
-        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0), 0);
+        assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0), 0.0);
         assertExactlyEquals(m_interlocks.clampElevatorMotorSet(0.5), 0.5);
     }
 
