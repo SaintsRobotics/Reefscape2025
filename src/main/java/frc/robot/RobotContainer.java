@@ -122,7 +122,8 @@ public void initSubsystems() {
    *    Dpad right:                     L2 elevator position
    *    Dpad down:                      L3 elevator position
    *    Dpad left:                      L4 elevator position
-   *    right trigger:                  place/grab algae
+   *    right trigger:                  grab algae
+   *    Y button:                      place algae
    *    left trigger:                   place/grab coral
    * 
    *    1: Increments both the elevator offset and setpoint.
@@ -161,9 +162,9 @@ public void initSubsystems() {
             .and(m_operatorController::getStartButton)
             .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(5), m_elevator));
 
-    new JoystickButton(m_operatorController, Bumper.kLeftBumper.value)
+    new JoystickButton(m_operatorController, Button.kLeftBumper.value)
             .and(m_operatorController::getBackButton)
-            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator))
+            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator));
 
     // full manual elevator
     new Trigger(m_operatorController::getBButton)
@@ -218,15 +219,12 @@ public void initSubsystems() {
     // auto intake/outake
     //TODO: put actual setpoints for onFalse
     new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
-            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, true, m_interlocks))
-            .onFalse(new PivotCommand(m_endEffector, 0));
-
-    /*
-    TODO: someone find a unique button for this
-    new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
             .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, false, m_interlocks))
             .onFalse(new PivotCommand(m_endEffector, 0));
-    */
+
+    new JoystickButton(m_operatorController, Button.kY.value)
+            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, true, m_interlocks))
+            .onFalse(new PivotCommand(m_endEffector, 0));
     
     new Trigger(() -> m_operatorController.getLeftTriggerAxis() > IOConstants.kControllerDeadband)
             .whileTrue(new PlaceGrabCoralCommand(m_endEffector))
