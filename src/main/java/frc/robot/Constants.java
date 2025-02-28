@@ -33,6 +33,8 @@ import edu.wpi.first.math.numbers.N3;
 public final class Constants {
 
   public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
+  public static final double kFastPeriodicOfset = 1e-6; // 1 micro second, no noticable effect other than scheduling
+                                                        // order
 
   /**
    * Input/Output constants
@@ -44,7 +46,7 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
-    public static final double kElevatorAxisScalar = 0.01; //TODO: tune
+    public static final double kElevatorAxisScalar = 0.5; //TODO: tune
     public static final double kPivotAxisScalar = 0.01; //TODO: tune
 
     public static final int kDPadUp = 0;
@@ -141,7 +143,7 @@ public final class Constants {
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
     public static final int kElevatorMotorPort = 50;
-    public static final int kElevatorCANrangePort = 0;
+    public static final int kElevatorCANrangePort = 90;
 
     // TODO: Tune PID for elevator
     public static final double kPElevator = 0.6;
@@ -150,7 +152,9 @@ public final class Constants {
 
     // TODO: Set these constants
     public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
-    public static final double kElevatorUpMaxSpeed = 0.6;
+    // public static final double kElevatorUpMaxSpeed = 0.6;
+    public static final double kElevatorUpMaxSpeed = 0.2;
+
     public static final double kElevatorDownMaxSpeed = -0.1;
     public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
@@ -168,7 +172,7 @@ public final class Constants {
     // TODO: Set these constants
     public static final int kPivotMotorPort = 52;
     public static final int kEffectorMotorPort = 53;
-    public static final int kEndEffectorCANrangePort = 0;
+    public static final int kEndEffectorCANrangePort = 8;
 
     public static final double kPEndEffector = 0.03;
     public static final double kPivotMaxSpeed = 0.2;
@@ -187,6 +191,14 @@ public final class Constants {
     public static final double kSensorDistanceThreshold = 1; // meters, TODO: tune
 
     public static final double kMinAlgaeExtension = 0.3;
+
+    /**
+     * Radians.
+     * Used to round values near the wraparound to zero.
+     * Lower numbers are more reliable.
+     * Pivot should never physically reach this angle
+     */
+    public static final double kPivotWraparoundPoint = 0.75 * Math.PI * 2;
 
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
@@ -217,9 +229,15 @@ public final class Constants {
      */
     public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-100000.0, Pair.of(0.0, Math.PI / 2)),
-            Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
-            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)),
-            Map.entry(100000.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
+            /*        start height        min angle            max angle */
+            Map.entry(-100000.0,  Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(-10000.0,  Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(0.0,      Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(.7,       Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(10.12,    Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(15.68,    Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(100000.0,    Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(1000000.0, Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))));
+            
   }
 }

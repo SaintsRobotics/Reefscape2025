@@ -14,16 +14,17 @@ public class PlaceGrabCoralCommand extends SequentialCommandGroup {
   /** Creates a new PlaceGrabCoralCommand. */
   public PlaceGrabCoralCommand(EndEffectorSubsystem endEffectorSubsystem) {
     if (endEffectorSubsystem.isHolding()) { //TODO: tune constants, and make dynamic based on elevator height?
+      //TODO: use canrange sensor
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
-        new TimedCommand(() -> endEffectorSubsystem.outtakeCoral(), 0),
+        new TimedCommand(endEffectorSubsystem::outtakeCoral, 0),
         new PivotCommand(endEffectorSubsystem, 0)
         );
     }
     else {
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
-        new TimedCommand(() -> endEffectorSubsystem.intakeCoral(), 0),
+        new TimedCommand(endEffectorSubsystem::intakeCoral, 0),
         new PivotCommand(endEffectorSubsystem, 0)
         );
     }
