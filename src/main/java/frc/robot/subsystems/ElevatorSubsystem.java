@@ -12,8 +12,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,7 +24,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
   private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
-  private final PIDController m_PIDController = new PIDController(ElevatorConstants.kPElevator, 0, 0, Constants.kFastPeriodicPeriod);
+  private final TrapezoidProfile.Constraints m_contraints = new TrapezoidProfile.Constraints(ElevatorConstants.kMaxV, ElevatorConstants.kMaxA);
+  private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, m_contraints, Constants.kFastPeriodicPeriod);
 
   private double m_targetPosition = 0;
   private double m_motorOffset = 0;
@@ -58,13 +59,16 @@ public class ElevatorSubsystem extends SubsystemBase {
       // At the bottom, the motor's position + offset should equal 0
       zeroPosition();
     }
+
+    SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
+    SmartDashboard.putNumber("Elevator Setpoint", m_targetPosition);
+    SmartDashboard.putNumber("Elevator output", m_elevatorMotor.get());
   }
 
   public void fastPeriodic() {
-    double output = m_PIDController.calculate(
+    final double output = m_PIDController.calculate(
       m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
-    output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
 
     m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(m_overrideSetpoint ? m_speedOverride : output));
 

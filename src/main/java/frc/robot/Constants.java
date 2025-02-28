@@ -129,35 +129,38 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
-    public static final int kElevatorMotorPort = 90;
+    public static final int kElevatorMotorPort = 50;
     public static final int kElevatorCANrangePort = 0;
 
     // TODO: Tune PID for elevator
-    public static final double kPElevator = 0.03;
+    public static final double kPElevator = 0.6;
+    public static final double kMaxV = 15;
+    public static final double kMaxA = 15;
 
     // TODO: Set these constants
-    public static final double kElevatorGearing = 1;
-    public static final double kElevatorMaxSpeed = 0.7;
-    public static final double kElevatorFeedForward = 0.1;
+    public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
+    public static final double kElevatorUpMaxSpeed = 0.6;
+    public static final double kElevatorDownMaxSpeed = -0.1;
+    public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
     public static final double kElevatorBottom = 0;
     public static final double kElevatorTop = 21;
     public static final double kElevatorDistanceThreshold = 1;
 
-    public static final double kL1Height = 0.3;
-    public static final double kL2Height = 0.5;
-    public static final double kL3Height = 0.7;
-    public static final double kL4Height = 0.9;
+    public static final double kL1Height = 5;
+    public static final double kL2Height = 10;
+    public static final double kL3Height = 15;
+    public static final double kL4Height = 20;
   }
 
   public static final class EndEffectorConstants{
     // TODO: Set these constants
-    public static final int kPivotMotorPort = 91;
-    public static final int kEffectorMotorPort = 92;
+    public static final int kPivotMotorPort = 52;
+    public static final int kEffectorMotorPort = 53;
     public static final int kEndEffectorCANrangePort = 0;
 
     public static final double kPEndEffector = 0.03;
-    public static final double kPivotMaxSpeed = 1;
+    public static final double kPivotMaxSpeed = 0.2;
 
     public static final double kL1Pivot = 0.5;
     public static final double kL23Pivot = 0.5;

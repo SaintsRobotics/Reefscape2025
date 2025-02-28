@@ -90,6 +90,9 @@ public class Interlocks {
         final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
                 .getValue();
 
+        speed = MathUtil.clamp(speed, ElevatorConstants.kElevatorDownMaxSpeed, ElevatorConstants.kElevatorUpMaxSpeed);
+
+
         // check if in limits
         if (m_pivotPosition < pivotLimits.getFirst() || m_pivotPosition > pivotLimits.getSecond() ) {
             return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
@@ -129,6 +132,8 @@ public class Interlocks {
     public double clampPivotMotorSet(double speed) {
         final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
                 .getValue();
+
+        speed = MathUtil.clamp(speed, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
 
         if (m_pivotPosition < pivotLimits.getFirst() || m_pivotPosition > pivotLimits.getSecond()) {
             return 0; // TODO: check if needs feedforwards
