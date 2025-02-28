@@ -6,14 +6,21 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.utils.Interlocks;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class PlaceGrabAlgaeCommand extends SequentialCommandGroup {
   /** Creates a new PlaceGrabAlgaeCommand. */
-  public PlaceGrabAlgaeCommand(EndEffectorSubsystem endEffectorSubsystem) {
-    if (endEffectorSubsystem.isHolding()) { //TODO: tune constants, and make dynamic based on elevator height?
+  /**
+   * 
+   * @param endEffectorSubsystem
+   * @param intake True if intaking. False if outtaking
+   */
+  public PlaceGrabAlgaeCommand(EndEffectorSubsystem endEffectorSubsystem, boolean intake, Interlocks interlocks) {
+    if (intake) { //TODO: tune constants, and make dynamic based on elevator height?
+      
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
         new TimedCommand(() -> endEffectorSubsystem.outtakeAlgae(), 0),
@@ -26,6 +33,7 @@ public class PlaceGrabAlgaeCommand extends SequentialCommandGroup {
         new TimedCommand(() -> endEffectorSubsystem.intakeAlgae(), 0),
         new PivotCommand(endEffectorSubsystem, 0)
         );
+      
     }
   }
 }

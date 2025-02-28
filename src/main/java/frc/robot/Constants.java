@@ -172,6 +172,8 @@ public final class Constants {
 
     public static final double kSensorDistanceThreshold = 1; // meters, TODO: tune
 
+    public static final double kMinAlgaeExtension = 0.3;
+
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height

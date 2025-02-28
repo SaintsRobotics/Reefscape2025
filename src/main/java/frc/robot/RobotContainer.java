@@ -209,8 +209,16 @@ public void initSubsystems() {
     // auto intake/outake
     //TODO: put actual setpoints for onFalse
     new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
-            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector))
+            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, true, m_interlocks))
             .onFalse(new PivotCommand(m_endEffector, 0));
+
+    /*
+    TODO: someone find a unique button for this
+    new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
+            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, false, m_interlocks))
+            .onFalse(new PivotCommand(m_endEffector, 0));
+    */
+    
     new Trigger(() -> m_operatorController.getLeftTriggerAxis() > IOConstants.kControllerDeadband)
             .whileTrue(new PlaceGrabCoralCommand(m_endEffector))
             .onFalse(new PivotCommand(m_endEffector, 0));
