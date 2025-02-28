@@ -178,6 +178,14 @@ public final class Constants {
     public static final double kMinAlgaeExtension = 0.3;
 
     /**
+     * Radians.
+     * Used to round values near the wraparound to zero.
+     * Lower numbers are more reliable.
+     * Pivot should never physically reach this angle
+     */
+    public static final double kPivotWraparoundPoint = 0.75 * Math.PI * 2;
+
+    /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height
      * Each key is the starting (from zero) elevator height for the limit. Height is inclusive

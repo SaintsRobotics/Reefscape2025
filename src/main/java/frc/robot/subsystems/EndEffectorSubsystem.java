@@ -43,6 +43,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public EndEffectorSubsystem(Interlocks interlocks) {
     SparkFlexConfig pivotConfig = new SparkFlexConfig();
     pivotConfig.idleMode(IdleMode.kBrake);
+    pivotConfig.absoluteEncoder.positionConversionFactor(Math.PI * 2); // convert to radians
 
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
     m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
@@ -59,7 +60,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_interlocks.setPivotPosition(m_pivotMotor.getAbsoluteEncoder().getPosition());
+    m_interlocks.setPivotPosition(getPivotPosition());
 
     SmartDashboard.putBoolean("Is Holding", isHolding());
 
@@ -67,7 +68,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void fastPeriodic(){
-    double output = m_PIDController.calculate(m_pivotMotor.getAbsoluteEncoder().getPosition(), targetRotation);
+    double output = m_PIDController.calculate(getPivotPosition(), targetRotation);
     output = MathUtil.clamp(output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
     m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_overrideSetpoint ? m_speedOverride : output));
     m_effectorMotor.set(effectorOutput);
@@ -109,7 +110,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public double getPivotPosition() {
-    return m_pivotMotor.getAbsoluteEncoder().getPosition();
+    final double encoderPosition = m_pivotMotor.getAbsoluteEncoder().getPosition();
+    return encoderPosition >= EndEffectorConstants.kPivotWraparoundPoint ? 0 : encoderPosition;
   }
 
   /**
