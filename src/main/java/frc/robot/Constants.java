@@ -206,9 +206,12 @@ public final class Constants {
      */
     public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-100000.0, Pair.of(0.0, Math.PI / 2)),
-            Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
-            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)),
-            Map.entry(100000.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
+            /*        start height        min angle            max angle */
+            Map.entry(-100000.0,  Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(0.0,      Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(.7,       Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(10.12,    Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(15.68,    Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(100000.0, Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))));
   }
 }
