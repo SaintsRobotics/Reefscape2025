@@ -28,6 +28,8 @@ public class ConstantsTest {
         assertTrue(maxElevator > ElevatorConstants.kElevatorTop, "Missing maximum safegaurd pivot limit");
     }
 
+    //TODO: implement possible continuity test
+
     /**
      * Tests for ascending order in kSafePivotPositions
      */

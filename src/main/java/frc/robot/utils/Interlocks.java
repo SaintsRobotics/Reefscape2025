@@ -8,8 +8,9 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.EndEffectorConstants;
 
 public class Interlocks {
-    private double m_elevatorHeight;
-    private double m_pivotPosition;
+    private double m_elevatorHeight = 0;
+    private double m_pivotPosition = 0;
+    private boolean m_holdingAlgea = false;
 
     /**
      * Updates the internal logic with the latest elevator height
@@ -25,6 +26,14 @@ public class Interlocks {
      */
     public void setPivotPosition(double position) {
         m_pivotPosition = position;
+    }
+
+    /**
+     * Updates the internal logic with the latest algae holding status
+     * @param isHolding True if holding algae. False otherwise
+     */
+    public void setAlgeaHolding(boolean isHolding) {
+        m_holdingAlgea = isHolding;
     }
 
     /**
@@ -81,6 +90,9 @@ public class Interlocks {
         final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
                 .getValue();
 
+        speed = MathUtil.clamp(speed, ElevatorConstants.kElevatorDownMaxSpeed, ElevatorConstants.kElevatorUpMaxSpeed);
+
+
         // check if in limits
         if (m_pivotPosition < pivotLimits.getFirst() || m_pivotPosition > pivotLimits.getSecond() ) {
             return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
@@ -103,6 +115,11 @@ public class Interlocks {
         final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
                 .getValue();
 
+        // clamp beyond .3 if holding algae
+        if (m_holdingAlgea) {
+            setpoint = Math.min(setpoint, EndEffectorConstants.kMinAlgaeExtension);
+        }
+
         return MathUtil.clamp(setpoint, pivotLimits.getFirst(), pivotLimits.getSecond());
     }
 
@@ -116,8 +133,14 @@ public class Interlocks {
         final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
                 .getValue();
 
+        speed = MathUtil.clamp(speed, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
+
         if (m_pivotPosition < pivotLimits.getFirst() || m_pivotPosition > pivotLimits.getSecond()) {
             return 0; // TODO: check if needs feedforwards
+        }
+
+        if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension) {
+            return 0; //TODO: check if needs feedforwards
         }
 
         return speed;
