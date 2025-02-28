@@ -100,12 +100,13 @@ public void initSubsystems() {
    * Use this method to define your button->command mappings.
    * 
    * Driver Controls:
-   *    left axis X/Y:                  movement speed
-   *    right axis X:                   turn speed
+   *    left axis X/Y:                  robot translation
+   *    right axis X:                   robot rotation
    *    left trigger:                   slow mode
    *    right bumper:                   robot relative
    *    start:                          zero heading
    *    back:                           reset gyro
+   *    A (left bumper pressed):        auto align to reef
    * 
    * Operator Controls:
    *    left axis Y (B unpressed):      semi-automatic elevator speed
@@ -115,7 +116,8 @@ public void initSubsystems() {
    *    A (right bumper pressed):       outtake algae
    *    X (right bumper unpressed):     intake coral
    *    X (right bumper pressed):       outtake coral
-   *    Y: (left bumper pressed):       increment elevator (see 1)
+   *    start (left bumper pressed):    increment elevator (see 1)
+   *    back (left bumper presssed):    reset elevator (see 2)
    *    Dpad up:                        L1 elevator position
    *    Dpad right:                     L2 elevator position
    *    Dpad down:                      L3 elevator position
@@ -127,6 +129,9 @@ public void initSubsystems() {
    *        Does not cause any movement. Used to move elevator
    *        below zero when not calibrated. Effect does not
    *        stack
+   *    2: Resets position, offset and setpoint
+   *        Does not cause any movement. Used to reset elevator
+   *        position when distance sensor fails
    */
   private void configureBindings() {
     
@@ -153,8 +158,12 @@ public void initSubsystems() {
             .whileTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector));
 
     new JoystickButton(m_operatorController, Button.kLeftBumper.value)
-            .and(m_operatorController::getYButton)
+            .and(m_operatorController::getStartButton)
             .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(5), m_elevator));
+
+    new JoystickButton(m_operatorController, Bumper.kLeftBumper.value)
+            .and(m_operatorController::getBackButton)
+            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator))
 
     // full manual elevator
     new Trigger(m_operatorController::getBButton)
