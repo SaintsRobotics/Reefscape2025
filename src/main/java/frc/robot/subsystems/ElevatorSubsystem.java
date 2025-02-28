@@ -12,9 +12,13 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -23,9 +27,11 @@ import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
-  private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
+  // private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
-  private final PIDController m_PIDController = new PIDController(ElevatorConstants.kPElevator, 0, 0, Constants.kFastPeriodicPeriod);
+  // private final PIDController m_PIDController = new PIDController(0.15, 0, 0, Constants.kFastPeriodicPeriod);
+  private final TrapezoidProfile.Constraints m_constraints = new Constraints(15, 15);
+  private final ProfiledPIDController m_PIDController = new ProfiledPIDController(0.6, 0, 0, m_constraints, Constants.kFastPeriodicPeriod);
 
   private double m_targetPosition = 0;
   private double m_motorOffset = 0;
@@ -34,7 +40,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private double m_elevatorMax;
 
   private Runnable m_endEffectorVerify = () -> {};
-  private BooleanSupplier m_endEffectorIsSafe = () -> false;
+  private BooleanSupplier m_endEffectorIsSafe = () -> true;
 
   public ElevatorSubsystem() {
     m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
@@ -42,6 +48,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
+    motorConfig.idleMode(IdleMode.kBrake);
 
     m_elevatorMotor = new SparkFlex(ElevatorConstants.kElevatorMotorPort, MotorType.kBrushless);
     // TODO: set to reset and persist after testing
@@ -61,26 +68,29 @@ public class ElevatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
-      // This offset is set when the distance sensor detects that the elevator is at the bottom 
-      // At the bottom, the motor's position + offset should equal 0
-      m_motorOffset = -m_elevatorMotor.getEncoder().getPosition();
-    }
+    // if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
+    //   // This offset is set when the distance sensor detects that the elevator is at the bottom 
+    //   // At the bottom, the motor's position + offset should equal 0
+    //   m_motorOffset = -m_elevatorMotor.getEncoder().getPosition();
+    // }
+
+    SmartDashboard.putNumber("elevator height motor encoder", m_elevatorMotor.getEncoder().getPosition());
   }
 
   public void fastPeriodic() {
     double output = m_PIDController.calculate(
       m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
-    output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
+    output = MathUtil.clamp(output, -0.1, ElevatorConstants.kElevatorMaxSpeed);
 
     if (m_endEffectorIsSafe.getAsBoolean()) {
       m_elevatorMotor.set(output);
     }
     else {
-      m_elevatorMotor.set(ElevatorConstants.kElevatorFeedForward); //TODO: test if this is needed
+      // m_elevatorMotor.set(ElevatorConstants.kElevatorFeedForward); //TODO: test if this is needed
     }
 
+    // SmartDashboard.putNumber("elevator speed ig", m_PIDController.get)
     SmartDashboard.putNumber("elevator motor output", output);
   }
 
@@ -95,7 +105,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
     m_targetPosition = level;
-    m_endEffectorVerify.run();
+    // m_endEffectorVerify.run();
   }
 
   /**

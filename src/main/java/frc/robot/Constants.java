@@ -41,7 +41,7 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
 
-    public static final double kControllerDeadband = 0.15;
+    public static final double kControllerDeadband = 0.1;
     public static final double kSlowModeScalar = 0.8;
 
     public static final int kDPadUp = 0;
@@ -99,7 +99,7 @@ public final class Constants {
 
     // TODO: Set max acceleration constants
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
-    
+
     /** For a a SDS Mk4i L1 swerve base with Neos */
     public static final double kMaxAngularSpeedRadiansPerSecond = 10.8164;
 
@@ -109,7 +109,7 @@ public final class Constants {
     public static final double kPHeadingCorrectionController = 5;
 
     public static final boolean kAutoDriving = true;
-    
+
     // TODO: set these on real robot
     public static final double kMaxAccelerationUnitsPerSecond = 100;
     public static final double kMaxAngularAccelerationUnitsPerSecond = 100;
@@ -118,10 +118,9 @@ public final class Constants {
   public static final class VisionConstants {
     // TODO: Update cam pose relative to center of bot
     public static final Pose3d kCamPos = new Pose3d(
-      // new Translation3d(0.3048,0.254,0),
-      new Translation3d(0, 0, 0),
-      new Rotation3d(0,0,0)
-    );
+        // new Translation3d(0.3048,0.254,0),
+        new Translation3d(0, 0, 0),
+        new Rotation3d(0, 0, 0));
 
     public static final String kLimelightName = "limelight";
 
@@ -137,32 +136,33 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
-    public static final int kElevatorMotorPort = 0;
-    public static final int kElevatorCANrangePort = 0;
+    public static final int kElevatorMotorPort = 50;
+    // public static final int kElevatorCANrangePort = 0;
 
     // TODO: Tune PID for elevator
     public static final double kPElevator = 0.03;
 
     // TODO: Set these constants
-    public static final double kElevatorGearing = 1;
-    public static final double kElevatorMaxSpeed = 0.7;
-    public static final double kElevatorFeedForward = 0.1;
+    public static final double kElevatorGearing = 0.2;
+    // 20 rotations of the motor is 4 inches of the first stage
+    public static final double kElevatorMaxSpeed = 0.6;
+    public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
     public static final double kElevatorBottom = 0;
-    public static final double kElevatorTop = 1;
+    public static final double kElevatorTop = 21;
     public static final double kElevatorDistanceThreshold = 1;
 
-    public static final double kL1Height = 0.3;
-    public static final double kL2Height = 0.5;
-    public static final double kL3Height = 0.7;
-    public static final double kL4Height = 0.9;
+    public static final double kL1Height = 5;
+    public static final double kL2Height = 10;
+    public static final double kL3Height = 12.5;
+    public static final double kL4Height = 20;
   }
 
-  public static final class EndEffectorConstants{
+  public static final class EndEffectorConstants {
     // TODO: Set these constants
-    public static final int kPivotMotorPort = 0;
-    public static final int kEffectorMotorPort = 0;
-    public static final int kEndEffectorCANrangePort = 0;
+    public static final int kPivotMotorPort = 52;
+    public static final int kEffectorMotorPort = 53;
+    public static final int kEndEffectorCANrangePort = 8;
 
     public static final double kPEndEffector = 0.03;
     public static final double kPivotMaxSpeed = 1;
@@ -195,7 +195,7 @@ public final class Constants {
      * 
      * means that:
      * pivot angles between elevator heights [-1, 0) must be from 0 to 90 degrees
-     *  this acts as a safeguard for negative values
+     * this acts as a safeguard for negative values
      * pivot angles between elevator heights [0, 1) must be from 0 to 90 degrees,
      * pivot angles between elevator heights [1, infinity) must be from 90 to 180
      * degrees
