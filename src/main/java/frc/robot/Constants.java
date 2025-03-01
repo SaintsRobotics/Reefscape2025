@@ -46,8 +46,8 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
-    public static final double kElevatorAxisScalar = 0.5; //TODO: tune
-    public static final double kPivotAxisScalar = 0.01; //TODO: tune
+    public static final double kElevatorAxisScalar = 0.3; //TODO: tune
+    public static final double kPivotAxisScalar = 0.5; //TODO: tune
 
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;
@@ -143,7 +143,7 @@ public final class Constants {
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
     public static final int kElevatorMotorPort = 50;
-    public static final int kElevatorCANrangePort = 90;
+    public static final int kElevatorCANrangePort = 9;
 
     // TODO: Tune PID for elevator
     public static final double kPElevator = 0.6;
@@ -153,12 +153,12 @@ public final class Constants {
     // TODO: Set these constants
     public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
     // public static final double kElevatorUpMaxSpeed = 0.6;
-    public static final double kElevatorUpMaxSpeed = 0.2;
+    public static final double kElevatorUpMaxSpeed = 0.6;
 
-    public static final double kElevatorDownMaxSpeed = -0.1;
+    public static final double kElevatorDownMaxSpeed = -0.3;
     public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
-    public static final double kElevatorBottom = 0;
+    public static final double kElevatorBottom = 0.2;
     public static final double kElevatorTop = 21;
     public static final double kElevatorDistanceThreshold = 1;
 
@@ -166,6 +166,12 @@ public final class Constants {
     public static final double kL2Height = 10;
     public static final double kL3Height = 15;
     public static final double kL4Height = 20;
+
+    public static final double kPositionTolerance = 0.04; //TODO: tune
+    public static final double kVelocityTolerance = 1;
+
+    public static final double kLowHeightSlowdownThreshold = 1;
+    public static final double kLowHeightSlowdownMaxSpeed = -.1;
   }
 
   public static final class EndEffectorConstants{
@@ -174,23 +180,26 @@ public final class Constants {
     public static final int kEffectorMotorPort = 53;
     public static final int kEndEffectorCANrangePort = 8;
 
-    public static final double kPEndEffector = 0.03;
-    public static final double kPivotMaxSpeed = 0.2;
+    public static final double kPEndEffector = 0.1;
+    public static final double kPivotMaxSpeedRetract = 0.15;
+    public static final double kPivotMaxSpeedExtend = -0.15;
 
     public static final double kL1Pivot = 0.5;
     public static final double kL23Pivot = 0.5;
     public static final double kL4Pivot = 0.5;
 
     public static final double kAlgaeIntakeSpeed = 0.25;
-    public static final double kCoralIntakeSpeed = 0.25;
+    public static final double kCoralIntakeSpeed = -0.25;
     public static final double kAlgaeOuttakeSpeed = -0.25;
-    public static final double kCoralOuttakeSpeed = -0.25;
+    public static final double kCoralOuttakeSpeed = 0.25;
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
 
-    public static final double kSensorDistanceThreshold = 1; // meters, TODO: tune
+    public static final double kSensorDistanceThreshold = .1; // meters, TODO: tune
 
     public static final double kMinAlgaeExtension = 0.3;
+
+    public static final double kPivotFeedForwards = 0.00;
 
     /**
      * Radians.
@@ -230,14 +239,15 @@ public final class Constants {
     public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
             /*        start height        min angle            max angle */
-            Map.entry(-100000.0,  Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
-            Map.entry(-10000.0,  Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
-            Map.entry(0.0,      Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(-100000.0,  Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(-10000.0,   Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(0.2,      Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2)),
             Map.entry(.7,       Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2)),
             Map.entry(10.12,    Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(11.75,    Pair.of(0.134 * Math.PI * 2, 0.5  * Math.PI * 2)),
             Map.entry(15.68,    Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)),
-            Map.entry(100000.0,    Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)),
-            Map.entry(1000000.0, Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))));
+            Map.entry(100000.0, Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(1000000.0,Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))));
             
   }
 }
