@@ -20,7 +20,7 @@ public class InterlocksTest {
     private Interlocks m_interlocks;
 
     private static void assertExactlyEquals(double a, double b) {
-        assertEquals(a - b, 0.d, Math.ulp(a - b), "Interlocks failed");
+        assertEquals(0, a - b, Math.ulp(a - b), "Interlocks failed");
     }
 
     @BeforeEach
