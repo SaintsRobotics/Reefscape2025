@@ -108,6 +108,9 @@ public class Interlocks {
         if (m_elevatorHeight > ElevatorConstants.kElevatorTop && speed > 0) {
             return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
         }
+        if (m_elevatorHeight < ElevatorConstants.kLowHeightSlowdownThreshold && speed < 0) {
+            return MathUtil.clamp(speed, ElevatorConstants.kLowHeightSlowdownMaxSpeed, 0);
+        }
 
         return speed;
     }

@@ -142,9 +142,9 @@ public final class Constants {
     // TODO: Set these constants
     public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
     // public static final double kElevatorUpMaxSpeed = 0.6;
-    public static final double kElevatorUpMaxSpeed = 0.2;
+    public static final double kElevatorUpMaxSpeed = 0.6;
 
-    public static final double kElevatorDownMaxSpeed = -0.1;
+    public static final double kElevatorDownMaxSpeed = -0.3;
     public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
     public static final double kElevatorBottom = 0;
@@ -158,6 +158,9 @@ public final class Constants {
 
     public static final double kPositionTolerance = 0.04; //TODO: tune
     public static final double kVelocityTolerance = 1;
+
+    public static final double kLowHeightSlowdownThreshold = 1;
+    public static final double kLowHeightSlowdownMaxSpeed = -.1;
   }
 
   public static final class EndEffectorConstants{
