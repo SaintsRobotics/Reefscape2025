@@ -27,7 +27,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final TrapezoidProfile.Constraints m_contraints = new TrapezoidProfile.Constraints(ElevatorConstants.kMaxV, ElevatorConstants.kMaxA);
   private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, m_contraints, Constants.kFastPeriodicPeriod);
 
-  private double m_targetPosition = 0;
   private double m_motorOffset = 0;
 
   private double m_output = 0;
@@ -45,6 +44,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     // TODO: set to reset and persist after testing
     m_elevatorMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
+
+    m_PIDController.setTolerance(ElevatorConstants.kPositionTolerance, ElevatorConstants.kVelocityTolerance);
     m_interlocks = interlocks;
   }
 
@@ -79,14 +80,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
 
     SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
-    SmartDashboard.putNumber("Elevator Setpoint", m_targetPosition);
+    SmartDashboard.putNumber("Elevator Setpoint", m_PIDController.getGoal().position);
     SmartDashboard.putNumber("Elevator output", m_output);
   }
 
   public void fastPeriodic() {
     m_output = m_PIDController.calculate(
-      m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
-      m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
+        getCurrentHeight()) + ElevatorConstants.kElevatorFeedForward;
     m_output = m_speedOverride != 0 ? m_speedOverride + ElevatorConstants.kElevatorFeedForward : m_output;
 
     m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(m_output));
@@ -94,11 +94,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
-    m_targetPosition = level; //TODO: clamp setpoint
+    m_PIDController.setGoal(level); //TODO: clamp setpoint
   }
 
   public double getHeightSetpoint() {
-    return m_targetPosition;
+    return m_PIDController.getGoal().position;
   }
 
   public double getCurrentHeight() {
@@ -106,7 +106,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return m_PIDController.atSetpoint();
+    return m_PIDController.atGoal();
   }
 
   /**
@@ -115,6 +115,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void setSpeed(double speed) {
     m_speedOverride = speed;
+    m_PIDController.reset(getCurrentHeight());
   }
 
   /**
@@ -131,6 +132,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void zeroPosition(double offset) {
     m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
-    m_targetPosition = getCurrentHeight();
+    setHeight(offset);
+    m_PIDController.reset(offset);
   }
 }

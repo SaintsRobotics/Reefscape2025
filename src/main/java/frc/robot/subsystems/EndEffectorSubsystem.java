@@ -86,12 +86,11 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void fastPeriodic(){
-    m_output = m_PIDController.calculate(getPivotPosition(), targetRotation);
-    m_output = MathUtil.clamp(m_output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
+    m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation);
     m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
 
-    //m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
-    //m_effectorMotor.set(effectorOutput);
+    m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
+    m_effectorMotor.set(effectorOutput);
   }
 
   public void pivotTo(double setpoint) {
@@ -121,6 +120,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public void outtakeCoral(){
     effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
+  }
+
+  public void stopEffector() {
+    effectorOutput = 0;
   }
 
   public void setSpeed(double speed) {

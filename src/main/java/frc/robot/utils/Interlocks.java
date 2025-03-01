@@ -101,10 +101,15 @@ public class Interlocks {
         if (m_pivotPosition < pivotLimits.getFirst() || m_pivotPosition > pivotLimits.getSecond() ) {
             return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
         }
-
         // check if within physical limits
-        if (m_elevatorHeight < ElevatorConstants.kElevatorBottom || m_elevatorHeight > ElevatorConstants.kElevatorTop) {
+        if (m_elevatorHeight < ElevatorConstants.kElevatorBottom && speed < 0) {
             return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
+        }
+        if (m_elevatorHeight > ElevatorConstants.kElevatorTop && speed > 0) {
+            return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
+        }
+        if (m_elevatorHeight < ElevatorConstants.kLowHeightSlowdownThreshold && speed < 0) {
+            return MathUtil.clamp(speed, ElevatorConstants.kLowHeightSlowdownMaxSpeed, 0);
         }
 
         return speed;
@@ -141,14 +146,17 @@ public class Interlocks {
         final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
                 .getValue();
 
-        speed = MathUtil.clamp(speed, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
+        speed = MathUtil.clamp(speed, EndEffectorConstants.kPivotMaxSpeedExtend, EndEffectorConstants.kPivotMaxSpeedRetract);
 
-        if (m_pivotPosition < pivotLimits.getFirst() || m_pivotPosition > pivotLimits.getSecond()) {
-            return 0; // TODO: check if needs feedforwards
+        if (m_pivotPosition < pivotLimits.getFirst() && speed > 0) {
+            return EndEffectorConstants.kPivotFeedForwards;
+        }
+        if (m_pivotPosition > pivotLimits.getSecond() && speed < 0) {
+            return EndEffectorConstants.kPivotFeedForwards;
         }
 
         if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension) {
-            return 0; //TODO: check if needs feedforwards
+            return EndEffectorConstants.kPivotFeedForwards;
         }
 
         return speed;

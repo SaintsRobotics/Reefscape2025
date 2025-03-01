@@ -4,10 +4,7 @@
 
 package frc.robot;
 
-import java.util.Map.Entry;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,16 +15,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorCommand;
+import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.PivotCommand;
 import frc.robot.commands.PlaceGrabAlgaeCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
@@ -90,16 +88,21 @@ public class RobotContainer {
     //                 m_robotDrive));
 
     m_elevator.setDefaultCommand(new StartEndCommand(() -> {
-        m_elevator.setHeight(m_elevator.getCurrentHeight());
-    }, () -> {}, m_elevator));
-    m_endEffector.setDefaultCommand(
-            new RunCommand(() -> m_endEffector.pivotTo(m_endEffector.getPivotPosition()), m_endEffector));
+            m_elevator.setHeight(m_elevator.getCurrentHeight());
+    }, () -> {
+    }, m_elevator));
+    m_endEffector.setDefaultCommand(new StartEndCommand(() -> {
+            m_endEffector.pivotTo(m_endEffector.getPivotPosition());
+    }, () -> {
+    }, m_endEffector));
 }
 
 public void initSubsystems() {
     // cancel commands
-    new InstantCommand(() -> {}, m_elevator, m_endEffector).schedule();
+    new InstantCommand(() -> {
+    }, m_elevator, m_endEffector).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).schedule();
 
+    m_elevator.zeroPosition();
     m_elevator.setHeight(m_elevator.getCurrentHeight());
     m_endEffector.pivotTo(m_endEffector.getPivotPosition());
 }
@@ -151,12 +154,14 @@ public void initSubsystems() {
     //     .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
-            .and(m_operatorController::getAButton)
-            .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector));
+                    .and(m_operatorController::getAButton)
+                    .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector).alongWith(
+                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(true))));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
-            .and(m_operatorController::getAButton)
-            .whileTrue(new RunCommand(m_endEffector::outtakeAlgae, m_endEffector));
+                    .and(m_operatorController::getAButton)
+                    .whileTrue(new RunCommand(m_endEffector::outtakeAlgae, m_endEffector).alongWith(
+                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(false))));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
             .and(m_operatorController::getXButton)
@@ -174,54 +179,19 @@ public void initSubsystems() {
             .and(m_operatorController::getBackButton)
             .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator));
 
-    SmartDashboard.putBoolean("hit 2", true);
     // full manual elevator
     new JoystickButton(m_operatorController, Button.kB.value)
             .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
             .whileTrue(new RunCommand(() -> {
-                SmartDashboard.putBoolean("hit y", true);
                 m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar); // no need to apply deadband here because of trigger
             }, m_elevator));
 
-            //TODO: change to joystick button
-
     // semi manual elevator
     new JoystickButton(m_operatorController, Button.kB.value).negate()
-            .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
-            .whileTrue(new RunCommand(() -> {
-                // because we cant do position prediction here, we need to use more restrictive
-                // pivot adjustments
-                // always clamp using current, and also clamp to next
-                SmartDashboard.putBoolean("hit k", true);
-                final double speed = -m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar; // no need to apply deadband here because of trigger
-
-                double pivotSetpoint = m_endEffector.getSetpoint();
-                final double currentPosition = m_elevator.getCurrentHeight();
-
-                final Entry<Double, Pair<Double, Double>> currentLimit = EndEffectorConstants.kSafePivotPositions
-                        .floorEntry(currentPosition);
-                final Entry<Double, Pair<Double, Double>> higherLimit = EndEffectorConstants.kSafePivotPositions
-                        .higherEntry(currentPosition);
-                final Entry<Double, Pair<Double, Double>> lowerLimit = EndEffectorConstants.kSafePivotPositions
-                        .lowerEntry(currentLimit.getKey());
-
-                // clamp to current
-                pivotSetpoint = MathUtil.clamp(pivotSetpoint, currentLimit.getValue().getFirst(),
-                        currentLimit.getValue().getSecond());
-
-                // check direction
-                if (speed > 0) { // going up
-                    pivotSetpoint = MathUtil.clamp(pivotSetpoint, higherLimit.getValue().getFirst(),
-                            higherLimit.getValue().getSecond());
-                }
-                else { // going down
-                    pivotSetpoint = MathUtil.clamp(pivotSetpoint, lowerLimit.getValue().getFirst(),
-                        lowerLimit.getValue().getSecond());
-                }
-
-                m_endEffector.pivotTo(pivotSetpoint);
-                m_elevator.setSpeed(speed);
-            }, m_elevator, m_endEffector));
+            .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
+                    IOConstants.kControllerDeadband) != 0)
+            .whileTrue(new ElevatorSemiAutomaticDriveCommand(
+                    () -> -m_operatorController.getLeftY(), m_endEffector, m_elevator));
 
 
     // pivot
@@ -247,11 +217,11 @@ public void initSubsystems() {
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1
         .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL2Height, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL4Height, m_elevator, m_endEffector));
   }
 
   /**
