@@ -132,7 +132,7 @@ public final class Constants {
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
     public static final int kElevatorMotorPort = 50;
-    public static final int kElevatorCANrangePort = 90;
+    public static final int kElevatorCANrangePort = 9;
 
     // TODO: Tune PID for elevator
     public static final double kPElevator = 0.6;
