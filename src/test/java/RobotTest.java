@@ -1,5 +1,7 @@
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +30,11 @@ public class RobotTest {
                 final Duration timeout = Duration.ofMillis(5000);
                 final ExecutorService executor = Executors.newSingleThreadExecutor();
                 final Future<?> future = executor.submit(() -> {
+                    final PrintStream nullstream = new PrintStream(new OutputStream() {
+                        public void write(int b) {}
+                    });
+                    System.setOut(nullstream);
+                    System.setErr(nullstream);
                     robot.startCompetition();
                 });
 
