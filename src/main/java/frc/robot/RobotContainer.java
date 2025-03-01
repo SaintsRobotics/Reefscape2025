@@ -4,10 +4,7 @@
 
 package frc.robot;
 
-import java.util.Map.Entry;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -21,9 +18,9 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.ElevatorCommand;
+import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.PivotCommand;
 import frc.robot.commands.PlaceGrabAlgaeCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
@@ -170,54 +167,19 @@ public void initSubsystems() {
             .and(m_operatorController::getBackButton)
             .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator));
 
-    SmartDashboard.putBoolean("hit 2", true);
     // full manual elevator
     new JoystickButton(m_operatorController, Button.kB.value)
             .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
             .whileTrue(new RunCommand(() -> {
-                SmartDashboard.putBoolean("hit y", true);
                 m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar); // no need to apply deadband here because of trigger
             }, m_elevator));
 
-            //TODO: change to joystick button
-
     // semi manual elevator
     new JoystickButton(m_operatorController, Button.kB.value).negate()
-            .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
-            .whileTrue(new RunCommand(() -> {
-                // because we cant do position prediction here, we need to use more restrictive
-                // pivot adjustments
-                // always clamp using current, and also clamp to next
-                SmartDashboard.putBoolean("hit k", true);
-                final double speed = -m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar; // no need to apply deadband here because of trigger
-
-                double pivotSetpoint = m_endEffector.getSetpoint();
-                final double currentPosition = m_elevator.getCurrentHeight();
-
-                final Entry<Double, Pair<Double, Double>> currentLimit = EndEffectorConstants.kSafePivotPositions
-                        .floorEntry(currentPosition);
-                final Entry<Double, Pair<Double, Double>> higherLimit = EndEffectorConstants.kSafePivotPositions
-                        .higherEntry(currentPosition);
-                final Entry<Double, Pair<Double, Double>> lowerLimit = EndEffectorConstants.kSafePivotPositions
-                        .lowerEntry(currentLimit.getKey());
-
-                // clamp to current
-                pivotSetpoint = MathUtil.clamp(pivotSetpoint, currentLimit.getValue().getFirst(),
-                        currentLimit.getValue().getSecond());
-
-                // check direction
-                if (speed > 0) { // going up
-                    pivotSetpoint = MathUtil.clamp(pivotSetpoint, higherLimit.getValue().getFirst(),
-                            higherLimit.getValue().getSecond());
-                }
-                else { // going down
-                    pivotSetpoint = MathUtil.clamp(pivotSetpoint, lowerLimit.getValue().getFirst(),
-                        lowerLimit.getValue().getSecond());
-                }
-
-                m_endEffector.pivotTo(pivotSetpoint);
-                m_elevator.setSpeed(speed);
-            }, m_elevator, m_endEffector));
+            .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
+                    IOConstants.kControllerDeadband) != 0)
+            .whileTrue(new ElevatorSemiAutomaticDriveCommand(
+                    () -> -m_operatorController.getLeftY(), m_endEffector, m_elevator));
 
 
     // pivot
