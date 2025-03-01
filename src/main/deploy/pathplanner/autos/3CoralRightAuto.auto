@@ -7,37 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftCoral1"
+            "pathName": "RightCoral1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeLeft2"
+            "pathName": "CoralHPIntakeRight2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPOuttakeLeft2"
+            "pathName": "CoralHPOuttakeRight2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeLeft3"
+            "pathName": "CoralHPIntakeRight3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPOuttakeLeft3"
+            "pathName": "CoralHPOuttakeRight3"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "LeftAutons",
+  "folder": "RightAutons",
   "choreoAuto": false
 }

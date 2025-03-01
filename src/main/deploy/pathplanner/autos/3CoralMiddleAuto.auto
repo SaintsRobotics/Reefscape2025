@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftCoral1"
+            "pathName": "MiddleCoral1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeLeft2"
+            "pathName": "CoralHPIntakeMiddle2"
           }
         },
         {
@@ -21,11 +21,23 @@
           "data": {
             "pathName": "CoralHPOuttakeLeft2"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CoralHPIntakeLeft3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CoralHPOuttakeLeft3"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "LeftAutons",
+  "folder": "MiddleAutons",
   "choreoAuto": false
 }
