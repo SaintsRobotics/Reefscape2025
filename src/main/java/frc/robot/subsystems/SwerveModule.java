@@ -98,8 +98,8 @@ public class SwerveModule {
     turnOutput = -m_turningPIDController.calculate(getEncoderAngle(m_turningEncoder).getRadians(),
         m_state.angle.getRadians());
 
-    m_driveMotor.set(driveOutput);
-    m_turningMotor.set(turnOutput);
+    // m_driveMotor.set(driveOutput);
+    // m_turningMotor.set(turnOutput);
   }
 
   /**

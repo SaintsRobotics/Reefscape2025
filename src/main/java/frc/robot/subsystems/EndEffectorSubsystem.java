@@ -30,6 +30,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   private double targetRotation = 0;
   private double effectorOutput = 0;
 
+  private double m_output;
+
   private final Interlocks m_interlocks;
 
   private boolean m_overrideSetpoint;
@@ -63,19 +65,21 @@ public class EndEffectorSubsystem extends SubsystemBase {
     m_interlocks.setPivotPosition(getPivotPosition());
 
     SmartDashboard.putBoolean("Is Holding", isHolding());
-
+    SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
+    SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
+    SmartDashboard.putNumber("Pivot Output", m_interlocks.clampPivotMotorSet(m_overrideSetpoint ? m_speedOverride : m_output));
     // This method will be called once per scheduler run
   }
 
   public void fastPeriodic(){
-    double output = m_PIDController.calculate(getPivotPosition(), targetRotation);
-    output = MathUtil.clamp(output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
-    m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_overrideSetpoint ? m_speedOverride : output));
-    m_effectorMotor.set(effectorOutput);
+    m_output = m_PIDController.calculate(getPivotPosition(), targetRotation);
+    m_output = MathUtil.clamp(m_output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
+    //m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_overrideSetpoint ? m_speedOverride : output));
+    //m_effectorMotor.set(effectorOutput);
   }
 
   public void pivotTo(double setpoint) {
-    targetRotation = m_interlocks.clampPivotMotorSetpoint(setpoint);
+    targetRotation = setpoint;//m_interlocks.clampPivotMotorSetpoint(setpoint);
     m_overrideSetpoint = false;
   }
 

@@ -22,13 +22,15 @@ import frc.robot.utils.Interlocks;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
-  private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
+  // private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
   private final TrapezoidProfile.Constraints m_contraints = new TrapezoidProfile.Constraints(ElevatorConstants.kMaxV, ElevatorConstants.kMaxA);
   private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, m_contraints, Constants.kFastPeriodicPeriod);
 
   private double m_targetPosition = 0;
   private double m_motorOffset = 0;
+
+  private double m_output = 0;
 
   private final Interlocks m_interlocks;
 
@@ -53,31 +55,34 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     m_interlocks.setElevatorHeight(m_elevatorMotor.getEncoder().getPosition() + m_motorOffset);
 
+    /*
     // This method will be called once per scheduler run
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
       // This offset is set when the distance sensor detects that the elevator is at the bottom 
       // At the bottom, the motor's position + offset should equal 0
       zeroPosition();
     }
+      */
 
     SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
     SmartDashboard.putNumber("Elevator Setpoint", m_targetPosition);
-    SmartDashboard.putNumber("Elevator output", m_elevatorMotor.get());
+    SmartDashboard.putNumber("Elevator output", m_output);
   }
 
   public void fastPeriodic() {
-    final double output = m_PIDController.calculate(
+    m_output = m_PIDController.calculate(
       m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
+    m_output = m_overrideSetpoint ? m_speedOverride : m_output;
 
-    m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(m_overrideSetpoint ? m_speedOverride : output));
+    m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(m_output));
 
-    SmartDashboard.putNumber("elevator motor output", output);
+    SmartDashboard.putNumber("elevator motor output", m_output);
   }
 
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
-    m_targetPosition = m_interlocks.clampElevatorMotorSetpoint(level);
+    m_targetPosition = level;//m_interlocks.clampElevatorMotorSetpoint(level);
     m_overrideSetpoint = false;
   }
 

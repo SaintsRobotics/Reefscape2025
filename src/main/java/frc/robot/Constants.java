@@ -44,7 +44,7 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
-    public static final double kElevatorAxisScalar = 0.01; //TODO: tune
+    public static final double kElevatorAxisScalar = 0.5; //TODO: tune
     public static final double kPivotAxisScalar = 0.01; //TODO: tune
 
     public static final int kDPadUp = 0;
@@ -139,7 +139,9 @@ public final class Constants {
 
     // TODO: Set these constants
     public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
-    public static final double kElevatorUpMaxSpeed = 0.6;
+    // public static final double kElevatorUpMaxSpeed = 0.6;
+    public static final double kElevatorUpMaxSpeed = 0.2;
+
     public static final double kElevatorDownMaxSpeed = -0.1;
     public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
@@ -157,7 +159,7 @@ public final class Constants {
     // TODO: Set these constants
     public static final int kPivotMotorPort = 52;
     public static final int kEffectorMotorPort = 53;
-    public static final int kEndEffectorCANrangePort = 0;
+    public static final int kEndEffectorCANrangePort = 8;
 
     public static final double kPEndEffector = 0.03;
     public static final double kPivotMaxSpeed = 0.2;
@@ -216,10 +218,13 @@ public final class Constants {
         Map.ofEntries(
             /*        start height        min angle            max angle */
             Map.entry(-100000.0,  Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
+            Map.entry(-10000.0,  Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
             Map.entry(0.0,      Pair.of(0.0   * Math.PI * 2, 0.45 * Math.PI * 2)),
             Map.entry(.7,       Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2)),
             Map.entry(10.12,    Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2)),
             Map.entry(15.68,    Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)),
-            Map.entry(100000.0, Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))));
+            Map.entry(100000.0,    Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)),
+            Map.entry(1000000.0, Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))));
+            
   }
 }
