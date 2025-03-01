@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,8 +18,11 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.DriveToPose;
+import frc.robot.commands.DriveToReef;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.EndEffectorSubsystem;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -28,7 +33,8 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  // private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
+  //private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
+  //private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(() -> 0 /* m_elevator::getHeight */); //TODO: provide supplier // Temporarily commented out
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
@@ -37,6 +43,9 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    //TODO: uncomment
+    //m_elevator.setEndEffectorSuppliers(m_endEffector::ensureSafeState, m_endEffector::pivotWithinLimits);
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -91,7 +100,7 @@ public class RobotContainer {
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
 
     new JoystickButton(m_driverController, Button.kBack.value)
-        .onTrue(new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d());}, m_robotDrive));
+        .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
     
     /* Temporarily commented out to merge
     new POVButton(m_operatorController, ElevatorConstants.kDPadUp) // Up - L1
@@ -111,6 +120,9 @@ public class RobotContainer {
             () -> m_elevator.setHeight(ElevatorConstants.kL4Height)
         ));
     */
+
+    new JoystickButton(m_driverController, Button.kA.value)
+      .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
   }
 
   /**
@@ -121,6 +133,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return null;
+    // return new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));}, m_robotDrive);
+    // return new DriveToPose(m_robotDrive, new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));
+    // return new DriveToReef(m_robotDrive);
   }
 
   /**
@@ -134,5 +149,6 @@ public class RobotContainer {
   public void fastPeriodic() {
     m_robotDrive.fastPeriodic();
     //m_elevator.fastPeriodic(); // Temporarily commented out to merge
+    //m_endEffector.fastPeriodic(); // Temporarily commented out
   }
 }

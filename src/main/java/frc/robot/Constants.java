@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -69,10 +74,10 @@ public final class Constants {
     public static final boolean kRearRightDriveMotorReversed = true;
 
     /** Distance between centers of right and left wheels on robot (in meters). */
-    public static final double kTrackWidth = 0.5;
+    public static final double kTrackWidth = 0.57785;
 
     /** Distance between front and back wheels on robot (in meters). */
-    public static final double kWheelBase = 0.5;
+    public static final double kWheelBase = 0.57785;
 
     /** Diameter of each wheel in the SDS MK4i swerve module (in meters) */
     public static final double kWheelDiameterMeters = 0.1;
@@ -90,24 +95,35 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
     /** For a a SDS Mk4i L1 swerve base with Neos */
-    public static final double kMaxSpeedMetersPerSecond = 3.6576;
+    public static final double kMaxSpeedMetersPerSecond = 4.4196;
+
+    // TODO: Set max acceleration constants
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    
     /** For a a SDS Mk4i L1 swerve base with Neos */
-    public static final double kMaxAngularSpeedRadiansPerSecond = 15.24 / 3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 10.8164;
 
     /** Heading Correction */
     public static final double kHeadingCorrectionTurningStopTime = 0.2;
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPHeadingCorrectionController = 5;
+
+    public static final boolean kAutoDriving = true;
+    
+    // TODO: set these on real robot
+    public static final double kMaxAccelerationUnitsPerSecond = 100;
+    public static final double kMaxAngularAccelerationUnitsPerSecond = 100;
   }
 
   public static final class VisionConstants {
     // TODO: Update cam pose relative to center of bot
     public static final Pose3d kCamPos = new Pose3d(
-      new Translation3d(0.3048,0.254,0),
+      // new Translation3d(0.3048,0.254,0),
+      new Translation3d(0, 0, 0),
       new Rotation3d(0,0,0)
     );
 
-    public static final String kLimelightName = "limelight-sr";
+    public static final String kLimelightName = "limelight";
 
     // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
     public static final int kIMUMode = 0;
@@ -142,4 +158,52 @@ public final class Constants {
     public static final double kL4Height = 0.9;
   }
 
+  public static final class EndEffectorConstants{
+    // TODO: Set these constants
+    public static final int kPivotMotorPort = 0;
+    public static final int kEffectorMotorPort = 0;
+    public static final int kEndEffectorCANrangePort = 0;
+
+    public static final double kPEndEffector = 0.03;
+    public static final double kPivotMaxSpeed = 1;
+
+    public static final double kL1Pivot = 0.5;
+    public static final double kL23Pivot = 0.5;
+    public static final double kL4Pivot = 0.5;
+
+    public static final double kAlgaeIntakeSpeed = 0.25;
+    public static final double kCoralIntakeSpeed = 0.25;
+    public static final double kAlgaeOuttakeSpeed = -0.25;
+    public static final double kCoralOuttakeSpeed = -0.25;
+
+    public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
+
+    /**
+     * Holds the safe minimum and maximum limits of end effector's pivot based on
+     * elevator height
+     * Each key is the starting (from zero) elevator height for the limit
+     * Each value is a Pair with the minimum and maximum pivot angle in radians,
+     * respectively
+     * 
+     * For exampple:
+     * 
+     * Map.ofEntries(
+     * Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+     * Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
+     * Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI))
+     * );
+     * 
+     * means that:
+     * pivot angles between elevator heights [-1, 0) must be from 0 to 90 degrees
+     *  this acts as a safeguard for negative values
+     * pivot angles between elevator heights [0, 1) must be from 0 to 90 degrees,
+     * pivot angles between elevator heights [1, infinity) must be from 90 to 180
+     * degrees
+     */
+    public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
+        Map.ofEntries(
+            Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+            Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
+            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
+  }
 }
