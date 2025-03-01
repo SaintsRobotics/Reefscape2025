@@ -162,8 +162,10 @@ public class DriveSubsystem extends SubsystemBase {
       m_desiredStates[3].angle.getDegrees(), m_desiredStates[3].speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond,
     };
 
-    SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logDataDesired);
-    SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
+    if (Constants.DriveConstants.kUseTelemetry) {
+      SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logDataDesired);
+      SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
+    }
   }
 
   /**
