@@ -34,7 +34,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private final Interlocks m_interlocks;
 
-  private boolean m_overrideSetpoint;
   private double m_speedOverride;
 
   public ElevatorSubsystem(Interlocks interlocks) {
@@ -47,8 +46,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_elevatorMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
     m_interlocks = interlocks;
-
-    m_overrideSetpoint = false;
   }
 
   @Override
@@ -56,13 +53,30 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_interlocks.setElevatorHeight(m_elevatorMotor.getEncoder().getPosition() + m_motorOffset);
 
     /*
-    // This method will be called once per scheduler run
-    if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
-      // This offset is set when the distance sensor detects that the elevator is at the bottom 
-      // At the bottom, the motor's position + offset should equal 0
-      zeroPosition();
-    }
-      */
+     * The order of callbacks is as follows:
+     *  The timed robot periodic will run
+     *    Then the command command scheduler will run
+     *      Then all periodics will run
+     *      Then all commands will run
+     *    Then the fast periodics will run
+     *    Then the fast periodics will run again
+     * 
+     * This means that we will set overrideSpeed to 0 in each periodic
+     *  Then a command might cause this to become non zero
+     *  In that case, the two fast periodics will use the speed override instead of the setpoint
+     */
+
+    m_speedOverride = 0;
+
+    /*
+     * if (m_elevatorRange.getDistance().getValueAsDouble() <
+     * ElevatorConstants.kElevatorDistanceThreshold) {
+     * // This offset is set when the distance sensor detects that the elevator is
+     * at the bottom
+     * // At the bottom, the motor's position + offset should equal 0
+     * zeroPosition();
+     * }
+     */
 
     SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
     SmartDashboard.putNumber("Elevator Setpoint", m_targetPosition);
@@ -73,17 +87,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     m_output = m_PIDController.calculate(
       m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
-    m_output = m_overrideSetpoint ? m_speedOverride : m_output;
+    m_output = m_speedOverride != 0 ? m_speedOverride + ElevatorConstants.kElevatorFeedForward : m_output;
 
     m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(m_output));
-
-    SmartDashboard.putNumber("elevator motor output", m_output);
   }
 
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
-    m_targetPosition = level;//m_interlocks.clampElevatorMotorSetpoint(level);
-    m_overrideSetpoint = false;
+    m_targetPosition = level; //TODO: clamp setpoint
   }
 
   public double getHeightSetpoint() {
@@ -103,8 +114,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param speed The speed without the feedforwards
    */
   public void setSpeed(double speed) {
-    m_speedOverride = speed + ElevatorConstants.kElevatorFeedForward;
-    m_overrideSetpoint = true;
+    m_speedOverride = speed;
   }
 
   /**

@@ -20,13 +20,17 @@ public class ConstantsTest {
      */
     @Test
     void test_SafePivotPositionsSafegaurds() {
-        final double minElevator = EndEffectorConstants.kSafePivotPositions.firstKey();
-        final double minElevator2 = EndEffectorConstants.kSafePivotPositions.higherKey(minElevator);
-        final double maxElevator = EndEffectorConstants.kSafePivotPositions.lastKey();
+        final double minElevator0 = EndEffectorConstants.kSafePivotPositions.firstKey();
+        final double minElevator1 = EndEffectorConstants.kSafePivotPositions.higherKey(minElevator0);
+        final double minElevator2 = EndEffectorConstants.kSafePivotPositions.higherKey(minElevator1);
+        final double maxElevator1 = EndEffectorConstants.kSafePivotPositions.lastKey();
+        final double maxElevator0 = EndEffectorConstants.kSafePivotPositions.lowerKey(maxElevator1);
 
-        assertTrue(minElevator < ElevatorConstants.kElevatorBottom, "Missing minimum safegaurd pivot limit");
+        assertTrue(minElevator1 < ElevatorConstants.kElevatorBottom, "Missing minimum safegaurd pivot limit");
+        assertTrue(minElevator0 < minElevator1, "Missing minimum safegaurd pivot limit");
         assertTrue(minElevator2 == ElevatorConstants.kElevatorBottom, "Pivot limits do not start at elevator bottom position");
-        assertTrue(maxElevator > ElevatorConstants.kElevatorTop, "Missing maximum safegaurd pivot limit");
+        assertTrue(maxElevator0 > ElevatorConstants.kElevatorTop, "Missing maximum safegaurd pivot limit");
+        assertTrue(maxElevator1 > maxElevator0, "Missing maximum safegaurd pivot limit");
     }
 
     /**
@@ -83,7 +87,7 @@ public class ConstantsTest {
         
         for (limit = EndEffectorConstants.kSafePivotPositions.higherEntry(limit.getKey()); limit != null; limit = EndEffectorConstants.kSafePivotPositions.higherEntry(limit.getKey())) {
             final double currentLimit = limit.getKey();
-            assertTrue(prevLimit < currentLimit, "Pivot limits are not in ascending order");
+            assertTrue(prevLimit < currentLimit, "Elevator height are not in ascending order");
             prevLimit = currentLimit;
         }
     }

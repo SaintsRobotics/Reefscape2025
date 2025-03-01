@@ -33,6 +33,8 @@ import edu.wpi.first.math.numbers.N3;
 public final class Constants {
 
   public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
+  public static final double kFastPeriodicOfset = 1e-6; // 1 micro second, no noticable effect other than scheduling
+                                                        // order
 
   /**
    * Input/Output constants
@@ -130,7 +132,7 @@ public final class Constants {
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
     public static final int kElevatorMotorPort = 50;
-    public static final int kElevatorCANrangePort = 0;
+    public static final int kElevatorCANrangePort = 90;
 
     // TODO: Tune PID for elevator
     public static final double kPElevator = 0.6;

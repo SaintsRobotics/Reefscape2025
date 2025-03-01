@@ -37,11 +37,15 @@ public class Interlocks {
     }
 
     /**
+     * DO NOT CALL
      * clamps the setpoint to valid elevator setpoints
      * @param setpoint The desired setpoint
      * @return The clamped setpoint
      */
     public double clampElevatorMotorSetpoint(double setpoint) {
+        if (true) {
+            throw new RuntimeException("Not yet implemented");
+        }
         // first clamp setpoint to extension limits;
         setpoint = MathUtil.clamp(setpoint, ElevatorConstants.kElevatorBottom, ElevatorConstants.kElevatorTop);
 
@@ -107,11 +111,15 @@ public class Interlocks {
     }
 
     /**
+     * DO NOT CALL
      * clamps the setpoint to valid pivot setpoints
      * @param setpoint The desired setpoint
      * @return The clamped setpoint
      */
     public double clampPivotMotorSetpoint(double setpoint) {
+        if (true) {
+            throw new RuntimeException("Not yet implemented");
+        }
         final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
                 .getValue();
 
