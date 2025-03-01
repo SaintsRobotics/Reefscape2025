@@ -155,6 +155,9 @@ public final class Constants {
     public static final double kL2Height = 10;
     public static final double kL3Height = 15;
     public static final double kL4Height = 20;
+
+    public static final double kPositionTolerance = 0.04; //TODO: tune
+    public static final double kVelocityTolerance = 1;
   }
 
   public static final class EndEffectorConstants{

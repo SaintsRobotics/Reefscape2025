@@ -83,10 +83,13 @@ public class RobotContainer {
     //                 m_robotDrive));
 
     m_elevator.setDefaultCommand(new StartEndCommand(() -> {
-        m_elevator.setHeight(m_elevator.getCurrentHeight());
-    }, () -> {}, m_elevator));
-    m_endEffector.setDefaultCommand(
-            new RunCommand(() -> m_endEffector.pivotTo(m_endEffector.getPivotPosition()), m_endEffector));
+            m_elevator.setHeight(m_elevator.getCurrentHeight());
+    }, () -> {
+    }, m_elevator));
+    m_endEffector.setDefaultCommand(new StartEndCommand(() -> {
+            m_endEffector.pivotTo(m_endEffector.getPivotPosition());
+    }, () -> {
+    }, m_endEffector));
 }
 
 public void initSubsystems() {
@@ -205,11 +208,11 @@ public void initSubsystems() {
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1
         .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL2Height, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+        .onTrue(new ElevatorCommand(ElevatorConstants.kL4Height, m_elevator, m_endEffector));
   }
 
   /**
