@@ -101,9 +101,11 @@ public class Interlocks {
         if (m_pivotPosition < pivotLimits.getFirst() || m_pivotPosition > pivotLimits.getSecond() ) {
             return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
         }
-
         // check if within physical limits
-        if (m_elevatorHeight < ElevatorConstants.kElevatorBottom || m_elevatorHeight > ElevatorConstants.kElevatorTop) {
+        if (m_elevatorHeight < ElevatorConstants.kElevatorBottom && speed < 0) {
+            return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
+        }
+        if (m_elevatorHeight > ElevatorConstants.kElevatorTop && speed > 0) {
             return ElevatorConstants.kElevatorFeedForward; // TODO: check is needed
         }
 

@@ -66,6 +66,7 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
     }
 
     m_endEffector.pivotTo(pivotSetpoint);
+    m_elevator.setHeight(m_elevator.getCurrentHeight());
     m_elevator.setSpeed(speed);
   }
 

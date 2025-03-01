@@ -115,6 +115,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void setSpeed(double speed) {
     m_speedOverride = speed;
+    m_PIDController.reset(getCurrentHeight());
   }
 
   /**
@@ -131,6 +132,7 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public void zeroPosition(double offset) {
     m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
-    setHeight(getCurrentHeight());
+    setHeight(offset);
+    m_PIDController.reset(offset);
   }
 }
