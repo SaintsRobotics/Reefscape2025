@@ -23,14 +23,14 @@ public class PlaceGrabAlgaeCommand extends SequentialCommandGroup {
       
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
-        new TimedCommand(() -> endEffectorSubsystem.outtakeAlgae(), 0),
+        new TimedCommand(endEffectorSubsystem::outtakeAlgae, 0),
         new PivotCommand(endEffectorSubsystem, 0)
         );
     }
     else {
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
-        new TimedCommand(() -> endEffectorSubsystem.intakeAlgae(), 0),
+        new TimedCommand(endEffectorSubsystem::intakeAlgae, 0),
         new PivotCommand(endEffectorSubsystem, 0)
         );
       

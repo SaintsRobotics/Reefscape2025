@@ -37,6 +37,6 @@ public class PivotCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_endEffector.atSetpoint();
+    return m_endEffector.getSetpoint() == m_setpoint && m_endEffector.atSetpoint();
   }
 }
