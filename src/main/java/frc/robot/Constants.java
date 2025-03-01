@@ -173,14 +173,14 @@ public final class Constants {
     public static final double kL23Pivot = 0.5;
     public static final double kL4Pivot = 0.5;
 
-    public static final double kAlgaeIntakeSpeed = 0.25;
-    public static final double kCoralIntakeSpeed = 0.25;
-    public static final double kAlgaeOuttakeSpeed = -0.25;
-    public static final double kCoralOuttakeSpeed = -0.25;
+    public static final double kAlgaeIntakeSpeed = -0.25;
+    public static final double kCoralIntakeSpeed = -0.25;
+    public static final double kAlgaeOuttakeSpeed = 0.25;
+    public static final double kCoralOuttakeSpeed = 0.25;
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
 
-    public static final double kSensorDistanceThreshold = 1; // meters, TODO: tune
+    public static final double kSensorDistanceThreshold = .1; // meters, TODO: tune
 
     public static final double kMinAlgaeExtension = 0.3;
 
