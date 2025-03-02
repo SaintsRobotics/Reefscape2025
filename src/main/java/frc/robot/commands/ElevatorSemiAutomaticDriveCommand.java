@@ -76,10 +76,11 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
 
     if (needsClamp) {
       pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
-      pivotLimits.get(1).getFirst());
+      pivotLimits.get(0).getFirst());
     }
 
     m_endEffector.pivotTo(pivotPosition);
+    m_elevator.setSpeed(m_speed.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.

@@ -147,19 +147,17 @@ public class Interlocks {
 
         speed = MathUtil.clamp(speed, EndEffectorConstants.kPivotMaxSpeedExtend, EndEffectorConstants.kPivotMaxSpeedRetract);
 
-        if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension) {
+        //TODO: fix this
+        if (false && m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension) {
             return EndEffectorConstants.kPivotFeedForwards;
         }
 
         for (Pair<Double, Double> limit : pivotLimits) {
-            if (m_pivotPosition < limit.getFirst() && speed > 0) {
-                return EndEffectorConstants.kPivotFeedForwards;
-            }
-            if (m_pivotPosition > limit.getSecond() && speed < 0) {
-                return EndEffectorConstants.kPivotFeedForwards;
+            if ((m_pivotPosition >= limit.getFirst() || speed < 0) && (m_pivotPosition <= limit.getSecond() || speed > 0)) {
+                return speed;
             }
         }
 
-        return speed;
+        return EndEffectorConstants.kPivotFeedForwards;
     }
 }
