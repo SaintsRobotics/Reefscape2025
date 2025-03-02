@@ -150,12 +150,14 @@ public void initSubsystems() {
     //     .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
-            .and(m_operatorController::getAButton)
-            .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector));
+                    .and(m_operatorController::getAButton)
+                    .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector).alongWith(
+                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(true))));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
-            .and(m_operatorController::getAButton)
-            .whileTrue(new RunCommand(m_endEffector::outtakeAlgae, m_endEffector));
+                    .and(m_operatorController::getAButton)
+                    .whileTrue(new RunCommand(m_endEffector::outtakeAlgae, m_endEffector).alongWith(
+                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(false))));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
             .and(m_operatorController::getXButton)

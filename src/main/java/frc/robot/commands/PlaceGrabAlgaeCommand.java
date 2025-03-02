@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.utils.Interlocks;
@@ -20,17 +21,19 @@ public class PlaceGrabAlgaeCommand extends SequentialCommandGroup {
    */
   public PlaceGrabAlgaeCommand(EndEffectorSubsystem endEffectorSubsystem, boolean outtake, Interlocks interlocks) {
     if (outtake) { //TODO: tune constants, and make dynamic based on elevator height?
-      
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
         new TimedCommand(endEffectorSubsystem::outtakeAlgae, 0),
+        new InstantCommand(() -> interlocks.setAlgeaHolding(false)),
         new PivotCommand(endEffectorSubsystem, 0)
         );
     }
     else {
+      interlocks.setAlgeaHolding(true);
       addCommands(
         new PivotCommand(endEffectorSubsystem, 0),
         new TimedCommand(endEffectorSubsystem::intakeAlgae, 0),
+        new InstantCommand(() -> interlocks.setAlgeaHolding(true)),
         new PivotCommand(endEffectorSubsystem, 0)
         );
       
