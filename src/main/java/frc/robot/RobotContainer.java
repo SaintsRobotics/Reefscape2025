@@ -156,20 +156,24 @@ public void initSubsystems() {
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
                     .and(m_operatorController::getAButton)
                     .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector).alongWith(
-                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(true))));
+                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(true))))
+                                    .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
                     .and(m_operatorController::getAButton)
                     .whileTrue(new RunCommand(m_endEffector::outtakeAlgae, m_endEffector).alongWith(
-                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(false))));
+                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(false))))
+                                    .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
             .and(m_operatorController::getXButton)
-            .whileTrue(new RunCommand(m_endEffector::intakeCoral, m_endEffector));
+            .whileTrue(new RunCommand(m_endEffector::intakeCoral, m_endEffector))
+            .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value)
             .and(m_operatorController::getXButton)
-            .whileTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector));
+            .whileTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector))
+            .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
 
     new JoystickButton(m_operatorController, Button.kLeftBumper.value)
             .and(m_operatorController::getStartButton)
