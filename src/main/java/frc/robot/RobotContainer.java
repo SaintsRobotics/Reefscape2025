@@ -20,6 +20,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -35,6 +36,7 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   //private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(); // Temporarily commented out to merge
   //private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(() -> 0 /* m_elevator::getHeight */); //TODO: provide supplier // Temporarily commented out
+  private final ClimberSubsystem m_climber = new ClimberSubsystem();
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
@@ -150,5 +152,6 @@ public class RobotContainer {
     m_robotDrive.fastPeriodic();
     //m_elevator.fastPeriodic(); // Temporarily commented out to merge
     //m_endEffector.fastPeriodic(); // Temporarily commented out
+    m_climber.fastPeriodic();
   }
 }

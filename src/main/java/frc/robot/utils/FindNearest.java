@@ -47,6 +47,10 @@ public class FindNearest {
     }
   }
 
+  private static final Pose2d[] blueCages = {
+    //TODO: find the right pose2ds for the cages
+  };
+
   public static Pose2d getNearestScoringLocation(Pose2d currentPose) {
     Pose2d[] scoringLocations = AllianceFlipUtil.shouldFlip() ? redScoringLocations : blueScoringLocations;
     Pose2d nearestLocation = null;

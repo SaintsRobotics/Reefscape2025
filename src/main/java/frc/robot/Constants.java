@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import com.revrobotics.servohub.ServoChannel.ChannelId;
+
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -205,5 +207,24 @@ public final class Constants {
             Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
             Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
             Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
+  }
+
+  public static final class ClimberConstants {
+    // TODO: set these constants
+    public static final int kWindingMotorPort = 40;
+    public static final int kServoHubPort = 0;
+    public static final ChannelId kLockingServoChannel = ChannelId.kChannelId0;
+
+    public static final int kWindingMotorGearing = 1;
+    public static final double kWindingMotorMaxSpeed = 0.5;
+    public static final double kWindingMotorFeedForward = 0.01;
+    
+    public static final double kPWindingMotor = 0.03;
+
+    public static final double kWindingExtendedPosition = 1;
+    public static final double kWindingRetractedPosition = 0;
+
+    public static final int kLockedPosition = 0;
+    public static final int kUnlockedPosition = 200;
   }
 }
