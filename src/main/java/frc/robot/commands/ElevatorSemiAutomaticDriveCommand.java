@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.DoubleSupplier;
 
@@ -40,34 +41,46 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
     // because we cant do position prediction here, we need to use more restrictive
     // pivot adjustments
     // always clamp using current, and also clamp to next
-    final double speed = m_speed.getAsDouble();
-
-    double pivotSetpoint = m_endEffector.getSetpoint();
     final double currentPosition = m_elevator.getCurrentHeight();
 
-    final Entry<Double, Pair<Double, Double>> currentLimit = EndEffectorConstants.kSafePivotPositions
-        .floorEntry(currentPosition);
-    final Entry<Double, Pair<Double, Double>> higherLimit = EndEffectorConstants.kSafePivotPositions
-        .higherEntry(currentPosition);
-    final Entry<Double, Pair<Double, Double>> lowerLimit = EndEffectorConstants.kSafePivotPositions
-        .lowerEntry(currentLimit.getKey());
+    final Entry<Double, List<Pair<Double, Double>>> currentLimit = EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition);
+    final Entry<Double, List<Pair<Double, Double>>> higherLimit = EndEffectorConstants.kSafePivotPositions.higherEntry(currentLimit.getKey());
+    final Entry<Double, List<Pair<Double, Double>>> lowerLimit = EndEffectorConstants.kSafePivotPositions.lowerEntry(currentLimit.getKey());
 
-    // clamp to current
-    pivotSetpoint = MathUtil.clamp(pivotSetpoint, currentLimit.getValue().getFirst(),
-        currentLimit.getValue().getSecond());
+    final List<Pair<Double, Double>> pivotLimits;
 
-    // check direction
-    if (speed > 0) { // going up
-      pivotSetpoint = MathUtil.clamp(pivotSetpoint, higherLimit.getValue().getFirst(),
-          higherLimit.getValue().getSecond());
-    } else { // going down
-      pivotSetpoint = MathUtil.clamp(pivotSetpoint, lowerLimit.getValue().getFirst(),
-          lowerLimit.getValue().getSecond());
+    // check if moving to next pivot limit
+
+    // check if greater than or equal to minimum elevator height for next limit
+    if (m_speed.getAsDouble() > 0) { // going up
+      pivotLimits = higherLimit.getValue();
+    }
+    
+    // check is less than the minimum elevator height for current limit
+    else if (m_speed.getAsDouble() < 0) { // going down
+      pivotLimits = lowerLimit.getValue();
+    }
+    
+    else { // staying at level
+      pivotLimits = currentLimit.getValue();
     }
 
-    m_endEffector.pivotTo(pivotSetpoint);
-    m_elevator.setHeight(m_elevator.getCurrentHeight());
-    m_elevator.setSpeed(speed);
+
+    boolean needsClamp = true;
+    double pivotPosition = m_endEffector.getSetpoint();
+    for (Pair<Double, Double> limit : pivotLimits) {
+      if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
+        needsClamp = false;
+      }
+    }
+
+    if (needsClamp) {
+      pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
+      pivotLimits.get(0).getFirst());
+    }
+
+    m_endEffector.pivotTo(pivotPosition);
+    m_elevator.setSpeed(m_speed.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.

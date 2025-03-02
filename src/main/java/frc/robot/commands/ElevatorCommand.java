@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import java.util.List;
 import java.util.Map.Entry;
 
 import edu.wpi.first.math.MathUtil;
@@ -41,11 +42,11 @@ public class ElevatorCommand extends Command {
   public void execute() {
     final double currentPosition = m_elevatorSubsystem.getCurrentHeight();
 
-    final Entry<Double, Pair<Double, Double>> currentLimit = EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition);
-    final Entry<Double, Pair<Double, Double>> higherLimit = EndEffectorConstants.kSafePivotPositions.higherEntry(currentPosition);
-    final Entry<Double, Pair<Double, Double>> lowerLimit = EndEffectorConstants.kSafePivotPositions.lowerEntry(currentLimit.getKey());
+    final Entry<Double, List<Pair<Double, Double>>> currentLimit = EndEffectorConstants.kSafePivotPositions.floorEntry(currentPosition);
+    final Entry<Double, List<Pair<Double, Double>>> higherLimit = EndEffectorConstants.kSafePivotPositions.higherEntry(currentLimit.getKey());
+    final Entry<Double, List<Pair<Double, Double>>> lowerLimit = EndEffectorConstants.kSafePivotPositions.lowerEntry(currentLimit.getKey());
 
-    final Pair<Double, Double> pivotLimits;
+    final List<Pair<Double, Double>> pivotLimits;
 
     // check if moving to next pivot limit
 
@@ -64,15 +65,23 @@ public class ElevatorCommand extends Command {
     }
 
 
-    // first clamp using setpoint limit
-    final double pivotPositionSetpointClamped = MathUtil.clamp(m_endEffectorSubsystem.getSetpoint(), pivotLimits.getFirst(),
-        pivotLimits.getSecond());
+    boolean needsClamp = true;
+    double pivotPosition = m_endEffectorSubsystem.getSetpoint();
+    for (Pair<Double, Double> limit : pivotLimits) {
+      if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
+        needsClamp = false;
+      }
+    }
 
-    // then clamp with current limit
-    final double pivotPositionClamped = MathUtil.clamp(pivotPositionSetpointClamped, currentLimit.getValue().getFirst(),
-        currentLimit.getValue().getSecond());
+    if (needsClamp) {
+      pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
+      pivotLimits.get(0).getFirst());
+    }
 
-    m_endEffectorSubsystem.pivotTo(pivotPositionClamped);
+    pivotPosition = MathUtil.clamp(pivotPosition, currentLimit.getValue().get(0).getFirst(),
+      currentLimit.getValue().get(0).getFirst());
+
+    m_endEffectorSubsystem.pivotTo(pivotPosition);
   }
 
   // Called once the command ends or is interrupted.
