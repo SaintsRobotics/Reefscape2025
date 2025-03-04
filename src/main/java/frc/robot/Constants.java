@@ -231,12 +231,13 @@ public final class Constants {
         Map.ofEntries(
             Map.entry(-100000.0,  Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
             Map.entry(-10000.0,   Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(0.2,        Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(0.7,        Arrays.asList(Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2))),
-            Map.entry(10.12,      Arrays.asList(Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2))),
-            Map.entry(15.68,      Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
-            Map.entry(100000.0,   Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
-            Map.entry(1000000.0,  Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)))
+            Map.entry(0.2,      Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(0.7,      Arrays.asList(Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2))),
+            Map.entry(10.12,    Arrays.asList(Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2),
+                                                Pair.of(0.134 * Math.PI * 2, 0.155  * Math.PI * 2))),
+            Map.entry(15.68,    Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
+            Map.entry(100000.0, Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
+            Map.entry(1000000.0,Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)))
         )); 
   }
 }
