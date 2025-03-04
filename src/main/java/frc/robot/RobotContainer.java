@@ -131,7 +131,7 @@ public class RobotContainer {
     
     // one button for autoalign, one button for extend, one for retract, both triggers for manual extend/retract
     new JoystickButton(m_driverController, Button.kB.value)
-      .onTrue(new DriveToCage(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+      .whileTrue(new DriveToCage(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
     
     new JoystickButton(m_driverController, Button.kX.value)
       .onTrue(new extendClimber(m_climber));

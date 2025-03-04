@@ -27,7 +27,6 @@ public class DriveToCage extends Command {
   /** Creates a new DriveToCage. */
   public DriveToCage(DriveSubsystem driveSubsystem, BooleanSupplier safetyCheck) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(driveSubsystem);
 
     m_driveSubsystem = driveSubsystem;
     m_safetyCheck = safetyCheck;
