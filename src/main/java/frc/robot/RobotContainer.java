@@ -8,7 +8,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -20,9 +22,11 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
+import frc.robot.commands.LEDBufferSet;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.LED;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -39,6 +43,7 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
+  private final LED m_leds = new LED();
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -88,7 +93,10 @@ public class RobotContainer {
                     IOConstants.kControllerDeadband)),
             m_elevator));
      */
-    
+    m_leds.setDefaultCommand(new LEDBufferSet(
+        DriverStation.getAlliance().equals(Alliance.Blue) 
+        ? LEDBufferSet.LED_STATES.BLUE_TEAM_BLUE : 
+        LEDBufferSet.LED_STATES.RED_TEAM_RED, m_leds));
   }
 
   /**
@@ -137,7 +145,6 @@ public class RobotContainer {
     // return new DriveToPose(m_robotDrive, new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));
     // return new DriveToReef(m_robotDrive);
   }
-
   /**
    * This periodic loop runs every 10ms (100Hz)
    * 
