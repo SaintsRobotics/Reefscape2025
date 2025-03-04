@@ -18,9 +18,13 @@ public class extendClimber extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      new setWinding(climberSubsystem, 0), 
-      new InstantCommand(() -> climberSubsystem.setLockPosition(Constants.ClimberConstants.kUnlockedPosition)), 
+      // Retract the winch slightly
+      new setWinding(climberSubsystem, Constants.ClimberConstants.kWindingUnlockPosition),
+      // Release the servo lock
+      new InstantCommand(() -> climberSubsystem.setLockPosition(Constants.ClimberConstants.kUnlockedPosition)),
+      // Unwind the winch
       new setWinding(climberSubsystem, Constants.ClimberConstants.kWindingExtendedPosition),
+      // Engage the servo lock
       new InstantCommand(() -> climberSubsystem.setLockPosition(Constants.ClimberConstants.kLockedPosition)));
   }
 }

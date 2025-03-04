@@ -222,7 +222,8 @@ public final class Constants {
     public static final double kPWindingMotor = 0.03;
 
     public static final double kWindingExtendedPosition = 1;
-    public static final double kWindingRetractedPosition = 0;
+    public static final double kWindingRetractedPosition = 0.1;
+    public static final double kWindingUnlockPosition = 0;
 
     public static final int kLockedPosition = 0;
     public static final int kUnlockedPosition = 200;

@@ -20,6 +20,9 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
+import frc.robot.commands.climber.DriveToCage;
+import frc.robot.commands.climber.extendClimber;
+import frc.robot.commands.climber.setWinding;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -125,6 +128,16 @@ public class RobotContainer {
 
     new JoystickButton(m_driverController, Button.kA.value)
       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+    
+    // one button for autoalign, one button for extend, one for retract, both triggers for manual extend/retract
+    new JoystickButton(m_driverController, Button.kB.value)
+      .onTrue(new DriveToCage(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+    
+    new JoystickButton(m_driverController, Button.kX.value)
+      .onTrue(new extendClimber(m_climber));
+
+    new JoystickButton(m_driverController, Button.kY.value)
+      .onTrue(new setWinding(m_climber, Constants.ClimberConstants.kWindingRetractedPosition));
   }
 
   /**

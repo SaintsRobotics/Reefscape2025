@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.utils.FindNearest;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DriveToCage extends Command {
@@ -38,7 +39,7 @@ public class DriveToCage extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
+    m_targetPose = FindNearest.getNearestCage(m_driveSubsystem.getPose());
 
     m_driveToPose = new DriveToPose(m_driveSubsystem, m_targetPose);
 
