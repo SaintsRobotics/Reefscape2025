@@ -6,11 +6,13 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
@@ -63,6 +65,7 @@ public class DriveToPose extends Command {
 
     double xSpeed = xController.calculate(currentPose.getX(), m_targetPose.getX());
     double ySpeed = yController.calculate(currentPose.getY(), m_targetPose.getY());
+
     double thetaSpeed = thetaController.calculate(currentPose.getRotation().getRadians(),
         m_targetPose.getRotation().getRadians());
 
@@ -80,7 +83,8 @@ public class DriveToPose extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !DriveConstants.kAutoDriving || (xController.atGoal() &&
+    return Math.pow(currentPose.minus(m_targetPose).getX(),2) + Math.pow (currentPose.minus(m_targetPose).getY(),2)
+    > Math.pow(Constants.DriveConstants.kMaxDistanceToPose,2) || !DriveConstants.kAutoDriving || (xController.atGoal() &&
         yController.atGoal() &&
         thetaController.atGoal());
   }

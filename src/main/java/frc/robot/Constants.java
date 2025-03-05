@@ -115,6 +115,9 @@ public final class Constants {
     // TODO: set these on real robot
     public static final double kMaxAccelerationUnitsPerSecond = 100;
     public static final double kMaxAngularAccelerationUnitsPerSecond = 100;
+
+    // TODO: Test this
+    public static final double kMaxDistanceToPose = 4.0;
   }
 
   public static final class VisionConstants {
