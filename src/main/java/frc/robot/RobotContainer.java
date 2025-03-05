@@ -91,6 +91,7 @@ public class RobotContainer {
             m_elevator.setHeight(m_elevator.getCurrentHeight());
     }, () -> {
     }, m_elevator));
+    
     m_endEffector.setDefaultCommand(new StartEndCommand(() -> {
             m_endEffector.pivotTo(m_endEffector.getPivotPosition());
     }, () -> {
