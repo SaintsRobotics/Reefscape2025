@@ -100,4 +100,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void outtakeCoral(){
     effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
   }
+
+  public boolean isHolding(){
+    return m_endEffectorRange.getDistance().getValueAsDouble() == 0;
+  }
 }

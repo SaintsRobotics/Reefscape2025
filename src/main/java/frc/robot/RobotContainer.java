@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
@@ -97,6 +99,7 @@ public class RobotContainer {
         DriverStation.getAlliance().equals(Alliance.Blue) 
         ? LEDBufferSet.LED_STATES.BLUE_TEAM_BLUE : 
         LEDBufferSet.LED_STATES.RED_TEAM_RED, m_leds));
+
   }
 
   /**
@@ -131,6 +134,35 @@ public class RobotContainer {
 
     new JoystickButton(m_driverController, Button.kA.value)
       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+
+
+
+
+
+    new JoystickButton(m_operatorController, Button.kRightBumper.value).negate() // Intake Coral
+        .and(m_operatorController::getXButton)
+        .whileTrue(new LEDBufferSet(LEDBufferSet.LED_STATES.INTAKE_ORANGE, m_leds));
+
+    new JoystickButton(m_operatorController, Button.kRightBumper.value) // Outtake Coral
+        .and(m_operatorController::getXButton)
+        .whileTrue(new LEDBufferSet(LEDBufferSet.LED_STATES.OUTTAKE_WHITE, m_leds));
+
+    new JoystickButton(m_operatorController, Button.kRightBumper.value).negate() // Intake Algae
+        .and(m_operatorController::getAButton)
+        .whileTrue(new LEDBufferSet(LEDBufferSet.LED_STATES.INTAKE_ORANGE, m_leds));
+
+    new JoystickButton(m_operatorController, Button.kRightBumper.value) // Outtake Algae
+        .and(m_operatorController::getAButton)
+        .whileTrue(new LEDBufferSet(LEDBufferSet.LED_STATES.OUTTAKE_WHITE, m_leds));
+
+    new Trigger(() -> m_endEffector.isHolding()) // Is holding
+        .whileTrue(new LEDBufferSet(LEDBufferSet.LED_STATES.HOLDING_GREEN, m_leds));
+    
+    new Trigger(() -> (m_elevator.getOutput() < 0)) // Is descending
+        .whileTrue(new LEDBufferSet(LEDBufferSet.LED_STATES.DESCEND_YELLOW, m_leds));
+        
+    new Trigger(() -> (m_elevator.getOutput() > 0)) // Is elevating
+        .whileTrue(new LEDBufferSet(LEDBufferSet.LED_STATES.ELEVATE_PURPLE, m_leds));
   }
 
   /**

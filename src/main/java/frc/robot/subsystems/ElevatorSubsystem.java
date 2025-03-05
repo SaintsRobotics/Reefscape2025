@@ -36,6 +36,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private Runnable m_endEffectorVerify = () -> {};
   private BooleanSupplier m_endEffectorIsSafe = () -> false;
 
+  private double output = 0;
+
   public ElevatorSubsystem() {
     m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
     m_elevatorMax = Constants.ElevatorConstants.kElevatorTop;
@@ -69,7 +71,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void fastPeriodic() {
-    double output = m_PIDController.calculate(
+    output = m_PIDController.calculate(
       m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
       m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
     output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
@@ -104,5 +106,9 @@ public class ElevatorSubsystem extends SubsystemBase {
    */
   public double getHeight() {
     return m_targetPosition;
+  }
+
+  public double getOutput () {
+    return output;
   }
 }

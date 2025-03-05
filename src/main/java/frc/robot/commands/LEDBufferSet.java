@@ -14,20 +14,21 @@ public class LEDBufferSet extends Command {
   public static enum LED_STATES {
     ELEVATE_PURPLE,
     DESCEND_YELLOW,
-    INTAKE_GREEN,
+    INTAKE_ORANGE,
     OUTTAKE_WHITE,
+    HOLDING_GREEN,
     RED_TEAM_RED,
     BLUE_TEAM_BLUE,
     FINAL_RAINBOW,
   }
-  private LED m_leds;
+  private LED m_LED;
   private LED_STATES m_states;
   /** Creates a new LEDBufferSet. */
   public LEDBufferSet(LED_STATES states, LED LED) {
     // Use addRequirements() here to declare subsystem dependencies.
-    states = m_states;
-    LED = m_leds;
-    addRequirements(m_leds);
+    m_states = states;
+    m_LED = LED;
+    addRequirements(m_LED);
   }
 
   // Called when the command is initially scheduled.
@@ -35,25 +36,28 @@ public class LEDBufferSet extends Command {
   public void initialize() {
     switch (m_states) {
       case ELEVATE_PURPLE:
-        m_leds.setBufferColor(Color.kDarkViolet);
+        m_LED.setBufferColor(Color.kDarkViolet);
         break;
       case DESCEND_YELLOW:
-        m_leds.setBufferColor(Color.kGoldenrod);
+        m_LED.setBufferColor(Color.kGoldenrod);
         break;
-      case INTAKE_GREEN:
-        m_leds.setBufferColor(Color.kForestGreen);
+      case INTAKE_ORANGE:
+        m_LED.setBufferColor(Color.kOrange);
         break;
       case OUTTAKE_WHITE:
-        m_leds.setBufferColor(Color.kDarkViolet);
+        m_LED.setBufferColor(Color.kDarkViolet);
+        break;
+      case HOLDING_GREEN:
+        m_LED.setBufferColor(Color.kForestGreen);
         break;
       case BLUE_TEAM_BLUE:
-        m_leds.setBufferColor(Color.kBlue);
+        m_LED.setBufferColor(Color.kBlue);
         break;
       case RED_TEAM_RED:
-        m_leds.setBufferColor(Color.kRed);
+        m_LED.setBufferColor(Color.kRed);
         break;
       case FINAL_RAINBOW:
-        m_leds.setBufferPattern(LEDPattern.rainbow(255, 128));
+        m_LED.setBufferPattern(LEDPattern.rainbow(255, 128));
     }
   }
 
