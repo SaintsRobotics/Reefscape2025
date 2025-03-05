@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -94,7 +93,12 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void pivotTo(double setpoint) {
-    targetRotation = setpoint; //TODO: clamp setpoint
+    pivotTo(setpoint, false);
+  }
+
+  public void pivotTo(double setpoint, boolean aggressive) {
+    final double aggressiveComponent = aggressive ? Math.signum(setpoint) * EndEffectorConstants.kAgressiveComponent : 0;
+    targetRotation = setpoint + aggressiveComponent; //TODO: clamp setpoint
   }
 
   public double getSetpoint() {

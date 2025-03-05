@@ -79,7 +79,7 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
       pivotLimits.get(0).getFirst());
     }
 
-    m_endEffector.pivotTo(pivotPosition);
+    m_endEffector.pivotTo(pivotPosition, true);
     m_elevator.setSpeed(m_speed.getAsDouble());
   }
 

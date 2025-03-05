@@ -211,6 +211,9 @@ public final class Constants {
      */
     public static final double kPivotWraparoundPoint = 0.75 * Math.PI * 2;
 
+    // radians
+    public static final double kAgressiveComponent = Math.toRadians(2);
+
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height

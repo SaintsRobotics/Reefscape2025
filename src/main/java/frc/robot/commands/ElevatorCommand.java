@@ -92,7 +92,7 @@ public class ElevatorCommand extends Command {
         currentLimit.getValue().get(0).getFirst());
     }
 
-    m_endEffectorSubsystem.pivotTo(pivotPosition);
+    m_endEffectorSubsystem.pivotTo(pivotPosition, true);
   }
 
   // Called once the command ends or is interrupted.
