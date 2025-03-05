@@ -134,7 +134,7 @@ public void initSubsystems() {
    *    Dpad down:                      L3 elevator position
    *    Dpad left:                      L4 elevator position
    *    right trigger:                  grab algae
-   *    Y button:                      place algae
+   *    Y button:                       place algae
    *    left trigger:                   place/grab coral
    * 
    *    1: Increments both the elevator offset and setpoint.
@@ -195,8 +195,14 @@ public void initSubsystems() {
             .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
                     IOConstants.kControllerDeadband) != 0)
             .whileTrue(new ElevatorSemiAutomaticDriveCommand(
-                    () -> -m_operatorController.getLeftY(), m_endEffector, m_elevator));
-
+                    () -> -m_operatorController.getLeftY(), () -> {
+                        if (m_operatorController.getLeftY() > 0) {
+                            return m_elevator.getHeightSetpoint() <= m_elevator.getCurrentHeight()
+                                    + ElevatorConstants.kBoundaryHintThreshold;
+                        }
+                        return m_elevator.getHeightSetpoint() >= m_elevator.getCurrentHeight()
+                                    - ElevatorConstants.kBoundaryHintThreshold;
+                    }, m_endEffector, m_elevator));
 
     // pivot
     new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)

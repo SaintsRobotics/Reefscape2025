@@ -174,6 +174,9 @@ public final class Constants {
 
     public static final double kLowHeightSlowdownThreshold = 1;
     public static final double kLowHeightSlowdownMaxSpeed = -.1;
+
+    // inches
+    public static final double kBoundaryHintThreshold = 0.5;
   }
 
   public static final class EndEffectorConstants{
