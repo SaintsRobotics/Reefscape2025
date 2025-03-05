@@ -70,6 +70,7 @@ public class ElevatorCommand extends Command {
     for (Pair<Double, Double> limit : pivotLimits) {
       if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
         needsClamp = false;
+        break;
       }
     }
 
@@ -78,8 +79,18 @@ public class ElevatorCommand extends Command {
       pivotLimits.get(0).getFirst());
     }
 
-    pivotPosition = MathUtil.clamp(pivotPosition, currentLimit.getValue().get(0).getFirst(),
-      currentLimit.getValue().get(0).getFirst());
+    needsClamp = true;
+    for (Pair<Double, Double> limit : currentLimit.getValue()) {
+      if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
+        needsClamp = false;
+        break;
+      }
+    }
+
+    if (needsClamp) {
+      pivotPosition = MathUtil.clamp(pivotPosition, currentLimit.getValue().get(0).getFirst(),
+        currentLimit.getValue().get(0).getFirst());
+    }
 
     m_endEffectorSubsystem.pivotTo(pivotPosition);
   }
@@ -92,6 +103,6 @@ public class ElevatorCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_elevatorSubsystem.atSetpoint();
+    return m_elevatorSubsystem.getHeightSetpoint() == m_desiredHeight && m_elevatorSubsystem.atSetpoint();
   }
 }
