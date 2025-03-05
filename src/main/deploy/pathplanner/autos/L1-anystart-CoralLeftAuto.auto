@@ -11,21 +11,15 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "CoralHPIntakeLeft2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "CoralHPOuttakeLeft2"
+            "name": "PLACE_CORAL_L4"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": "LeftAutons",
   "choreoAuto": false
 }

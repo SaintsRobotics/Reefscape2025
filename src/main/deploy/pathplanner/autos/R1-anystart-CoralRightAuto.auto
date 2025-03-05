@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MiddleCoral1"
+            "pathName": "RightCoral1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
-  "folder": "MiddleAutons",
+  "resetOdom": false,
+  "folder": "RightAutons",
   "choreoAuto": false
 }

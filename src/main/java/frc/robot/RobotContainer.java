@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.AutonCommands;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
@@ -54,6 +55,9 @@ public class RobotContainer {
                 new PPHolonomicDriveController(AutonConstants.kTranslationConstants, AutonConstants.kRotationConstants),
                 AutonConstants.kBotConfig,
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, m_robotDrive);
+
+
+        AutonCommands.registerAutonCommands();
 
         m_autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(m_autoChooser);

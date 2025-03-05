@@ -11,9 +11,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "CoralHPIntakeLeft2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
           }
         },
         {
@@ -23,21 +35,15 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "CoralHPIntakeLeft3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "CoralHPOuttakeLeft3"
+            "name": "PLACE_CORAL_L4"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": "LeftAutons",
   "choreoAuto": false
 }

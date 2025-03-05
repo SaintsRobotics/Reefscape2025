@@ -7,37 +7,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightCoralDeliver1"
+            "pathName": "RightCoral1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RightCoralPickup2"
+            "pathName": "CoralHPIntakeRight2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RightCoralDeliver2"
+            "pathName": "CoralHPOuttakeRight2"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "RightCoralPickup3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightCoralDeliver3"
+            "name": "PLACE_CORAL_L4"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
-  "folder": null,
+  "resetOdom": false,
+  "folder": "RightAutons",
   "choreoAuto": false
 }

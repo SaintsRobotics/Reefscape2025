@@ -11,9 +11,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "CoralHPIntakeMiddle2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
           }
         },
         {
@@ -23,9 +35,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "CoralHPIntakeLeft3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
           }
         },
         {
@@ -33,11 +57,17 @@
           "data": {
             "pathName": "CoralHPOuttakeLeft3"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
+          }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": "MiddleAutons",
   "choreoAuto": false
 }

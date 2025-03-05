@@ -7,19 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightCoral1"
+            "pathName": "RightCoralDeliver1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeRight2"
+            "pathName": "RightCoralPickup2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPOuttakeRight2"
+            "pathName": "RightCoralDeliver2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralPickup3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralDeliver3"
           }
         }
       ]
