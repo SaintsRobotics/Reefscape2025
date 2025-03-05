@@ -19,6 +19,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -95,6 +97,9 @@ public final class Constants {
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPModuleTurningController = 0.3;
 
+    // TODO: Set value
+    public static final boolean kUseTelemetry = false;
+
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         new Translation2d(kWheelBase / 2, kTrackWidth / 2),
         new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
@@ -121,7 +126,13 @@ public final class Constants {
     public static final double kMaxAccelerationUnitsPerSecond = 100;
     public static final double kMaxAngularAccelerationUnitsPerSecond = 100;
   }
-
+  public static final class competitionMode {
+    public static final boolean kCompetitionMode = false;
+    
+  } {
+  
+    
+  }
   public static final class VisionConstants {
     // TODO: Update cam pose relative to center of bot
     public static final Pose3d kCamPos = new Pose3d(
@@ -251,4 +262,11 @@ public final class Constants {
             Map.entry(1000000.0,Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)))
         )); 
   }
-}
+  public static final class SendableChooserConstants {
+    public static final String kcompetitionMode = "competition mode";      
+    public static final String kpracticeMode = "practice mode";
+    public static final String kUseVision = "use vision";
+    public static final String kNotUseVision = "don't use vision";
+  }
+}  
+

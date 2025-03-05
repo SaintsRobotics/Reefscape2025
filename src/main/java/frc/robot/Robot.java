@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -23,6 +24,22 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
+
+  //creating sendable chooser to set competition mode
+  public final class sendableChooserCompMode {
+    public String m_modeSelected;
+    private final SendableChooser<String> m_sendableChooserCompetition = new SendableChooser<>();
+  }
+
+  //creating a sendable chooser to set vision
+  public final class sendableChooserVision {
+    public String m_usingVision;
+    private final SendableChooser<String> m_sendableChooserVision = new SendableChooser<>();
+  }
+
+  private sendableChooserCompMode sendableComp = new sendableChooserCompMode();
+  private sendableChooserVision sendableVision = new sendableChooserVision();
+
   @Override
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
@@ -80,6 +97,12 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    sendableComp.m_modeSelected = sendableComp.m_sendableChooserCompetition.getSelected();
+  	boolean m_competitionMode = sendableComp.m_modeSelected.equals("competition mode");
+
+    sendableVision.m_usingVision = sendableVision.m_sendableChooserVision.getSelected();
+  	boolean m_usingVision = sendableVision.m_usingVision.equals("use vision");
+
   }
 
   /** This function is called periodically during operator control. */
