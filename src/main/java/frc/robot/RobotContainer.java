@@ -43,7 +43,7 @@ import frc.robot.utils.Interlocks;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final Interlocks m_interlocks = new Interlocks();
-  //private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(m_interlocks);
   private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(m_interlocks);
 
@@ -57,35 +57,35 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    // m_robotDrive.setDefaultCommand(
-    //     new RunCommand(
-    //         () -> m_robotDrive.drive(
-    //             MathUtil.applyDeadband(
-    //                 -m_driverController.getLeftY(),
-    //                 IOConstants.kControllerDeadband)
-    //                 * DriveConstants.kMaxSpeedMetersPerSecond
-    //                 * (1 - m_driverController
-    //                     .getLeftTriggerAxis()
-    //                     * IOConstants.kSlowModeScalar)
-    //                 * 0.8,
-    //             MathUtil.applyDeadband(
-    //                 -m_driverController.getLeftX(),
-    //                 IOConstants.kControllerDeadband)
-    //                 * DriveConstants.kMaxSpeedMetersPerSecond
-    //                 * (1 - m_driverController
-    //                     .getLeftTriggerAxis()
-    //                     * IOConstants.kSlowModeScalar)
-    //                 * 0.8,
-    //             MathUtil.applyDeadband(
-    //                 m_driverController.getRightX(),
-    //                 IOConstants.kControllerDeadband)
-    //                 * DriveConstants.kMaxAngularSpeedRadiansPerSecond
-    //                 * (1 - m_driverController
-    //                     .getLeftTriggerAxis()
-    //                     * IOConstants.kSlowModeScalar)
-    //                 * -1,
-    //             !m_driverController.getRightBumperButton()),
-    //                 m_robotDrive));
+    m_robotDrive.setDefaultCommand(
+        new RunCommand(
+            () -> m_robotDrive.drive(
+                MathUtil.applyDeadband(
+                    -m_driverController.getLeftY(),
+                    IOConstants.kControllerDeadband)
+                    * DriveConstants.kMaxSpeedMetersPerSecond
+                    * (1 - m_driverController
+                        .getLeftTriggerAxis()
+                        * IOConstants.kSlowModeScalar)
+                    * 0.8,
+                MathUtil.applyDeadband(
+                    -m_driverController.getLeftX(),
+                    IOConstants.kControllerDeadband)
+                    * DriveConstants.kMaxSpeedMetersPerSecond
+                    * (1 - m_driverController
+                        .getLeftTriggerAxis()
+                        * IOConstants.kSlowModeScalar)
+                    * 0.8,
+                MathUtil.applyDeadband(
+                    m_driverController.getRightX(),
+                    IOConstants.kControllerDeadband)
+                    * DriveConstants.kMaxAngularSpeedRadiansPerSecond
+                    * (1 - m_driverController
+                        .getLeftTriggerAxis()
+                        * IOConstants.kSlowModeScalar)
+                    * -1,
+                !m_driverController.getRightBumperButton()),
+                    m_robotDrive));
 
     m_elevator.setDefaultCommand(new StartEndCommand(() -> {
             m_elevator.setHeight(m_elevator.getCurrentHeight());
@@ -147,11 +147,11 @@ public void initSubsystems() {
    */
   private void configureBindings() {
     
-    // new JoystickButton(m_driverController, Button.kStart.value)
-    //     .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
+    new JoystickButton(m_driverController, Button.kStart.value)
+        .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
 
-    // new JoystickButton(m_driverController, Button.kBack.value)
-    //     .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
+    new JoystickButton(m_driverController, Button.kBack.value)
+        .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
                     .and(m_operatorController::getAButton)
@@ -250,8 +250,8 @@ public void initSubsystems() {
    * </p>
    */
   public void fastPeriodic() {
-    // m_robotDrive.fastPeriodic();
-    m_elevator.fastPeriodic(); // Temporarily commented out to merge
-    m_endEffector.fastPeriodic(); // Temporarily commented out
+    m_robotDrive.fastPeriodic();
+    m_elevator.fastPeriodic();
+    m_endEffector.fastPeriodic();
   }
 }
