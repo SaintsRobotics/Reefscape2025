@@ -7,6 +7,7 @@ package frc.robot.utils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Constants.DriveConstants;
 
 /** Finds the nearest scoring location on the reef */
 public class FindNearest {
@@ -66,7 +67,7 @@ public class FindNearest {
   public static Pose2d getNearestSource(Pose2d currentPose) {
     Pose2d[] sources = AllianceFlipUtil.shouldFlip() ? redSources : blueSources;
     Pose2d nearestSource = null;
-    double nearestDistance = Double.MAX_VALUE;
+    double nearestDistance = DriveConstants.kMaxAutoDistance;
 
     for (Pose2d source : sources) {
       double distance = currentPose.getTranslation().getDistance(source.getTranslation());
