@@ -21,7 +21,6 @@ public class ConstantsTest {
      * Tests for safeguards kSafePivotPositions
      */
     @Test
-    @Disabled
     void test_SafePivotPositionsSafegaurds() {
         final double minElevator0 = EndEffectorConstants.kSafePivotPositions.firstKey();
         final double minElevator1 = EndEffectorConstants.kSafePivotPositions.higherKey(minElevator0);
@@ -40,7 +39,6 @@ public class ConstantsTest {
      * Tests for sane values (e.g. minimum greater than minimum)
      */
     @Test
-    @Disabled
     void test_SaneValues_nodiscrete() {
         // io
         assertTrue(IOConstants.kSlowModeScalar < 1, "Slow mode scalar not less than 1");
@@ -66,7 +64,6 @@ public class ConstantsTest {
      * Tests if pivot limits are physically possible
      */
     @Test
-    @Disabled
     void test_SafePivotPositionsPossible_nodiscrete() {
         Entry<Double, List<Pair<Double, Double>>> limit = EndEffectorConstants.kSafePivotPositions.firstEntry();
         Pair<Double, Double> prevLimit = limit.getValue().get(0);
