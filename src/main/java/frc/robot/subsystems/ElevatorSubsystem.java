@@ -4,105 +4,135 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.hardware.CANrange;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.utils.Interlocks;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
-  private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
+  // private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
-  private final PIDController m_PIDController = new PIDController(ElevatorConstants.kPElevator, 0, 0, Constants.kFastPeriodicPeriod);
+  private final TrapezoidProfile.Constraints m_contraints = new TrapezoidProfile.Constraints(ElevatorConstants.kMaxV, ElevatorConstants.kMaxA);
+  private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, m_contraints, Constants.kFastPeriodicPeriod);
 
-  private double m_targetPosition = 0;
   private double m_motorOffset = 0;
 
-  private double m_elevatorMin;
-  private double m_elevatorMax;
+  private double m_output = 0;
 
-  private Runnable m_endEffectorVerify = () -> {};
-  private BooleanSupplier m_endEffectorIsSafe = () -> false;
+  private final Interlocks m_interlocks;
 
-  public ElevatorSubsystem() {
-    m_elevatorMin = Constants.ElevatorConstants.kElevatorBottom;
-    m_elevatorMax = Constants.ElevatorConstants.kElevatorTop;
+  private double m_speedOverride;
 
+  public ElevatorSubsystem(Interlocks interlocks) {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
+    motorConfig.idleMode(IdleMode.kBrake);
 
     m_elevatorMotor = new SparkFlex(ElevatorConstants.kElevatorMotorPort, MotorType.kBrushless);
     // TODO: set to reset and persist after testing
     m_elevatorMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-  }
 
-  /**
-   * Should be called before any calls to setHeight
-   * @param ensureEndEffectorState the callback for setHeight
-   * @param endEffectorIsSafe supplier that returns true is elevator can move
-   */
-  public void setEndEffectorSuppliers(Runnable ensureEndEffectorState, BooleanSupplier endEffectorIsSafe) {
-    m_endEffectorVerify = ensureEndEffectorState;
-    m_endEffectorIsSafe = endEffectorIsSafe;
+
+    m_PIDController.setTolerance(ElevatorConstants.kPositionTolerance, ElevatorConstants.kVelocityTolerance);
+    m_interlocks = interlocks;
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorDistanceThreshold) {
-      // This offset is set when the distance sensor detects that the elevator is at the bottom 
-      // At the bottom, the motor's position + offset should equal 0
-      m_motorOffset = -m_elevatorMotor.getEncoder().getPosition();
-    }
+    m_interlocks.setElevatorHeight(m_elevatorMotor.getEncoder().getPosition() + m_motorOffset);
+
+    /*
+     * The order of callbacks is as follows:
+     *  The timed robot periodic will run
+     *    Then the command command scheduler will run
+     *      Then all periodics will run
+     *      Then all commands will run
+     *    Then the fast periodics will run
+     *    Then the fast periodics will run again
+     * 
+     * This means that we will set overrideSpeed to 0 in each periodic
+     *  Then a command might cause this to become non zero
+     *  In that case, the two fast periodics will use the speed override instead of the setpoint
+     */
+
+    m_speedOverride = 0;
+
+    /*
+     * if (m_elevatorRange.getDistance().getValueAsDouble() <
+     * ElevatorConstants.kElevatorDistanceThreshold) {
+     * // This offset is set when the distance sensor detects that the elevator is
+     * at the bottom
+     * // At the bottom, the motor's position + offset should equal 0
+     * zeroPosition();
+     * }
+     */
+
+    SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
+    SmartDashboard.putNumber("Elevator Setpoint", m_PIDController.getGoal().position);
+    SmartDashboard.putNumber("Elevator output", m_output);
   }
 
   public void fastPeriodic() {
-    double output = m_PIDController.calculate(
-      m_elevatorMotor.getEncoder().getPosition() + m_motorOffset,
-      m_targetPosition) + ElevatorConstants.kElevatorFeedForward;
-    output = MathUtil.clamp(output, -ElevatorConstants.kElevatorMaxSpeed, ElevatorConstants.kElevatorMaxSpeed);
+    m_output = m_PIDController.calculate(
+        getCurrentHeight()) + ElevatorConstants.kElevatorFeedForward;
+    m_output = m_speedOverride != 0 ? m_speedOverride + ElevatorConstants.kElevatorFeedForward : m_output;
 
-    if (m_endEffectorIsSafe.getAsBoolean()) {
-      m_elevatorMotor.set(output);
-    }
-    else {
-      m_elevatorMotor.set(ElevatorConstants.kElevatorFeedForward); //TODO: test if this is needed
-    }
-
-    SmartDashboard.putNumber("elevator motor output", output);
-  }
-
-  public void joystickMovement(double joystickY) {
-    // Moves the target position by joystickY multiplied by the constant kSpeed, clamped between the top and bottom heights
-    m_targetPosition += joystickY * ElevatorConstants.kElevatorSpeedScalar * Robot.kDefaultPeriod;
-    m_targetPosition = MathUtil.clamp(m_targetPosition, m_elevatorMin, m_elevatorMax);
-    // Display this number for now so we can see it
-    SmartDashboard.putNumber("elevator targetPosition", m_targetPosition);
+    m_elevatorMotor.set(m_interlocks.clampElevatorMotorSet(m_output));
   }
 
   public void setHeight(double level) {
     // Set the elevator target height to the corresponding level (L1, L2, L3, L4)
-    m_targetPosition = level;
-    m_endEffectorVerify.run();
+    m_PIDController.setGoal(level); //TODO: clamp setpoint
+  }
+
+  public double getHeightSetpoint() {
+    return m_PIDController.getGoal().position;
+  }
+
+  public double getCurrentHeight() {
+    return m_elevatorMotor.getEncoder().getPosition() + m_motorOffset;
+  }
+
+  public boolean atSetpoint() {
+    return m_PIDController.atGoal();
   }
 
   /**
-   * Gets the height of elevator
-   * @return The height of the elevator in meters
+   * Sets the speed of the elevator and overwrites the setpoint until the next period
+   * @param speed The speed without the feedforwards
    */
-  public double getHeight() {
-    return m_targetPosition;
+  public void setSpeed(double speed) {
+    m_speedOverride = speed;
+    m_PIDController.reset(getCurrentHeight());
+  }
+
+  /**
+   * Zeroes the position so that the current elevator position is zero
+   */
+  public void zeroPosition() {
+    zeroPosition(0);
+  }
+
+
+  /**
+   * Zereos the position so that the current elevator position is offset
+   * @param offset
+   */
+  public void zeroPosition(double offset) {
+    m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
+    setHeight(offset);
+    m_PIDController.reset(offset);
   }
 }

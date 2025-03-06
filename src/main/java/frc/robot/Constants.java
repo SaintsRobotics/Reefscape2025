@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -33,6 +35,8 @@ import edu.wpi.first.math.numbers.N3;
 public final class Constants {
 
   public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
+  public static final double kFastPeriodicOfset = 1e-6; // 1 micro second, no noticable effect other than scheduling
+                                                        // order
 
   /**
    * Input/Output constants
@@ -43,6 +47,9 @@ public final class Constants {
 
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
+
+    public static final double kElevatorAxisScalar = 0.3; //TODO: tune
+    public static final double kPivotAxisScalar = 0.5; //TODO: tune
 
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;
@@ -140,74 +147,112 @@ public final class Constants {
 
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
-    public static final int kElevatorMotorPort = 0;
-    public static final int kElevatorCANrangePort = 0;
+    public static final int kElevatorMotorPort = 50;
+    public static final int kElevatorCANrangePort = 9;
 
     // TODO: Tune PID for elevator
-    public static final double kPElevator = 0.03;
+    public static final double kPElevator = 0.6;
+    public static final double kMaxV = 15;
+    public static final double kMaxA = 15;
 
     // TODO: Set these constants
-    public static final double kElevatorGearing = 1;
-    public static final double kElevatorMaxSpeed = 0.7;
-    public static final double kElevatorFeedForward = 0.1;
+    public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
+    // public static final double kElevatorUpMaxSpeed = 0.6;
+    public static final double kElevatorUpMaxSpeed = 0.6;
+
+    public static final double kElevatorDownMaxSpeed = -0.3;
+    public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
-    public static final double kElevatorBottom = 0;
-    public static final double kElevatorTop = 1;
+    public static final double kElevatorBottom = 0.2;
+    public static final double kElevatorTop = 21;
     public static final double kElevatorDistanceThreshold = 1;
 
-    public static final double kL1Height = 0.3;
-    public static final double kL2Height = 0.5;
-    public static final double kL3Height = 0.7;
-    public static final double kL4Height = 0.9;
+    public static final double kL1Height = 5;
+    public static final double kL2Height = 10;
+    public static final double kL3Height = 15;
+    public static final double kL4Height = 20;
+
+    public static final double kPositionTolerance = 0.04; //TODO: tune
+    public static final double kVelocityTolerance = 1;
+
+    public static final double kLowHeightSlowdownThreshold = 1;
+    public static final double kLowHeightSlowdownMaxSpeed = -.1;
   }
 
   public static final class EndEffectorConstants{
     // TODO: Set these constants
-    public static final int kPivotMotorPort = 0;
-    public static final int kEffectorMotorPort = 0;
-    public static final int kEndEffectorCANrangePort = 0;
+    public static final int kPivotMotorPort = 52;
+    public static final int kEffectorMotorPort = 53;
+    public static final int kEndEffectorCANrangePort = 8;
 
-    public static final double kPEndEffector = 0.03;
-    public static final double kPivotMaxSpeed = 1;
+    public static final double kPEndEffector = 0.1;
+    public static final double kPivotMaxSpeedRetract = 0.15;
+    public static final double kPivotMaxSpeedExtend = -0.15;
 
     public static final double kL1Pivot = 0.5;
     public static final double kL23Pivot = 0.5;
     public static final double kL4Pivot = 0.5;
 
     public static final double kAlgaeIntakeSpeed = 0.25;
-    public static final double kCoralIntakeSpeed = 0.25;
+    public static final double kCoralIntakeSpeed = -0.25;
     public static final double kAlgaeOuttakeSpeed = -0.25;
-    public static final double kCoralOuttakeSpeed = -0.25;
+    public static final double kCoralOuttakeSpeed = 0.25;
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
+
+    public static final double kSensorDistanceThreshold = .1; // meters, TODO: tune
+
+    public static final double kMinAlgaeExtension = 0.3;
+
+    public static final double kPivotFeedForwards = 0.00;
+
+    /**
+     * Radians.
+     * Used to round values near the wraparound to zero.
+     * Lower numbers are more reliable.
+     * Pivot should never physically reach this angle
+     */
+    public static final double kPivotWraparoundPoint = 0.75 * Math.PI * 2;
 
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height
-     * Each key is the starting (from zero) elevator height for the limit
-     * Each value is a Pair with the minimum and maximum pivot angle in radians,
+     * Each key is the starting (from zero) elevator height for the limit. Height is inclusive
+     * Each value is a Pair with the minimum and maximum pivot angles (inclusive) in radians,
      * respectively
      * 
-     * For exampple:
+     * For example:
      * 
      * Map.ofEntries(
-     * Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
+     * Map.entry(-100000.0, Pair.of(0.0, Math.PI / 2)),
      * Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
      * Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI))
+     * Map.entry(100000.0, Pair.of(Math.PI / 2, Math.PI))
      * );
      * 
      * means that:
      * pivot angles between elevator heights [-1, 0) must be from 0 to 90 degrees
-     *  this acts as a safeguard for negative values
+     *  this acts as a safeguard for negative values, should be less than min
+     *  physical height
      * pivot angles between elevator heights [0, 1) must be from 0 to 90 degrees,
-     * pivot angles between elevator heights [1, infinity) must be from 90 to 180
+     * pivot angles between elevator heights [1, 5) must be from 90 to 180
+     * pivot angles between elevator heights [5, infinity) must be from 90 to 180
      * degrees
+     *  this acts as a safeguard for very high values, should be greater than max
+     *  physical height
      */
-    public static final NavigableMap<Double, Pair<Double, Double>> kSafePivotPositions = new TreeMap<>(
+    public static final NavigableMap<Double, List<Pair<Double, Double>>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-1.0, Pair.of(0.0, Math.PI / 2)),
-            Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
-            Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI)))); // TODO: find safe pivot position
+            Map.entry(-100000.0,  Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(-10000.0,   Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(0.2,      Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(0.7,      Arrays.asList(Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2))),
+            Map.entry(10.12,    Arrays.asList(Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2),
+                                                Pair.of(0.134 * Math.PI * 2, 0.155  * Math.PI * 2))),
+            Map.entry(15.68,    Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
+            Map.entry(100000.0, Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
+            Map.entry(1000000.0,Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)))
+        )); 
   }
 
   public static final class ClimberConstants {

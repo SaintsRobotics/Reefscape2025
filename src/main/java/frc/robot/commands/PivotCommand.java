@@ -5,12 +5,19 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.EndEffectorSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ExampleCommand extends Command {
-  /** Creates a new ExampleCommand. */
-  public ExampleCommand() {
-    // Use addRequirements() here to declare subsystem dependencies.
+public class PivotCommand extends Command {
+  private final EndEffectorSubsystem m_endEffector;
+  private final double m_setpoint;
+
+  /** Creates a new PivotCommand. */
+  public PivotCommand(EndEffectorSubsystem endEffector, double setpoint) {
+    addRequirements(endEffector);
+
+    m_endEffector = endEffector;
+    m_setpoint = setpoint;
   }
 
   // Called when the command is initially scheduled.
@@ -19,7 +26,9 @@ public class ExampleCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    m_endEffector.pivotTo(m_setpoint); // needs to be in execute in case smart pivot changes setpoint
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -28,6 +37,6 @@ public class ExampleCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_endEffector.getSetpoint() == m_setpoint && m_endEffector.atSetpoint();
   }
 }

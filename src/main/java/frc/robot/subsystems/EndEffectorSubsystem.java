@@ -4,18 +4,21 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.DoubleSupplier;
-
 import com.ctre.phoenix6.hardware.CANrange;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.utils.Interlocks;
 
 public class EndEffectorSubsystem extends SubsystemBase {
   private final SparkFlex m_pivotMotor;
@@ -27,57 +30,75 @@ public class EndEffectorSubsystem extends SubsystemBase {
   private double targetRotation = 0;
   private double effectorOutput = 0;
 
-  private final DoubleSupplier m_elevatorHeightSupplier;
+  private double m_output;
+
+  private final Interlocks m_interlocks;
+
+  private double m_speedOverride;
 
   // Pivoting controls: A is L1, B is L2 & L3, Y is L4 or use right joystick
   // Intake/Outtake controls: Right Bumper: Intake Algae, Left Bumper: Outtake Algae
   //                          Right Trigger: Intake Coral, Left Trigger Outtake Coral
 
   /** Creates a new EndEffectorSubsystem. */
-  public EndEffectorSubsystem(DoubleSupplier elevatorHeightSupplier) {
+  public EndEffectorSubsystem(Interlocks interlocks) {
+    SparkFlexConfig pivotConfig = new SparkFlexConfig();
+    pivotConfig.idleMode(IdleMode.kBrake);
+    pivotConfig.absoluteEncoder.positionConversionFactor(Math.PI * 2); // convert to radians
+
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
     m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
 
-    // TODO: maybe reverse effector motor
+    // TODO: set to reset and persist after testing
+    m_pivotMotor.configure(pivotConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    m_elevatorHeightSupplier = elevatorHeightSupplier;
+    // TODO: maybe reverse effector motor
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
+
+    m_interlocks = interlocks;
   }
 
   @Override
   public void periodic() {
+    m_interlocks.setPivotPosition(getPivotPosition());
+
+      /*
+     * The order of callbacks is as follows:
+     *  The timed robot periodic will run
+     *    Then the command command scheduler will run
+     *      Then all periodics will run
+     *      Then all commands will run
+     *    Then the fast periodics will run
+     *    Then the fast periodics will run again
+     * 
+     * This means that we will set overrideSpeed to 0 in each periodic
+     *  Then a command might cause this to become non zero
+     *  In that case, the two fast periodics will use the speed override instead of the setpoint
+     */
+
+     m_speedOverride = 0;
+
+    SmartDashboard.putBoolean("Is Holding", isHolding());
+    SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
+    SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
+    SmartDashboard.putNumber("Pivot Output", m_output);
     // This method will be called once per scheduler run
   }
 
   public void fastPeriodic(){
-    double output = m_PIDController.calculate(m_pivotMotor.getEncoder().getPosition(), targetRotation);
-    output = MathUtil.clamp(output, -EndEffectorConstants.kPivotMaxSpeed, EndEffectorConstants.kPivotMaxSpeed);
-    // m_pivotMotor.set(output);
-    // m_effectorMotor.set(effectorOutput);
+    m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation);
+    m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
+
+    m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
+    m_effectorMotor.set(effectorOutput);
   }
 
   public void pivotTo(double setpoint) {
-    final double elevatorHeight = m_elevatorHeightSupplier.getAsDouble();
-    final Pair<Double, Double> limits = EndEffectorConstants.kSafePivotPositions.floorEntry(elevatorHeight).getValue();
-    targetRotation = MathUtil.clamp(setpoint, limits.getFirst(), limits.getSecond());
+    targetRotation = setpoint; //TODO: clamp setpoint
   }
 
-  /**
-   * Checks is pivot is within elevator limits
-   * @return true if pivot is within limits
-   */
-  public boolean pivotWithinLimits() {
-    final double elevatorHeight = m_elevatorHeightSupplier.getAsDouble();
-    final Pair<Double, Double> limits = EndEffectorConstants.kSafePivotPositions.floorEntry(elevatorHeight).getValue();
-    return targetRotation >= limits.getFirst() && targetRotation <= limits.getSecond(); 
-  }
-
-  /**
-   * Ensures pivot is at a safe state for elevator
-   * Should be called whenever elevator height is changed
-   */
-  public void ensureSafeState() {
-    pivotTo(targetRotation); // will re-evaluate clamp
+  public double getSetpoint() {
+    return targetRotation;
   }
 
   // commented out because this code does not make sense
@@ -99,5 +120,30 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public void outtakeCoral(){
     effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
+  }
+
+  public void stopEffector() {
+    effectorOutput = 0;
+  }
+
+  public void setSpeed(double speed) {
+    m_speedOverride = speed;
+  }
+
+  public double getPivotPosition() {
+    final double encoderPosition = m_pivotMotor.getAbsoluteEncoder().getPosition();
+    return encoderPosition >= EndEffectorConstants.kPivotWraparoundPoint ? 0 : encoderPosition;
+  }
+
+  /**
+   * Checks if currently holding
+   * @return True if either a coral or algae is currently being held
+   */
+  public boolean isHolding() {
+    return m_endEffectorRange.getDistance().getValueAsDouble() <= EndEffectorConstants.kSensorDistanceThreshold;
+  }
+
+  public boolean atSetpoint() {
+    return m_PIDController.atSetpoint();
   }
 }
