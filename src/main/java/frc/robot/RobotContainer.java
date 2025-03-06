@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -21,14 +22,15 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
-import frc.robot.commands.ElevatorCommand;
-import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
+// import frc.robot.commands.ElevatorCommand;
+// import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.PivotCommand;
-import frc.robot.commands.PlaceGrabAlgaeCommand;
-import frc.robot.commands.PlaceGrabCoralCommand;
+// import frc.robot.commands.PlaceGrabAlgaeCommand;
+// import frc.robot.commands.PlaceGrabCoralCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -87,10 +89,13 @@ public class RobotContainer {
                 !m_driverController.getRightBumperButton()),
                     m_robotDrive));
 
+    // Defaults to keep the elevator in its current state, unmoving
     m_elevator.setDefaultCommand(new StartEndCommand(() -> {
             m_elevator.setHeight(m_elevator.getCurrentHeight());
     }, () -> {
     }, m_elevator));
+
+    // default to keep the end effector in its current state, unmoving
     m_endEffector.setDefaultCommand(new StartEndCommand(() -> {
             m_endEffector.pivotTo(m_endEffector.getPivotPosition());
     }, () -> {
@@ -102,6 +107,7 @@ public void initSubsystems() {
     new InstantCommand(() -> {
     }, m_elevator, m_endEffector).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).schedule();
 
+    // Assumes the elevator starts at 0 on 
     m_elevator.zeroPosition();
     m_elevator.setHeight(m_elevator.getCurrentHeight());
     m_endEffector.pivotTo(m_endEffector.getPivotPosition());
@@ -153,79 +159,139 @@ public void initSubsystems() {
     new JoystickButton(m_driverController, Button.kBack.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
-    new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
-                    .and(m_operatorController::getAButton)
-                    .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector).alongWith(
-                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(true))))
-                                    .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
+    // auto align to reef
+    new JoystickButton(m_driverController, Button.kA.value)
+      .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
 
-    new JoystickButton(m_operatorController, Button.kRightBumper.value)
-                    .and(m_operatorController::getAButton)
-                    .whileTrue(new RunCommand(m_endEffector::outtakeAlgae, m_endEffector).alongWith(
-                                    new InstantCommand(() -> m_interlocks.setAlgeaHolding(false))))
-                                    .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
+    // intake
+    new Trigger(() -> m_driverController.getLeftTriggerAxis() > 0.5)
+        .onTrue(new InstantCommand(() -> {
+          if (m_interlocks.getCoralMode()) {
+            m_endEffector.intakeCoral();
+          } else {
+            m_endEffector.intakeAlgae();
+          }
+        }));
 
-    new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
-            .and(m_operatorController::getXButton)
-            .whileTrue(new RunCommand(m_endEffector::intakeCoral, m_endEffector))
-            .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
+    new Trigger(() -> m_driverController.getRightTriggerAxis() > 0.5)
+        .onTrue(new InstantCommand(() -> {
+          if (m_interlocks.getCoralMode()) {
+            m_endEffector.outtakeCoral();
+          } else {
+            m_endEffector.outtakeAlgae();
+          }
+        }));
 
-    new JoystickButton(m_operatorController, Button.kRightBumper.value)
-            .and(m_operatorController::getXButton)
-            .whileTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector))
-            .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
-
-    new JoystickButton(m_operatorController, Button.kLeftBumper.value)
-            .and(m_operatorController::getStartButton)
-            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(5), m_elevator));
-
-    new JoystickButton(m_operatorController, Button.kLeftBumper.value)
-            .and(m_operatorController::getBackButton)
-            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator));
-
-    // full manual elevator
-    new JoystickButton(m_operatorController, Button.kB.value)
-            .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
-            .whileTrue(new RunCommand(() -> {
-                m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar); // no need to apply deadband here because of trigger
-            }, m_elevator));
-
-    // semi manual elevator
-    new JoystickButton(m_operatorController, Button.kB.value).negate()
-            .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
-                    IOConstants.kControllerDeadband) != 0)
-            .whileTrue(new ElevatorSemiAutomaticDriveCommand(
-                    () -> -m_operatorController.getLeftY(), m_endEffector, m_elevator));
+  //     // .onTrue(new InstantCommand(() -> m_endEffector.intakeCoral(), m_endEffector));
+  //       .onTrue(new InstantCommand(() -> {
+  //         if (m_interlocks.getCoralMode()) {
+  //             m_endEffector.intakeCoral();
+  // }
+  // else {
+  //             m_endEffector.intakeAlgae();
+  // } }));
 
 
-    // pivot
+
+    //     new InstantCommand(() -> { return m_interlocks.getCoralMode() ? m_endEffector.intakeCoral() : m_endEffector.intakeAlgae(); });
+
+    // elevator from joystick - manual (only interlocks remaining)
+    new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
+        .whileTrue(new RunCommand(() -> {
+            // no need to apply deadband here because of trigger
+            m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar);
+        }, m_elevator));
+
+    // pivot from joystick - manual (only interlocks remaining)
     new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
-            .whileTrue(new RunCommand(() -> {
-                m_endEffector.setSpeed(-m_operatorController.getRightY() * IOConstants.kPivotAxisScalar); // no need to apply deadband here because of trigger
-            }, m_endEffector));
+        .whileTrue(new RunCommand(() -> {
+            // no need to apply deadband here because of trigger
+            m_endEffector.setSpeed(-m_operatorController.getRightY() * IOConstants.kPivotAxisScalar);
+        }, m_endEffector));
 
-    // auto intake/outake
-    //TODO: put actual setpoints for onFalse
-    new Trigger(() -> m_operatorController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
-            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, false, m_interlocks))
-            .onFalse(new PivotCommand(m_endEffector, 0));
+    // algae mode
+    new JoystickButton(m_operatorController, Button.kLeftBumper.value)
+        .onTrue(new InstantCommand(() -> m_interlocks.setCoralMode(false)))
+        .onTrue(new PivotCommand(m_endEffector, EndEffectorConstants.kAlgaeAngle));
 
-    new JoystickButton(m_operatorController, Button.kY.value)
-            .whileTrue(new PlaceGrabAlgaeCommand(m_endEffector, true, m_interlocks))
-            .onFalse(new PivotCommand(m_endEffector, 0));
-    
-    new Trigger(() -> m_operatorController.getLeftTriggerAxis() > IOConstants.kControllerDeadband)
-            .whileTrue(new PlaceGrabCoralCommand(m_endEffector))
-            .onFalse(new PivotCommand(m_endEffector, 0));
+    // coral mode
+    new JoystickButton(m_operatorController, Button.kRightBumper.value)
+        .onTrue(new InstantCommand(() -> m_interlocks.setCoralMode(true)));
 
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector));
+        .onTrue(m_interlocks.getCoralMode()
+            ? getCoralCommand(1, m_elevator, m_endEffector)
+            : getAlgaeCommand(1, EndEffectorConstants.kAlgaeAngle, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL2Height, m_elevator, m_endEffector));
+        .onTrue(m_interlocks.getCoralMode()
+            ? getCoralCommand(2, m_elevator, m_endEffector)
+            : getAlgaeCommand(2, EndEffectorConstants.kAlgaeAngle, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector));
+        .onTrue(m_interlocks.getCoralMode()
+            ? getCoralCommand(3, m_elevator, m_endEffector)
+            : getAlgaeCommand(3, EndEffectorConstants.kAlgaeAngle, m_elevator, m_endEffector));
     new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
-        .onTrue(new ElevatorCommand(ElevatorConstants.kL4Height, m_elevator, m_endEffector));
+        .onTrue(m_interlocks.getCoralMode()
+            ? getCoralCommand(4, m_elevator, m_endEffector)
+            : getAlgaeCommand(4, EndEffectorConstants.kBargeAngle, m_elevator, m_endEffector));
+  }
+
+  public SequentialCommandGroup getCoralCommand(int level, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
+
+    /*
+     * possibilites
+     * 
+     * literally map safe pivot angles to go from things like l1 to l2, l3, l4
+     * l1 -> l3 find safe angle to move elevator at
+     * l1 -> l4 find safe angle to move elevator at
+     * etc
+     * 
+     * if setpoint is not at any level, move pivot all the way out and elevator all the way down
+     * literally set both setpoints and use discrete interlocks ig to make sure it doesnt hit
+     */
+
+     // new InstantCommand(() -> {
+    //   elevatorSubsystem.setHeight(ElevatorConstants.kCoralL1Height);
+    //   endEffectorSubsystem.pivotTo(desiredAngle);
+    // }, elevatorSubsystem, endEffectorSubsystem)
+
+    // TODO: add safe movement angle or figure out if it needs to change based on where elevator is starting
+    double safeMovementAngle = EndEffectorConstants.kPivotSafeAngle;
+    
+    switch (level) {
+      case 1:
+        return new SequentialCommandGroup(
+          new PivotCommand(endEffectorSubsystem, safeMovementAngle),
+          new InstantCommand(() -> elevatorSubsystem.setHeight(ElevatorConstants.kCoralL1Height), elevatorSubsystem),
+          new PivotCommand(endEffectorSubsystem, EndEffectorConstants.kL1Pivot));
+
+      case 2:
+        return new SequentialCommandGroup(
+          new PivotCommand(endEffectorSubsystem, safeMovementAngle),
+          new InstantCommand(() -> elevatorSubsystem.setHeight(ElevatorConstants.kCoralL1Height), elevatorSubsystem),
+          new PivotCommand(endEffectorSubsystem, EndEffectorConstants.kL23Pivot));
+
+      case 3:
+        return new SequentialCommandGroup(
+          new PivotCommand(endEffectorSubsystem, safeMovementAngle),
+          new InstantCommand(() -> elevatorSubsystem.setHeight(ElevatorConstants.kCoralL1Height), elevatorSubsystem),
+          new PivotCommand(endEffectorSubsystem, EndEffectorConstants.kL23Pivot));
+
+      case 4:
+      return new SequentialCommandGroup(
+        new PivotCommand(endEffectorSubsystem, safeMovementAngle),
+        new InstantCommand(() -> elevatorSubsystem.setHeight(ElevatorConstants.kCoralL1Height), elevatorSubsystem),
+        new PivotCommand(endEffectorSubsystem, EndEffectorConstants.kL4Pivot));   
+
+      default:
+        return new SequentialCommandGroup();
+    }
+  }
+
+  public SequentialCommandGroup getAlgaeCommand(double height, double algaeAngle, ElevatorSubsystem elevatorSubsystem, EndEffectorSubsystem endEffectorSubsystem) {
+    return new SequentialCommandGroup(
+      new PivotCommand(endEffectorSubsystem, algaeAngle),
+      new InstantCommand(() -> elevatorSubsystem.setHeight(height), elevatorSubsystem));
   }
 
   /**

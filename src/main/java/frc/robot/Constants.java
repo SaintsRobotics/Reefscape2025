@@ -160,14 +160,21 @@ public final class Constants {
     public static final double kElevatorDownMaxSpeed = -0.3;
     public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
-    public static final double kElevatorBottom = 0.2;
+    public static final double kElevatorBottom = 0.0;
     public static final double kElevatorTop = 21;
     public static final double kElevatorDistanceThreshold = 1;
 
-    public static final double kL1Height = 5;
-    public static final double kL2Height = 10;
-    public static final double kL3Height = 15;
-    public static final double kL4Height = 20;
+    // coral
+    public static final double kCoralL1Height = 0;
+    public static final double kCoralL2Height = 10;
+    public static final double kCoralL3Height = 15;
+    public static final double kCoralL4Height = 20;
+
+    // algae
+    public static final double kAlgeaProcessorHeight = 0;
+    public static final double kAlgeaL2Height = 10;
+    public static final double kAlgeaL3Height = 15;
+    public static final double kAlgeaBargeHeight = 21;
 
     public static final double kPositionTolerance = 0.04; //TODO: tune
     public static final double kVelocityTolerance = 1;
@@ -186,9 +193,15 @@ public final class Constants {
     public static final double kPivotMaxSpeedRetract = 0.15;
     public static final double kPivotMaxSpeedExtend = -0.15;
 
-    public static final double kL1Pivot = 0.5;
-    public static final double kL23Pivot = 0.5;
-    public static final double kL4Pivot = 0.5;
+    public static final double kPivotSafeAngle = 0.3 * Math.PI * 2;
+    public static final double kCoralSafeAngle = 0.1 * Math.PI * 2;
+
+    public static final double kL1Pivot = 0;
+    public static final double kL23Pivot = 0.1 * Math.PI * 2;
+    public static final double kL4Pivot = 0.18 * Math.PI * 2;
+
+    public static final double kAlgaeAngle = 0.5 * Math.PI * 2;
+    public static final double kBargeAngle = 0.33 * Math.PI * 2;
 
     public static final double kAlgaeIntakeSpeed = 0.25;
     public static final double kCoralIntakeSpeed = -0.25;

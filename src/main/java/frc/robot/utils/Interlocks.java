@@ -10,7 +10,18 @@ import frc.robot.Constants.EndEffectorConstants;
 public class Interlocks {
     private double m_elevatorHeight = 0;
     private double m_pivotPosition = 0;
-    private boolean m_holdingAlgea = false;
+    // private boolean m_holdingAlgea = false;
+
+    // if false, algea mode
+    private boolean m_coralMode = true;
+
+    public boolean getCoralMode() {
+        return m_coralMode;
+    }
+
+    public void setCoralMode(boolean mode) {
+        m_coralMode = mode;
+    }
 
     /**
      * Updates the internal logic with the latest elevator height
@@ -32,9 +43,9 @@ public class Interlocks {
      * Updates the internal logic with the latest algae holding status
      * @param isHolding True if holding algae. False otherwise
      */
-    public void setAlgeaHolding(boolean isHolding) {
-        m_holdingAlgea = isHolding;
-    }
+    // public void setAlgeaHolding(boolean isHolding) {
+    //     m_holdingAlgea = isHolding;
+    // }
 
     // /**
     //  * DO NOT CALL
@@ -147,7 +158,11 @@ public class Interlocks {
 
         speed = MathUtil.clamp(speed, EndEffectorConstants.kPivotMaxSpeedExtend, EndEffectorConstants.kPivotMaxSpeedRetract);
 
-        if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension && speed > 0) {
+        // if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension && speed > 0) {
+        //     return EndEffectorConstants.kPivotFeedForwards;
+        // }
+
+        if (m_coralMode == false && m_pivotPosition <= EndEffectorConstants.kMinAlgaeExtension) {
             return EndEffectorConstants.kPivotFeedForwards;
         }
 

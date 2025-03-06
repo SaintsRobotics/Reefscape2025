@@ -79,7 +79,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
      m_speedOverride = 0;
 
     SmartDashboard.putBoolean("Is Holding", isHolding());
-    SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
+    SmartDashboard.putNumber("Pivot Angle", getPivotPosition());
     SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
     SmartDashboard.putNumber("Pivot Output", m_output);
     // This method will be called once per scheduler run
