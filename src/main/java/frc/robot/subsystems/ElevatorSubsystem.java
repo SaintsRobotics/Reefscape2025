@@ -13,16 +13,19 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.utils.Interlocks;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
-  // private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
+  private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
   private final TrapezoidProfile.Constraints m_contraints = new TrapezoidProfile.Constraints(ElevatorConstants.kMaxV, ElevatorConstants.kMaxA);
   private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, m_contraints, Constants.kFastPeriodicPeriod);
@@ -34,6 +37,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final Interlocks m_interlocks;
 
   private double m_speedOverride;
+
+  private final LinearFilter m_sensorFilter = LinearFilter.singlePoleIIR(ElevatorConstants.kPoleTimeConstant, Robot.kDefaultPeriod);
 
   public ElevatorSubsystem(Interlocks interlocks) {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
@@ -69,15 +74,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     m_speedOverride = 0;
 
-    /*
-     * if (m_elevatorRange.getDistance().getValueAsDouble() <
-     * ElevatorConstants.kElevatorDistanceThreshold) {
-     * // This offset is set when the distance sensor detects that the elevator is
-     * at the bottom
-     * // At the bottom, the motor's position + offset should equal 0
-     * zeroPosition();
-     * }
-     */
+    final double sensedDistance = Units.metersToInches(m_elevatorRange.getDistance().getValueAsDouble());
+
+    if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
+      zeroPosition(m_sensorFilter.calculate(sensedDistance));
+    }
+    else {
+      m_sensorFilter.reset();
+    }
 
     SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
     SmartDashboard.putNumber("Elevator Setpoint", m_PIDController.getGoal().position);
