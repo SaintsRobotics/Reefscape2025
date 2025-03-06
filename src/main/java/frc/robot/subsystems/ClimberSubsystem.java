@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.servohub.ServoChannel;
-import com.revrobotics.servohub.ServoHub;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -14,14 +12,14 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
   private final SparkFlex m_windingMotor;
-  private final ServoHub m_servoHub;
-  private final ServoChannel m_lockingServo;
+  private final Servo m_lockingServo;
 
   private final PIDController m_PIDController = new PIDController(ClimberConstants.kPWindingMotor, 0, 0, Constants.kFastPeriodicPeriod);
 
@@ -35,8 +33,7 @@ public class ClimberSubsystem extends SubsystemBase {
     m_windingMotor = new SparkFlex(ClimberConstants.kWindingMotorPort, MotorType.kBrushless);
     m_windingMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    m_servoHub = new ServoHub(ClimberConstants.kServoHubPort);
-    m_lockingServo = m_servoHub.getServoChannel(ClimberConstants.kLockingServoChannel);
+    m_lockingServo = new Servo(ClimberConstants.kLockingServoPWMPort);
   } 
 
   public void fastPeriodic() {
@@ -53,7 +50,7 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void setLockPosition(int lockPosition) {
-    m_lockingServo.setPulseWidth(lockPosition);
+    m_lockingServo.setAngle(lockPosition);
   }
 
   public void setWindingSetpoint(double setpoint) {

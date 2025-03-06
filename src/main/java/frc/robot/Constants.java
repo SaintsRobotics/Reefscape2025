@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import com.revrobotics.servohub.ServoChannel.ChannelId;
-
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -216,7 +214,7 @@ public final class Constants {
     // TODO: set these constants
     public static final int kWindingMotorPort = 40;
     public static final int kServoHubPort = 0;
-    public static final ChannelId kLockingServoChannel = ChannelId.kChannelId0;
+    public static final int kLockingServoPWMPort = 90;
 
     public static final int kWindingMotorGearing = 1;
     public static final double kWindingMotorMaxSpeed = 0.5;
