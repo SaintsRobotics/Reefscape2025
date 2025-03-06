@@ -259,8 +259,7 @@ public final class Constants {
   public static final class ClimberConstants {
     // TODO: set these constants
     public static final int kWindingMotorPort = 40;
-    public static final int kServoHubPort = 0;
-    public static final int kLockingServoPWMPort = 90;
+    public static final int kLockingServoPWMPort = 2;
 
     public static final double kConversionFactor = 2 * Math.PI / 27;
     public static final double kWindingMotorMaxSpeed = 0.5;
