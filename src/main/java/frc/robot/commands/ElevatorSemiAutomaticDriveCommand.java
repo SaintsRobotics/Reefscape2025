@@ -84,7 +84,7 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
   
       if (needsClamp) {
         pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
-        pivotLimits.get(0).getFirst());
+          pivotLimits.get(0).getSecond());
       }
     }
     
@@ -98,7 +98,7 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
 
     if (needsClamp) {
       pivotPosition = MathUtil.clamp(pivotPosition, currentLimit.getValue().get(0).getFirst(),
-        currentLimit.getValue().get(0).getFirst());
+        currentLimit.getValue().get(0).getSecond());
     }
 
     m_endEffector.pivotTo(pivotPosition, true);

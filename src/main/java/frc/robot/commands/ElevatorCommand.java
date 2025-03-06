@@ -76,7 +76,7 @@ public class ElevatorCommand extends Command {
 
     if (needsClamp) {
       pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
-      pivotLimits.get(0).getFirst());
+        pivotLimits.get(0).getSecond());
     }
 
     needsClamp = true;
@@ -89,7 +89,7 @@ public class ElevatorCommand extends Command {
 
     if (needsClamp) {
       pivotPosition = MathUtil.clamp(pivotPosition, currentLimit.getValue().get(0).getFirst(),
-        currentLimit.getValue().get(0).getFirst());
+        currentLimit.getValue().get(0).getSecond());
     }
 
     m_endEffectorSubsystem.pivotTo(pivotPosition, true);
