@@ -175,7 +175,7 @@ public final class Constants {
     public static final double kLowHeightSlowdownThreshold = 1;
     public static final double kLowHeightSlowdownMaxSpeed = -.1;
 
-    public static final double kPoleTimeConstant = 0.1;
+    public static final int kSampleCount = 5;
   }
 
   public static final class EndEffectorConstants{

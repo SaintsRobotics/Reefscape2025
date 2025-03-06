@@ -13,12 +13,11 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.utils.Interlocks;
@@ -38,7 +37,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private double m_speedOverride;
 
-  private final LinearFilter m_sensorFilter = LinearFilter.singlePoleIIR(ElevatorConstants.kPoleTimeConstant, Robot.kDefaultPeriod);
+  private final MedianFilter m_sensorFilter = new MedianFilter(ElevatorConstants.kSampleCount);
 
   public ElevatorSubsystem(Interlocks interlocks) {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
