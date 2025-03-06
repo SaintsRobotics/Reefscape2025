@@ -35,6 +35,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   private double m_speedOverride;
 
+  private double m_aggressiveComponent;
+
   // Pivoting controls: A is L1, B is L2 & L3, Y is L4 or use right joystick
   // Intake/Outtake controls: Right Bumper: Intake Algae, Left Bumper: Outtake Algae
   //                          Right Trigger: Intake Coral, Left Trigger Outtake Coral
@@ -55,6 +57,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
 
     m_interlocks = interlocks;
+    m_aggressiveComponent = 0;
   }
 
   @Override
@@ -85,7 +88,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void fastPeriodic(){
-    m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation);
+    m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
     m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
 
     m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
@@ -97,8 +100,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void pivotTo(double setpoint, boolean aggressive) {
-    final double aggressiveComponent = aggressive ? Math.signum(setpoint) * EndEffectorConstants.kAgressiveComponent : 0;
-    targetRotation = setpoint + aggressiveComponent; //TODO: clamp setpoint
+    m_aggressiveComponent = aggressive ? Math.signum(setpoint) * EndEffectorConstants.kAgressiveComponent : 0;
+    targetRotation = setpoint; //TODO: clamp setpoint
   }
 
   public double getSetpoint() {
@@ -131,6 +134,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void setSpeed(double speed) {
+    m_aggressiveComponent = 0;
     m_speedOverride = speed;
   }
 
