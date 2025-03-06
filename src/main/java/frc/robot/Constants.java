@@ -50,6 +50,7 @@ public final class Constants {
 
     public static final double kElevatorAxisScalar = 0.3; //TODO: tune
     public static final double kPivotAxisScalar = 0.5; //TODO: tune
+    public static final double kClimberAxisScalar = 0.1; //TODO: tune
 
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;
@@ -120,6 +121,9 @@ public final class Constants {
     // TODO: set these on real robot
     public static final double kMaxAccelerationUnitsPerSecond = 100;
     public static final double kMaxAngularAccelerationUnitsPerSecond = 100;
+
+    // TODO: Test this
+    public static final double kMaxDistanceToPose = 4.0;
   }
 
   public static final class VisionConstants {
@@ -250,5 +254,24 @@ public final class Constants {
             Map.entry(100000.0, Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
             Map.entry(1000000.0,Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)))
         )); 
+  }
+
+  public static final class ClimberConstants {
+    // TODO: set these constants
+    public static final int kWindingMotorPort = 40;
+    public static final int kLockingServoPWMPort = 2;
+
+    public static final double kConversionFactor = 2 * Math.PI / 27;
+    public static final double kWindingMotorMaxSpeed = 0.5;
+    public static final double kWindingMotorFeedForward = 0.01;
+    
+    public static final double kPWindingMotor = 0.03;
+
+    public static final double kWindingExtendedPosition = 1;
+    public static final double kWindingRetractedPosition = 0.1;
+    public static final double kWindingUnlockPosition = 0;
+
+    public static final int kLockedPosition = 0;
+    public static final int kUnlockedPosition = 200;
   }
 }

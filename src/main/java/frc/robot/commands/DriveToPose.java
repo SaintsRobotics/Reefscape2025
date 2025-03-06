@@ -63,6 +63,7 @@ public class DriveToPose extends Command {
 
     double xSpeed = xController.calculate(currentPose.getX(), m_targetPose.getX());
     double ySpeed = yController.calculate(currentPose.getY(), m_targetPose.getY());
+
     double thetaSpeed = thetaController.calculate(currentPose.getRotation().getRadians(),
         m_targetPose.getRotation().getRadians());
 
@@ -80,7 +81,8 @@ public class DriveToPose extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !DriveConstants.kAutoDriving || (xController.atGoal() &&
+    final double distance = currentPose.getTranslation().getDistance(m_targetPose.getTranslation());
+    return distance < DriveConstants.kMaxDistanceToPose || !DriveConstants.kAutoDriving || (xController.atGoal() &&
         yController.atGoal() &&
         thetaController.atGoal());
   }

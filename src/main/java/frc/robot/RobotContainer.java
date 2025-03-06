@@ -6,11 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -18,12 +15,15 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import frc.robot.Constants.ClimberConstants;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
-import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
+import frc.robot.commands.climber.DriveToCage;
+import frc.robot.commands.climber.ClimberCommand;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.PivotCommand;
@@ -44,6 +44,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final Interlocks m_interlocks = new Interlocks();
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  private final ClimberSubsystem m_climber = new ClimberSubsystem();
   private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(m_interlocks);
   private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(m_interlocks);
 
@@ -118,11 +119,12 @@ public void initSubsystems() {
    *    start:                          zero heading
    *    back:                           reset gyro
    *    A (left bumper pressed):        auto align to reef
+   *    B (left bumper pressed):        auto align to cage
    * 
    * Operator Controls:
    *    left axis Y (B unpressed):      semi-automatic elevator speed
    *    left axis Y (B pressed):        manual elevator speed
-   *    right axis Y:                   manual pivot speed
+   *    right axis Y (B unpressed):     manual pivot speed
    *    A (right bumper unpressed):     intake algae
    *    A (right bumper pressed):       outtake algae
    *    X (right bumper unpressed):     intake coral
@@ -134,8 +136,9 @@ public void initSubsystems() {
    *    Dpad down:                      L3 elevator position
    *    Dpad left:                      L4 elevator position
    *    right trigger:                  grab algae
-   *    Y button:                      place algae
+   *    Y button:                       place algae
    *    left trigger:                   place/grab coral
+   *    right axis Y (B pressed):       manual climb control
    * 
    *    1: Increments both the elevator offset and setpoint.
    *        Does not cause any movement. Used to move elevator
@@ -153,6 +156,30 @@ public void initSubsystems() {
     new JoystickButton(m_driverController, Button.kBack.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
+    new JoystickButton(m_driverController, Button.kA.value)
+      .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+    
+    // one button for autoalign, one button for extend, one for retract, both triggers for manual extend/retract
+    new JoystickButton(m_driverController, Button.kB.value)
+      .whileTrue(new DriveToCage(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+    
+    new JoystickButton(m_driverController, Button.kX.value)
+      .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition))
+      .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition), m_climber));
+
+    new JoystickButton(m_driverController, Button.kY.value)
+      .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingRetractedPosition))
+      .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition), m_climber));
+
+    new JoystickButton(m_operatorController, Button.kB.value)
+        .and(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
+        .onTrue(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kUnlockedPosition)))
+        .whileTrue(new RunCommand(() -> {
+          m_climber.setWinchSpeed(-m_operatorController.getRightY() * IOConstants.kClimberAxisScalar);
+          m_climber.syncSetpoint();
+        }, m_climber))
+        .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
+      
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
                     .and(m_operatorController::getAButton)
                     .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector).alongWith(
@@ -199,7 +226,8 @@ public void initSubsystems() {
 
 
     // pivot
-    new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
+    new JoystickButton(m_operatorController, Button.kB.value).negate()
+            .and(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
             .whileTrue(new RunCommand(() -> {
                 m_endEffector.setSpeed(-m_operatorController.getRightY() * IOConstants.kPivotAxisScalar); // no need to apply deadband here because of trigger
             }, m_endEffector));
@@ -236,9 +264,6 @@ public void initSubsystems() {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return null;
-    // return new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));}, m_robotDrive);
-    // return new DriveToPose(m_robotDrive, new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));
-    // return new DriveToReef(m_robotDrive);
   }
 
   /**
@@ -251,6 +276,7 @@ public void initSubsystems() {
    */
   public void fastPeriodic() {
     m_robotDrive.fastPeriodic();
+    m_climber.fastPeriodic();
     m_elevator.fastPeriodic();
     m_endEffector.fastPeriodic();
   }
