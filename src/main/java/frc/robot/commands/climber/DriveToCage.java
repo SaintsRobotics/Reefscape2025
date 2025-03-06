@@ -8,6 +8,7 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.subsystems.DriveSubsystem;
@@ -40,6 +41,12 @@ public class DriveToCage extends Command {
   public void initialize() {
     m_targetPose = FindNearest.getNearestCage(m_driveSubsystem.getPose());
 
+    if (m_targetPose == null) {
+      m_driveToPose = new InstantCommand();
+      cancel();
+      return;
+    }
+    
     m_driveToPose = new DriveToPose(m_driveSubsystem, m_targetPose);
 
     m_driveToPose.schedule();
