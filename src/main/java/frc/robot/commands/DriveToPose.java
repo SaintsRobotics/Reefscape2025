@@ -6,13 +6,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
@@ -83,8 +81,8 @@ public class DriveToPose extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.pow(currentPose.minus(m_targetPose).getX(),2) + Math.pow (currentPose.minus(m_targetPose).getY(),2)
-    > Math.pow(Constants.DriveConstants.kMaxDistanceToPose,2) || !DriveConstants.kAutoDriving || (xController.atGoal() &&
+    final double distance = currentPose.getTranslation().getDistance(m_targetPose.getTranslation());
+    return distance < DriveConstants.kMaxDistanceToPose || !DriveConstants.kAutoDriving || (xController.atGoal() &&
         yController.atGoal() &&
         thetaController.atGoal());
   }
