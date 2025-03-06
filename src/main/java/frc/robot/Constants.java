@@ -50,6 +50,7 @@ public final class Constants {
 
     public static final double kElevatorAxisScalar = 0.3; //TODO: tune
     public static final double kPivotAxisScalar = 0.5; //TODO: tune
+    public static final double kClimberAxisScalar = 0.1; //TODO: tune
 
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;

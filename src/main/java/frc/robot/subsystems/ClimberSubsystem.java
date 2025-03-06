@@ -24,6 +24,7 @@ public class ClimberSubsystem extends SubsystemBase {
   private final PIDController m_PIDController = new PIDController(ClimberConstants.kPWindingMotor, 0, 0, Constants.kFastPeriodicPeriod);
 
   private double m_windingSetpoint = 0;
+  private double m_speedOverride;
 
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
@@ -32,13 +33,16 @@ public class ClimberSubsystem extends SubsystemBase {
 
     m_windingMotor = new SparkFlex(ClimberConstants.kWindingMotorPort, MotorType.kBrushless);
     m_windingMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_windingMotor.getEncoder().setPosition(0);
 
     m_lockingServo = new Servo(ClimberConstants.kLockingServoPWMPort);
+    m_speedOverride = 0;
   } 
 
   public void fastPeriodic() {
     double output = m_PIDController.calculate(m_windingMotor.getEncoder().getPosition(),
     m_windingSetpoint) + ClimberConstants.kWindingMotorFeedForward;
+    output = m_speedOverride == 0 ? output : m_speedOverride;
 
     output = MathUtil.clamp(output, -ClimberConstants.kWindingMotorMaxSpeed, ClimberConstants.kWindingMotorMaxSpeed);
     m_windingMotor.set(output);
@@ -46,11 +50,15 @@ public class ClimberSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    m_speedOverride = 0;
   }
 
   public void setLockPosition(int lockPosition) {
     m_lockingServo.setAngle(lockPosition);
+  }
+
+  public void setWinchSpeed(double speed) {
+    m_speedOverride = speed;
   }
 
   public void setWindingSetpoint(double setpoint) {
@@ -59,5 +67,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public boolean windingAtSetpoint() {
     return m_PIDController.atSetpoint();
+  }
+
+  public void syncSetpoint() {
+    m_windingSetpoint = m_windingMotor.getEncoder().getPosition();
   }
 }

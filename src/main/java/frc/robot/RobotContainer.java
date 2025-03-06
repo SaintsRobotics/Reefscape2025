@@ -124,7 +124,7 @@ public void initSubsystems() {
    * Operator Controls:
    *    left axis Y (B unpressed):      semi-automatic elevator speed
    *    left axis Y (B pressed):        manual elevator speed
-   *    right axis Y:                   manual pivot speed
+   *    right axis Y (B unpressed):     manual pivot speed
    *    A (right bumper unpressed):     intake algae
    *    A (right bumper pressed):       outtake algae
    *    X (right bumper unpressed):     intake coral
@@ -138,6 +138,7 @@ public void initSubsystems() {
    *    right trigger:                  grab algae
    *    Y button:                       place algae
    *    left trigger:                   place/grab coral
+   *    right axis Y (B pressed):       manual climb control
    * 
    *    1: Increments both the elevator offset and setpoint.
    *        Does not cause any movement. Used to move elevator
@@ -164,11 +165,20 @@ public void initSubsystems() {
     
     new JoystickButton(m_driverController, Button.kX.value)
       .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition))
-      .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
+      .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition), m_climber));
 
     new JoystickButton(m_driverController, Button.kY.value)
       .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingRetractedPosition))
-      .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
+      .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition), m_climber));
+
+    new JoystickButton(m_operatorController, Button.kB.value)
+        .and(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
+        .onTrue(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kUnlockedPosition)))
+        .whileTrue(new RunCommand(() -> {
+          m_climber.setWinchSpeed(-m_operatorController.getRightY() * IOConstants.kClimberAxisScalar);
+          m_climber.syncSetpoint();
+        }, m_climber))
+        .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
       
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
                     .and(m_operatorController::getAButton)
@@ -216,7 +226,8 @@ public void initSubsystems() {
 
 
     // pivot
-    new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
+    new JoystickButton(m_operatorController, Button.kB.value).negate()
+            .and(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
             .whileTrue(new RunCommand(() -> {
                 m_endEffector.setSpeed(-m_operatorController.getRightY() * IOConstants.kPivotAxisScalar); // no need to apply deadband here because of trigger
             }, m_endEffector));
