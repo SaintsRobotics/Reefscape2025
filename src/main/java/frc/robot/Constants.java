@@ -216,7 +216,7 @@ public final class Constants {
     public static final int kServoHubPort = 0;
     public static final int kLockingServoPWMPort = 90;
 
-    public static final int kWindingMotorGearing = 1;
+    public static final double kConversionFactor = 2 * Math.PI / 27;
     public static final double kWindingMotorMaxSpeed = 0.5;
     public static final double kWindingMotorFeedForward = 0.01;
     

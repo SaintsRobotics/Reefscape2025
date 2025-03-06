@@ -28,7 +28,7 @@ public class ClimberSubsystem extends SubsystemBase {
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
-    motorConfig.encoder.positionConversionFactor(ClimberConstants.kWindingMotorGearing);
+    motorConfig.encoder.positionConversionFactor(ClimberConstants.kConversionFactor);
 
     m_windingMotor = new SparkFlex(ClimberConstants.kWindingMotorPort, MotorType.kBrushless);
     m_windingMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
