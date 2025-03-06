@@ -9,14 +9,14 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SetWindingCommand extends Command {
+public class ClimberCommand extends Command {
   
   private final ClimberSubsystem m_climber;
 
   private final double m_setpoint;
 
   /** Creates a new setWinding. */
-  public SetWindingCommand(ClimberSubsystem climberSubsystem, double targetSetpoint) {
+  public ClimberCommand(ClimberSubsystem climberSubsystem, double targetSetpoint) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climberSubsystem);
 

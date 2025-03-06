@@ -22,8 +22,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.climber.DriveToCage;
-import frc.robot.commands.climber.ExtendClimberCommand;
-import frc.robot.commands.climber.SetWindingCommand;
+import frc.robot.commands.climber.ClimberCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
@@ -164,11 +163,11 @@ public void initSubsystems() {
       .whileTrue(new DriveToCage(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
     
     new JoystickButton(m_driverController, Button.kX.value)
-      .onTrue(new ExtendClimberCommand(m_climber))
+      .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition))
       .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
 
     new JoystickButton(m_driverController, Button.kY.value)
-      .onTrue(new SetWindingCommand(m_climber, Constants.ClimberConstants.kWindingRetractedPosition))
+      .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingRetractedPosition))
       .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
       
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
