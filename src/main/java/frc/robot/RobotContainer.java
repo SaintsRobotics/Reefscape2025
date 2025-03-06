@@ -163,7 +163,7 @@ public void initSubsystems() {
     new JoystickButton(m_driverController, Button.kA.value)
       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
 
-    // intake
+    // intake TODO: yes this overlaps with slow mode
     new Trigger(() -> m_driverController.getLeftTriggerAxis() > 0.5)
         .onTrue(new InstantCommand(() -> {
           if (m_interlocks.getCoralMode()) {
