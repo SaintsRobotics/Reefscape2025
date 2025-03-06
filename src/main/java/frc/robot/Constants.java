@@ -185,7 +185,7 @@ public final class Constants {
     public static final int kEffectorMotorPort = 53;
     public static final int kEndEffectorCANrangePort = 8;
 
-    public static final double kPEndEffector = 0.1;
+    public static final double kPEndEffector = 0.8;
     public static final double kPivotMaxSpeedRetract = 0.15;
     public static final double kPivotMaxSpeedExtend = -0.15;
 
@@ -215,7 +215,7 @@ public final class Constants {
     public static final double kPivotWraparoundPoint = 0.75 * Math.PI * 2;
 
     // radians
-    public static final double kAgressiveComponent = Math.toRadians(2);
+    public static final double kAgressiveComponent = Math.toRadians(.25);
 
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
@@ -246,9 +246,9 @@ public final class Constants {
      */
     public static final NavigableMap<Double, List<Pair<Double, Double>>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-100000.0,  Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(-10000.0,   Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(0.2,      Arrays.asList(Pair.of(0.03  * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(-100000.0,  Arrays.asList(Pair.of(0.00  * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(-10000.0,   Arrays.asList(Pair.of(0.00  * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(0.2,      Arrays.asList(Pair.of(0.00  * Math.PI * 2, 0.45 * Math.PI * 2))),
             Map.entry(0.7,      Arrays.asList(Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2))),
             Map.entry(10.12,    Arrays.asList(Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2),
                                                 Pair.of(0.134 * Math.PI * 2, 0.155  * Math.PI * 2))),

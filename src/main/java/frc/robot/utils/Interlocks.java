@@ -147,7 +147,7 @@ public class Interlocks {
 
         speed = MathUtil.clamp(speed, EndEffectorConstants.kPivotMaxSpeedExtend, EndEffectorConstants.kPivotMaxSpeedRetract);
 
-        if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension && speed > 0) {
+        if (false && m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension && speed > 0) {
             return EndEffectorConstants.kPivotFeedForwards;
         }
 

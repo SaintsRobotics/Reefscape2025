@@ -88,17 +88,26 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
       }
     }
     
-    needsClamp = true;
+    Pair<Double, Double> closestLimit = null;
+    double minDist = Double.MAX_VALUE;
+
+    needsClamp = false;
     for (Pair<Double, Double> limit : currentLimit.getValue()) {
       if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
         needsClamp = false;
         break;
       }
+      
+      final double min = Math.min(Math.abs(pivotPosition - limit.getFirst()), Math.abs(pivotPosition - limit.getSecond()));
+      if (min < minDist) {
+        minDist = min;
+        closestLimit = limit;
+      }
     }
 
     if (needsClamp) {
-      pivotPosition = MathUtil.clamp(pivotPosition, currentLimit.getValue().get(0).getFirst(),
-        currentLimit.getValue().get(0).getSecond());
+      pivotPosition = MathUtil.clamp(pivotPosition, closestLimit.getFirst(),
+        closestLimit.getSecond());
     }
 
     m_endEffector.pivotTo(pivotPosition, true);

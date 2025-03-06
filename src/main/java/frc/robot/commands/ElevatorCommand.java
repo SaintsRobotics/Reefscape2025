@@ -78,6 +78,9 @@ public class ElevatorCommand extends Command {
       pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
         pivotLimits.get(0).getSecond());
     }
+    
+    Pair<Double, Double> closestLimit = null;
+    double minDist = Double.MAX_VALUE;
 
     needsClamp = true;
     for (Pair<Double, Double> limit : currentLimit.getValue()) {
@@ -85,14 +88,20 @@ public class ElevatorCommand extends Command {
         needsClamp = false;
         break;
       }
+      
+      final double min = Math.min(Math.abs(pivotPosition - limit.getFirst()), Math.abs(pivotPosition - limit.getSecond()));
+      if (min < minDist) {
+        minDist = min;
+        closestLimit = limit;
+      }
     }
 
     if (needsClamp) {
-      pivotPosition = MathUtil.clamp(pivotPosition, currentLimit.getValue().get(0).getFirst(),
-        currentLimit.getValue().get(0).getSecond());
+      pivotPosition = MathUtil.clamp(pivotPosition, closestLimit.getFirst(),
+        closestLimit.getSecond());
     }
 
-    m_endEffectorSubsystem.pivotTo(pivotPosition, true);
+    m_endEffectorSubsystem.pivotTo(pivotPosition, false);
   }
 
   // Called once the command ends or is interrupted.
