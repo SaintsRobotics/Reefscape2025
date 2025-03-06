@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClimberSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class setWinding extends Command {
+public class SetWindingCommand extends Command {
   
   private final ClimberSubsystem m_climber;
 
   private final double m_setpoint;
 
   /** Creates a new setWinding. */
-  public setWinding(ClimberSubsystem climberSubsystem, double targetSetpoint) {
+  public SetWindingCommand(ClimberSubsystem climberSubsystem, double targetSetpoint) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(climberSubsystem);
 

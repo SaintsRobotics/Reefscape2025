@@ -12,18 +12,18 @@ import frc.robot.subsystems.ClimberSubsystem;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class extendClimber extends SequentialCommandGroup {
+public class ExtendClimberCommand extends SequentialCommandGroup {
   /** Creates a new extendClimber. */
-  public extendClimber(ClimberSubsystem climberSubsystem) {
+  public ExtendClimberCommand(ClimberSubsystem climberSubsystem) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       // Retract the winch slightly
-      new setWinding(climberSubsystem, Constants.ClimberConstants.kWindingUnlockPosition),
+      new SetWindingCommand(climberSubsystem, Constants.ClimberConstants.kWindingUnlockPosition),
       // Release the servo lock
       new InstantCommand(() -> climberSubsystem.setLockPosition(Constants.ClimberConstants.kUnlockedPosition)),
       // Unwind the winch
-      new setWinding(climberSubsystem, Constants.ClimberConstants.kWindingExtendedPosition),
+      new SetWindingCommand(climberSubsystem, Constants.ClimberConstants.kWindingExtendedPosition),
       // Engage the servo lock
       new InstantCommand(() -> climberSubsystem.setLockPosition(Constants.ClimberConstants.kLockedPosition)));
   }

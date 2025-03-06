@@ -22,8 +22,8 @@ import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.climber.DriveToCage;
-import frc.robot.commands.climber.extendClimber;
-import frc.robot.commands.climber.setWinding;
+import frc.robot.commands.climber.ExtendClimberCommand;
+import frc.robot.commands.climber.SetWindingCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -135,11 +135,11 @@ public class RobotContainer {
       .whileTrue(new DriveToCage(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
     
     new JoystickButton(m_driverController, Button.kX.value)
-      .onTrue(new extendClimber(m_climber))
+      .onTrue(new ExtendClimberCommand(m_climber))
       .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
 
     new JoystickButton(m_driverController, Button.kY.value)
-      .onTrue(new setWinding(m_climber, Constants.ClimberConstants.kWindingRetractedPosition))
+      .onTrue(new SetWindingCommand(m_climber, Constants.ClimberConstants.kWindingRetractedPosition))
       .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
   }
 
