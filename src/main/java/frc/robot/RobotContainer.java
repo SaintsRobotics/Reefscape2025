@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
@@ -134,10 +135,12 @@ public class RobotContainer {
       .whileTrue(new DriveToCage(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
     
     new JoystickButton(m_driverController, Button.kX.value)
-      .onTrue(new extendClimber(m_climber));
+      .onTrue(new extendClimber(m_climber))
+      .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
 
     new JoystickButton(m_driverController, Button.kY.value)
-      .onTrue(new setWinding(m_climber, Constants.ClimberConstants.kWindingRetractedPosition));
+      .onTrue(new setWinding(m_climber, Constants.ClimberConstants.kWindingRetractedPosition))
+      .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition)));
   }
 
   /**
