@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -21,13 +22,17 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
   private final EndEffectorSubsystem m_endEffector;
   private final ElevatorSubsystem m_elevator;
 
+  // used to prevent boundary lockups
+  private final BooleanSupplier m_lockupHint;
+
   /** Creates a new ElevatorSemiAutomaticDriveCommand. */
-  public ElevatorSemiAutomaticDriveCommand(DoubleSupplier speed, EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
+  public ElevatorSemiAutomaticDriveCommand(DoubleSupplier speed,  BooleanSupplier lockupHint, EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
     addRequirements(endEffector, elevator);
 
     m_speed = speed;
     m_endEffector = endEffector;
     m_elevator = elevator;
+    m_lockupHint = lockupHint;
   }
 
   // Called when the command is initially scheduled.
@@ -68,18 +73,44 @@ public class ElevatorSemiAutomaticDriveCommand extends Command {
 
     boolean needsClamp = true;
     double pivotPosition = m_endEffector.getSetpoint();
-    for (Pair<Double, Double> limit : pivotLimits) {
+
+    // detect future lockup
+    if (m_lockupHint.getAsBoolean()) {
+      for (Pair<Double, Double> limit : pivotLimits) {
+        if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
+          needsClamp = false;
+        }
+      }
+  
+      if (needsClamp) {
+        pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
+          pivotLimits.get(0).getSecond());
+      }
+    }
+    
+    Pair<Double, Double> closestLimit = null;
+    double minDist = Double.MAX_VALUE;
+
+    needsClamp = false;
+    for (Pair<Double, Double> limit : currentLimit.getValue()) {
       if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
         needsClamp = false;
+        break;
+      }
+      
+      final double min = Math.min(Math.abs(pivotPosition - limit.getFirst()), Math.abs(pivotPosition - limit.getSecond()));
+      if (min < minDist) {
+        minDist = min;
+        closestLimit = limit;
       }
     }
 
     if (needsClamp) {
-      pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
-      pivotLimits.get(0).getFirst());
+      pivotPosition = MathUtil.clamp(pivotPosition, closestLimit.getFirst(),
+        closestLimit.getSecond());
     }
 
-    m_endEffector.pivotTo(pivotPosition);
+    m_endEffector.pivotTo(pivotPosition, true);
     m_elevator.setSpeed(m_speed.getAsDouble());
   }
 

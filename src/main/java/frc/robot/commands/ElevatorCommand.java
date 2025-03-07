@@ -70,18 +70,38 @@ public class ElevatorCommand extends Command {
     for (Pair<Double, Double> limit : pivotLimits) {
       if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
         needsClamp = false;
+        break;
       }
     }
 
     if (needsClamp) {
       pivotPosition = MathUtil.clamp(pivotPosition, pivotLimits.get(0).getFirst(),
-      pivotLimits.get(0).getFirst());
+        pivotLimits.get(0).getSecond());
+    }
+    
+    Pair<Double, Double> closestLimit = null;
+    double minDist = Double.MAX_VALUE;
+
+    needsClamp = true;
+    for (Pair<Double, Double> limit : currentLimit.getValue()) {
+      if (pivotPosition >= limit.getFirst() && pivotPosition <= limit.getSecond()) {
+        needsClamp = false;
+        break;
+      }
+      
+      final double min = Math.min(Math.abs(pivotPosition - limit.getFirst()), Math.abs(pivotPosition - limit.getSecond()));
+      if (min < minDist) {
+        minDist = min;
+        closestLimit = limit;
+      }
     }
 
-    pivotPosition = MathUtil.clamp(pivotPosition, currentLimit.getValue().get(0).getFirst(),
-      currentLimit.getValue().get(0).getFirst());
+    if (needsClamp) {
+      pivotPosition = MathUtil.clamp(pivotPosition, closestLimit.getFirst(),
+        closestLimit.getSecond());
+    }
 
-    m_endEffectorSubsystem.pivotTo(pivotPosition);
+    m_endEffectorSubsystem.pivotTo(pivotPosition, false);
   }
 
   // Called once the command ends or is interrupted.
@@ -92,6 +112,6 @@ public class ElevatorCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_elevatorSubsystem.atSetpoint();
+    return m_elevatorSubsystem.getHeightSetpoint() == m_desiredHeight && m_elevatorSubsystem.atSetpoint();
   }
 }

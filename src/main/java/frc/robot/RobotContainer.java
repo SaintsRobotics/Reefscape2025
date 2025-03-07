@@ -29,6 +29,7 @@ import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.PivotCommand;
 import frc.robot.commands.PlaceGrabAlgaeCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
+import frc.robot.commands.SmartPivotCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -88,11 +89,11 @@ public class RobotContainer {
                     m_robotDrive));
 
     m_elevator.setDefaultCommand(new StartEndCommand(() -> {
-            m_elevator.setHeight(m_elevator.getCurrentHeight());
+        m_elevator.setHeight(m_elevator.getCurrentHeight());
     }, () -> {
     }, m_elevator));
     m_endEffector.setDefaultCommand(new StartEndCommand(() -> {
-            m_endEffector.pivotTo(m_endEffector.getPivotPosition());
+        m_endEffector.pivotTo(m_endEffector.getPivotPosition());
     }, () -> {
     }, m_endEffector));
 }
@@ -134,8 +135,9 @@ public void initSubsystems() {
    *    Dpad down:                      L3 elevator position
    *    Dpad left:                      L4 elevator position
    *    right trigger:                  grab algae
-   *    Y button:                      place algae
+   *    Y button:                       place algae
    *    left trigger:                   place/grab coral
+   *    right stick press               smart pivot
    * 
    *    1: Increments both the elevator offset and setpoint.
    *        Does not cause any movement. Used to move elevator
@@ -164,6 +166,9 @@ public void initSubsystems() {
                     .whileTrue(new RunCommand(m_endEffector::outtakeAlgae, m_endEffector).alongWith(
                                     new InstantCommand(() -> m_interlocks.setAlgeaHolding(false))))
                                     .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
+
+    new JoystickButton(m_operatorController, Button.kRightStick.value)
+        .whileTrue(new SmartPivotCommand(m_endEffector, m_elevator::getCurrentHeight));
 
     new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
             .and(m_operatorController::getXButton)
@@ -195,8 +200,14 @@ public void initSubsystems() {
             .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
                     IOConstants.kControllerDeadband) != 0)
             .whileTrue(new ElevatorSemiAutomaticDriveCommand(
-                    () -> -m_operatorController.getLeftY(), m_endEffector, m_elevator));
-
+                    () -> -m_operatorController.getLeftY(), () -> {
+                        if (m_operatorController.getLeftY() > 0) {
+                            return m_elevator.getHeightSetpoint() <= m_elevator.getCurrentHeight()
+                                    + ElevatorConstants.kBoundaryHintThreshold;
+                        }
+                        return m_elevator.getHeightSetpoint() >= m_elevator.getCurrentHeight()
+                                    - ElevatorConstants.kBoundaryHintThreshold;
+                    }, m_endEffector, m_elevator));
 
     // pivot
     new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
