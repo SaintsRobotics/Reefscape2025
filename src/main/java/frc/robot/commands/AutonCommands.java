@@ -17,6 +17,8 @@ public enum AutonCommands {
             new SequentialCommandGroup()),
     PLACE_CORAL_L4(
             new SequentialCommandGroup()),
+    RAISE_ELEVATOR_L4(
+            new SequentialCommandGroup()),
 
     GET_ALGAE(
             new SequentialCommandGroup()),

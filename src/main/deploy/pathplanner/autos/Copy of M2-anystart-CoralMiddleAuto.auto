@@ -7,19 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightCoralRaise1"
+            "pathName": "MiddleCoral1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "RAISE_ELEVATOR_L4"
+            "name": "PLACE_CORAL_L4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RightCoralDeliver1"
+            "pathName": "CoralHPIntakeMiddle2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CoralHPOuttakeLeft2"
           }
         },
         {
@@ -32,6 +44,6 @@
     }
   },
   "resetOdom": false,
-  "folder": "RightAutons",
+  "folder": "MiddleAutons",
   "choreoAuto": false
 }

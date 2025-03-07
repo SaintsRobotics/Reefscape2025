@@ -7,7 +7,25 @@
         {
           "type": "path",
           "data": {
+            "pathName": "RightCoralRaise1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RAISE_ELEVATOR_L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "RightCoralDeliver1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
           }
         },
         {
@@ -17,9 +35,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "RightCoralDeliver2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
           }
         },
         {
@@ -29,9 +59,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "RightCoralDeliver3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PLACE_CORAL_L4"
           }
         }
       ]
