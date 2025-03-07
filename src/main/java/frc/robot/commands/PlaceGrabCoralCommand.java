@@ -15,10 +15,9 @@ import frc.robot.subsystems.EndEffectorSubsystem;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class PlaceGrabCoralCommand extends SequentialCommandGroup {
   /** Creates a new PlaceGrabCoralCommand. */
-  public PlaceGrabCoralCommand(EndEffectorSubsystem endEffectorSubsystem) {
-    if (endEffectorSubsystem.isHolding()) { //TODO: tune constants, and make dynamic based on elevator height?
+  public PlaceGrabCoralCommand(EndEffectorSubsystem endEffectorSubsystem, boolean outtake) {
+    if (outtake) { //TODO: tune constants, and make dynamic based on elevator height?
       addCommands(
-        new PivotCommand(endEffectorSubsystem, 0.081 * 2 * Math.PI),
         new ParallelDeadlineGroup(new Command() {
           @Override
           public boolean isFinished() {

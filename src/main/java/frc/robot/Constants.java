@@ -164,9 +164,9 @@ public final class Constants {
     public static final double kElevatorTop = 21;
     public static final double kElevatorSensorMaxTrustDistance = 10;
 
-    public static final double kL1Height = 5;
-    public static final double kL2Height = 10;
-    public static final double kL3Height = 8.3;
+    public static final double kL1Height = 0.2;
+    public static final double kL2Height = 4.1;
+    public static final double kL3Height = 10.5;
     public static final double kL4Height = 20;
 
     public static final double kPositionTolerance = 0.04; //TODO: tune
@@ -254,7 +254,7 @@ public final class Constants {
             Map.entry(0.20,    Arrays.asList(Pair.of(0.005 * Math.PI * 2, 0.435 * Math.PI * 2))),
             Map.entry(1.1,     Arrays.asList(Pair.of(0.036 * Math.PI * 2, 0.500 * Math.PI * 2))),
             Map.entry(4.6,     Arrays.asList(Pair.of(0.090 * Math.PI * 2, 0.500 * Math.PI * 2))),
-            Map.entry(10.2,    Arrays.asList(Pair.of(0.165* Math.PI * 2, 0.500 * Math.PI * 2))),
+            Map.entry(8.1,    Arrays.asList(Pair.of(0.165* Math.PI * 2, 0.500 * Math.PI * 2))),
             Map.entry(13.5,    Arrays.asList(Pair.of(0.067* Math.PI * 2, 0.500 * Math.PI * 2))),
             Map.entry(15.2,    Arrays.asList(Pair.of(0.279* Math.PI * 2, 0.500 * Math.PI * 2),
                                                Pair.of(0.050* Math.PI * 2, 0.118 * Math.PI * 2))),
