@@ -246,15 +246,11 @@ public final class Constants {
      */
     public static final NavigableMap<Double, List<Pair<Double, Double>>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-100000.0,  Arrays.asList(Pair.of(0.00  * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(-10000.0,   Arrays.asList(Pair.of(0.00  * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(0.2,      Arrays.asList(Pair.of(0.00  * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(0.7,      Arrays.asList(Pair.of(0.105 * Math.PI * 2, 0.5  * Math.PI * 2))),
-            Map.entry(10.12,    Arrays.asList(Pair.of(0.155 * Math.PI * 2, 0.5  * Math.PI * 2),
-                                                Pair.of(0.134 * Math.PI * 2, 0.155  * Math.PI * 2))),
-            Map.entry(15.68,    Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
-            Map.entry(100000.0, Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2))),
-            Map.entry(1000000.0,Arrays.asList(Pair.of(0.28  * Math.PI * 2, 0.5  * Math.PI * 2)))
+            Map.entry(-100000.0,  Arrays.asList(Pair.of(0.005 * Math.PI * 2, 0.435 * Math.PI * 2))),
+            Map.entry(-10000.0,   Arrays.asList(Pair.of(0.005 * Math.PI * 2, 0.435 * Math.PI * 2))),
+            Map.entry(0.20,     Arrays.asList(Pair.of(0.005 * Math.PI * 2, 0.435 * Math.PI * 2))),
+            Map.entry(1.15,     Arrays.asList(Pair.of(0.036 * Math.PI * 2, 0.500 * Math.PI * 2))),
+            Map.entry(5.11,     Arrays.asList(Pair.of(0.090 * Math.PI * 2, 0.500 * Math.PI * 2)))
         )); 
   }
 }
