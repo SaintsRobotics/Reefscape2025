@@ -281,10 +281,29 @@ public void initSubsystems() {
         .onTrue(new ConditionalCommand(
             // coral
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 11),
+                new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 0.05)), 
             // algae
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 11),
                 new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 2.727)
@@ -295,11 +314,29 @@ public void initSubsystems() {
         .onTrue(new ConditionalCommand(
             // coral
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 11),
                 new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL2Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 0.717)), 
             // algae
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 11),
                 new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(6.1, m_elevator, m_endEffector), 
                 new PivotCommand(m_endEffector, 2.746)),
@@ -309,12 +346,30 @@ public void initSubsystems() {
         .onTrue(new ConditionalCommand(
             // coral
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 11),
                 new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 1.035
                 )), 
             // algae
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 11),
                 new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(11.2, m_elevator, m_endEffector), 
                 new PivotCommand(m_endEffector, 2.672)),
