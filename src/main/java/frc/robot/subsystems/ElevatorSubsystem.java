@@ -73,7 +73,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     m_speedOverride = 0;
 
-    final double sensedDistance = Units.metersToInches(m_elevatorRange.getDistance().getValueAsDouble());
+    final double sensedDistance = Units.metersToInches(m_elevatorRange.getDistance().getValueAsDouble()) + ElevatorConstants.kSensorOffset;
 
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
       zeroPosition(m_sensorFilter.calculate(sensedDistance));
