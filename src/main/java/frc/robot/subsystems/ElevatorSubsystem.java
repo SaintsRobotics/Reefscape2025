@@ -76,7 +76,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     final double sensedDistance = Units.metersToInches(m_elevatorRange.getDistance().getValueAsDouble()) + ElevatorConstants.kSensorOffset;
 
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
-      zeroPosition(m_sensorFilter.calculate(sensedDistance));
+      //zeroPositionNoReset(m_sensorFilter.calculate(sensedDistance));
     }
     else {
       m_sensorFilter.reset();
@@ -134,8 +134,12 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param offset
    */
   public void zeroPosition(double offset) {
-    m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
+    zeroPositionNoReset(offset);
     setHeight(offset);
     m_PIDController.reset(offset);
+  }
+
+  private void zeroPositionNoReset(double offset) {
+    m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
   }
 }
