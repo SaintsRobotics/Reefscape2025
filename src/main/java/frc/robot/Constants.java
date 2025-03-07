@@ -49,7 +49,7 @@ public final class Constants {
     public static final double kSlowModeScalar = 0.8;
 
     public static final double kElevatorAxisScalar = 0.3; //TODO: tune
-    public static final double kPivotAxisScalar = 0.5; //TODO: tune
+    public static final double kPivotAxisScalar = -0.25; //TODO: tune
 
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;
@@ -166,7 +166,7 @@ public final class Constants {
 
     public static final double kL1Height = 5;
     public static final double kL2Height = 10;
-    public static final double kL3Height = 15;
+    public static final double kL3Height = 8.3;
     public static final double kL4Height = 20;
 
     public static final double kPositionTolerance = 0.04; //TODO: tune
@@ -196,9 +196,9 @@ public final class Constants {
     public static final double kL23Pivot = 0.5;
     public static final double kL4Pivot = 0.5;
 
-    public static final double kAlgaeIntakeSpeed = 0.25;
+    public static final double kAlgaeIntakeSpeed = 0.5;
     public static final double kCoralIntakeSpeed = -0.25;
-    public static final double kAlgaeOuttakeSpeed = -0.25;
+    public static final double kAlgaeOuttakeSpeed = -0.5;
     public static final double kCoralOuttakeSpeed = 0.25;
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees

@@ -84,6 +84,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
     SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
     SmartDashboard.putNumber("Pivot Output", m_output);
+    SmartDashboard.putNumber("Pivot Setpoint", m_PIDController.getSetpoint());
+    SmartDashboard.putBoolean("Pivot atSetpoint", atSetpoint());
     // This method will be called once per scheduler run
   }
 
@@ -102,6 +104,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void pivotTo(double setpoint, boolean aggressive) {
     m_aggressiveComponent = aggressive ? Math.signum(setpoint) * EndEffectorConstants.kAgressiveComponent : 0;
     targetRotation = setpoint; //TODO: clamp setpoint
+    m_PIDController.setSetpoint(targetRotation + m_aggressiveComponent);
   }
 
   public double getSetpoint() {
