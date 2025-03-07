@@ -161,6 +161,9 @@ public void initSubsystems() {
     new JoystickButton(m_driverController, Button.kBack.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
+    new JoystickButton(m_driverController, Button.kA.value)
+       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+
     // new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
     //                 .and(m_operatorController::getAButton)
     //                 .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector).alongWith(
