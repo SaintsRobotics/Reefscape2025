@@ -4,7 +4,10 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.subsystems.EndEffectorSubsystem;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -16,16 +19,26 @@ public class PlaceGrabCoralCommand extends SequentialCommandGroup {
     if (endEffectorSubsystem.isHolding()) { //TODO: tune constants, and make dynamic based on elevator height?
       //TODO: use canrange sensor
       addCommands(
-        new PivotCommand(endEffectorSubsystem, 0),
-        new TimedCommand(endEffectorSubsystem::outtakeCoral, 0),
-        new PivotCommand(endEffectorSubsystem, 0)
+        //new PivotCommand(endEffectorSubsystem, 0),
+        new ParallelDeadlineGroup(new Command() {
+          @Override
+          public boolean isFinished() {
+              return !endEffectorSubsystem.isHolding();
+          }
+        }, new StartEndCommand(endEffectorSubsystem::outtakeAlgae, endEffectorSubsystem::stopEffector))
+        //new PivotCommand(endEffectorSubsystem, 0)
         );
     }
     else {
       addCommands(
-        new PivotCommand(endEffectorSubsystem, 0),
-        new TimedCommand(endEffectorSubsystem::intakeCoral, 0),
-        new PivotCommand(endEffectorSubsystem, 0)
+        //new PivotCommand(endEffectorSubsystem, 0),
+        new ParallelDeadlineGroup(new Command() {
+          @Override
+          public boolean isFinished() {
+              return endEffectorSubsystem.isHolding();
+          }
+        }, new StartEndCommand(endEffectorSubsystem::outtakeAlgae, endEffectorSubsystem::stopEffector))
+        //new PivotCommand(endEffectorSubsystem, 0)
         );
     }
   }

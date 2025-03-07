@@ -162,7 +162,7 @@ public final class Constants {
     public static final double kElevatorSpeedScalar = 1;
     public static final double kElevatorBottom = 0.2;
     public static final double kElevatorTop = 21;
-    public static final double kElevatorDistanceThreshold = 1;
+    public static final double kElevatorSensorMaxTrustDistance = 10;
 
     public static final double kL1Height = 5;
     public static final double kL2Height = 10;
@@ -177,6 +177,7 @@ public final class Constants {
 
     // inches
     public static final double kBoundaryHintThreshold = 0.5;
+    public static final int kSampleCount = 5;
   }
 
   public static final class EndEffectorConstants{
