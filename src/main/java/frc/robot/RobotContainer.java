@@ -281,13 +281,14 @@ public void initSubsystems() {
         .onTrue(new ConditionalCommand(
             // coral
             new SequentialCommandGroup(
-                new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 0.05)), 
             // algae
             new SequentialCommandGroup(
-                new ElevatorCommand(0, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 0.5)),
+                new PivotCommand(m_endEffector, 1.3),
+                new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
+                new PivotCommand(m_endEffector, 2.727)
+            ),
             () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
@@ -299,8 +300,9 @@ public void initSubsystems() {
                 new PivotCommand(m_endEffector, 0.717)), 
             // algae
             new SequentialCommandGroup(
-                new ElevatorCommand(0, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 0)),
+                new PivotCommand(m_endEffector, 1.3),
+                new ElevatorCommand(6.1, m_elevator, m_endEffector), 
+                new PivotCommand(m_endEffector, 2.746)),
             () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
@@ -313,8 +315,9 @@ public void initSubsystems() {
                 )), 
             // algae
             new SequentialCommandGroup(
-                new ElevatorCommand(0, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 0.5)),
+                new PivotCommand(m_endEffector, 1.3),
+                new ElevatorCommand(11.2, m_elevator, m_endEffector), 
+                new PivotCommand(m_endEffector, 2.672)),
             () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
@@ -328,9 +331,7 @@ public void initSubsystems() {
                 new PivotCommand(m_endEffector, 0.698), 
                 new ElevatorCommand(17.8, m_elevator, m_endEffector)),
             // algae
-            new SequentialCommandGroup(
-                new ElevatorCommand(0, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 0.5)),
+            new SequentialCommandGroup(),
             () -> m_coralMode));
   }
 
