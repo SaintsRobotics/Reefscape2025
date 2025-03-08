@@ -104,10 +104,10 @@ public final class Constants {
     public static final double kWheelDiameterMeters = 0.1;
 
     /** Gear ratio between the motor and the wheel. */
-    public static final double kDrivingGearRatio = 8.14; // SDS MK4i's in L1 configuration
+    public static final double kDrivingGearRatio = 6.75; // SDS MK4i's in L2 configuration
 
     // TODO: Tune this PID before running on a robot on the ground
-    public static final double kPModuleTurningController = 0.3;
+    public static final double kPModuleTurningController = 0.2;//0.3;
 
     public static final Translation2d[] kModulePositions = new Translation2d[] {
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
