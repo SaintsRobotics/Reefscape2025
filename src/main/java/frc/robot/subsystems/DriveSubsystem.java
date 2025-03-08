@@ -12,6 +12,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -24,6 +25,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.utils.SlewRateLimiter;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -72,7 +74,12 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d m_field = new Field2d();
 
+  private final SlewRateLimiter m_xSpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAccelerationUnitsPerSecond);
+  private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAccelerationUnitsPerSecond);
+  private final SlewRateLimiter m_rotationSpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAngularAccelerationUnitsPerSecond);
+
   /** Creates a new DriveSubsystem. */
+  @SuppressWarnings("unused")
   public DriveSubsystem() {
     this.zeroHeading();
     this.resetOdometry(new Pose2d());
@@ -99,6 +106,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds());
   }
 
+  @SuppressWarnings("unused")
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -212,13 +220,37 @@ public class DriveSubsystem extends SubsystemBase {
       calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
     }
 
+    // TODO: set speed limiter rate based on elevator height using interlocks/constraints
+    // m_xSpeedLimiter.setRateLimit(DriveConstants.kMaxAccelerationUnitsPerSecond);
+    // m_ySpeedLimiter.setRateLimit(DriveConstants.kMaxAccelerationUnitsPerSecond);
+    // m_rotationSpeedLimiter.setRateLimit(DriveConstants.kMaxAngularAccelerationUnitsPerSecond);
+
+    /**
+    * To prevent jerks when swapping to robot relative driving, 
+    * we convert our robot relative speeds to field relative early
+    * so the previous value stored in the slew rate limiter filter is always valid
+    */
+
+    // If we are not driving in field relative, then convert our robot relative speeds to field relative
+    if (!fieldRelative) {
+      Translation2d fieldRelativeTranslation = new Translation2d(xSpeed, ySpeed).rotateBy(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle));
+
+      xSpeed = fieldRelativeTranslation.getX();
+      ySpeed = fieldRelativeTranslation.getY();
+      // rotation doesn't need to be updated because it is the same in both field and robot relative
+    }
+
+    xSpeed = m_xSpeedLimiter.calculate(xSpeed);
+    ySpeed = m_ySpeedLimiter.calculate(ySpeed);
+    calculatedRotation = m_rotationSpeedLimiter.calculate(calculatedRotation);
+
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
-                Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
-            : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
+        ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
+          Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle)));
+
+    SwerveDriveKinematics.desaturateWheelSpeeds(m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
   }
 
   /**
@@ -227,21 +259,24 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
+    final Rotation2d rot = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
+
     m_poseEstimator.resetPosition(
-        Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
+        rot,
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         },
-        pose);
+        new Pose2d(pose.getTranslation(), rot));
   }
 
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     m_gyro.reset();
     m_gyroAngle = 0;
+    resetOdometry(getPose());
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
@@ -250,8 +285,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Sets the module states every 10ms (100Hz), faster than the regular periodic loop */
   public void fastPeriodic() {
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        m_desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(m_desiredStates[0]);
     m_frontRight.setDesiredState(m_desiredStates[1]);
     m_rearLeft.setDesiredState(m_desiredStates[2]);
