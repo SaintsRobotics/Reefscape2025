@@ -161,6 +161,9 @@ public void initSubsystems() {
     new JoystickButton(m_driverController, Button.kBack.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
+    new JoystickButton(m_driverController, Button.kA.value)
+       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+
     // new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
     //                 .and(m_operatorController::getAButton)
     //                 .whileTrue(new RunCommand(m_endEffector::intakeAlgae, m_endEffector).alongWith(
@@ -261,7 +264,7 @@ public void initSubsystems() {
           // coral
           new PlaceGrabCoralCommand(m_endEffector, false),
           // algae
-          new PlaceGrabAlgaeCommand(m_endEffector, false, m_interlocks),
+          new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
 
     // Driver right trigger - outtake
@@ -270,7 +273,7 @@ public void initSubsystems() {
           // coral
           new PlaceGrabCoralCommand(m_endEffector, true),
           // algae
-          new PlaceGrabAlgaeCommand(m_endEffector, true, m_interlocks),
+          new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
 
 
@@ -278,40 +281,98 @@ public void initSubsystems() {
         .onTrue(new ConditionalCommand(
             // coral
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
                 new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 0.05)), 
             // algae
             new SequentialCommandGroup(
-                new ElevatorCommand(0, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 0.5)),
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
+                new PivotCommand(m_endEffector, .3 * 2 * Math.PI),
+                new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
+                new PivotCommand(m_endEffector, 2.727)
+            ),
             () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
         .onTrue(new ConditionalCommand(
             // coral
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
                 new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL2Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 0.717)), 
             // algae
             new SequentialCommandGroup(
-                new ElevatorCommand(0, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 0)),
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
+                new PivotCommand(m_endEffector, .3 * 2 * Math.PI),
+                new ElevatorCommand(6.1, m_elevator, m_endEffector), 
+                new PivotCommand(m_endEffector, 2.746)),
             () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
         .onTrue(new ConditionalCommand(
             // coral
             new SequentialCommandGroup(
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
                 new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 1.035
                 )), 
             // algae
             new SequentialCommandGroup(
-                new ElevatorCommand(0, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 0.5)),
+                new ConditionalCommand(
+                    new SequentialCommandGroup(
+                        new PivotCommand(m_endEffector, 0.698),
+                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
+                        new PivotCommand(m_endEffector, 1.608),
+
+                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
+                    ),
+                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
+                new PivotCommand(m_endEffector, .3 * 2 * Math.PI),
+                new ElevatorCommand(11.2, m_elevator, m_endEffector), 
+                new PivotCommand(m_endEffector, 2.672)),
             () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
@@ -325,9 +386,7 @@ public void initSubsystems() {
                 new PivotCommand(m_endEffector, 0.698), 
                 new ElevatorCommand(17.8, m_elevator, m_endEffector)),
             // algae
-            new SequentialCommandGroup(
-                new ElevatorCommand(0, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 0.5)),
+            new SequentialCommandGroup(),
             () -> m_coralMode));
   }
 
