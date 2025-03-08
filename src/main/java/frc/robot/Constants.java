@@ -189,8 +189,8 @@ public final class Constants {
     public static final int kEndEffectorCANrangePort = 8;
 
     public static final double kPEndEffector = 0.8;
-    public static final double kPivotMaxSpeedRetract = 0.15;
-    public static final double kPivotMaxSpeedExtend = -0.15;
+    public static final double kPivotMaxSpeedRetract = 0.3;
+    public static final double kPivotMaxSpeedExtend = -0.3;
 
     public static final double kL1Pivot = 0.5;
     public static final double kL23Pivot = 0.5;

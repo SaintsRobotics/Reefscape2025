@@ -15,7 +15,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -72,8 +71,6 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
 
     m_speedOverride = 0;
-
-    final double sensedDistance = Units.metersToInches(m_elevatorRange.getDistance().getValueAsDouble()) + ElevatorConstants.kSensorOffset;
 
     if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
       //zeroPositionNoReset(m_sensorFilter.calculate(sensedDistance));
