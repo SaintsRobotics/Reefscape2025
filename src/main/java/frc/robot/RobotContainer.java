@@ -264,7 +264,7 @@ public void initSubsystems() {
           // coral
           new PlaceGrabCoralCommand(m_endEffector, false),
           // algae
-          new PlaceGrabAlgaeCommand(m_endEffector, false, m_interlocks),
+          new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
 
     // Driver right trigger - outtake
@@ -273,7 +273,7 @@ public void initSubsystems() {
           // coral
           new PlaceGrabCoralCommand(m_endEffector, true),
           // algae
-          new PlaceGrabAlgaeCommand(m_endEffector, true, m_interlocks),
+          new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
 
 
