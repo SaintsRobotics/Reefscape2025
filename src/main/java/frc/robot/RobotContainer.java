@@ -14,9 +14,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -106,8 +108,7 @@ public class RobotContainer {
 
 public void initSubsystems() {
     // cancel commands
-    new InstantCommand(() -> {
-    }, m_elevator, m_endEffector).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).schedule();
+    new InstantCommand(() -> {}, m_elevator, m_endEffector).schedule();
 
     m_elevator.zeroPosition();
     m_elevator.setHeight(m_elevator.getCurrentHeight());
@@ -206,12 +207,14 @@ public void initSubsystems() {
     // full manual elevator
     new JoystickButton(m_operatorController, Button.kB.value)
             .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
+            .and(() -> m_operatorController.getYButton())
             .whileTrue(new RunCommand(() -> {
                 m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar); // no need to apply deadband here because of trigger
             }, m_elevator));
 
     // semi manual elevator
     new JoystickButton(m_operatorController, Button.kB.value).negate()
+            .and(() -> m_operatorController.getYButton())
             .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
                     IOConstants.kControllerDeadband) != 0)
             .whileTrue(new ElevatorSemiAutomaticDriveCommand(
@@ -225,7 +228,7 @@ public void initSubsystems() {
                     }, m_endEffector, m_elevator));
 
     // pivot
-    new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
+    new Trigger(() -> (MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0) && m_operatorController.getYButton())
             .whileTrue(new RunCommand(() -> {
                 m_endEffector.setSpeed(-m_operatorController.getRightY() * IOConstants.kPivotAxisScalar); // no need to apply deadband here because of trigger
             }, m_endEffector));
@@ -289,8 +292,8 @@ public void initSubsystems() {
 
                         new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
                     ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, 1.3),
+                    new PivotCommand(m_endEffector, 1.3), () -> m_elevator.getCurrentHeight() >= 12),
+                // new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 0.05)), 
             // algae
@@ -322,8 +325,8 @@ public void initSubsystems() {
 
                         new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
                     ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, 1.3),
+                    new PivotCommand(m_endEffector, 1.3), () -> m_elevator.getCurrentHeight() >= 12),
+                // new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL2Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 0.717)), 
             // algae
@@ -354,8 +357,8 @@ public void initSubsystems() {
 
                         new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
                     ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, 1.3),
+                    new PivotCommand(m_endEffector, 1.3), () -> m_elevator.getCurrentHeight() >= 12),
+                // new PivotCommand(m_endEffector, 1.3),
                 new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 1.035
                 )), 
@@ -370,7 +373,7 @@ public void initSubsystems() {
                         new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
                     ),
                     new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, .3 * 2 * Math.PI),
+                new PivotCommand(m_endEffector, 0.3 * 2 * Math.PI),
                 new ElevatorCommand(11.2, m_elevator, m_endEffector), 
                 new PivotCommand(m_endEffector, 2.672)),
             () -> m_coralMode));
@@ -380,11 +383,11 @@ public void initSubsystems() {
             // coral
             new SequentialCommandGroup(
                 new PivotCommand(m_endEffector, 1.3),
-                new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector),
-                new PivotCommand(m_endEffector, 1.035),
+                // new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector),
+                // new PivotCommand(m_endEffector, 1.035),
                 new ElevatorCommand(13.8, m_elevator, m_endEffector),
                 new PivotCommand(m_endEffector, 0.698), 
-                new ElevatorCommand(17.8, m_elevator, m_endEffector)),
+                new ElevatorCommand(18, m_elevator, m_endEffector)),
             // algae
             new SequentialCommandGroup(),
             () -> m_coralMode));
@@ -397,7 +400,14 @@ public void initSubsystems() {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null;
+    return new SequentialCommandGroup(
+        new ParallelDeadlineGroup(new WaitCommand(2), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive)),
+        new ParallelDeadlineGroup(new WaitCommand(0.1), new RunCommand(() -> m_robotDrive.drive(0, 0, 0, false), m_robotDrive)),
+        // new ParallelDeadlineGroup(new WaitCommand(3), new InstantCommand(() -> m_endEffector.outtakeCoral(), m_endEffector)),
+        new InstantCommand((() -> m_endEffector.stopEffector()), m_endEffector));
+
+    // return new ParallelDeadlineGroup(new WaitCommand(3), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive));
+
     // return new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));}, m_robotDrive);
     // return new DriveToPose(m_robotDrive, new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));
     // return new DriveToReef(m_robotDrive);
