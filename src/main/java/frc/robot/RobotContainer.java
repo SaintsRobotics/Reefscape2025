@@ -26,6 +26,10 @@ import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
+import frc.robot.commands.auton.BlueLeft;
+import frc.robot.commands.auton.DriveForwardsL1;
+import frc.robot.commands.auton.RedRight;
+import frc.robot.commands.auton.SimpleDriveForwards;
 import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L2Command;
 import frc.robot.commands.scoring.L3Command;
@@ -105,7 +109,7 @@ public void initSubsystems() {
     // cancel commands
     new InstantCommand(() -> {}, m_elevator, m_endEffector).schedule();
 
-    m_elevator.zeroPosition();
+    // m_elevator.zeroPosition();
     m_elevator.setHeight(m_elevator.getCurrentHeight());
     m_endEffector.pivotTo(m_endEffector.getPivotPosition());
 }
@@ -297,11 +301,25 @@ public void initSubsystems() {
     SequentialCommandGroup left = new SequentialCommandGroup();
 
     // An example command will be run in autonomous
-    return new SequentialCommandGroup(
-        new ParallelDeadlineGroup(new WaitCommand(2), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive)),
-        new ParallelDeadlineGroup(new WaitCommand(0.1), new RunCommand(() -> m_robotDrive.drive(0, 0, 0, false), m_robotDrive)),
-        new ParallelDeadlineGroup(new WaitCommand(3), new InstantCommand(() -> m_endEffector.outtakeCoral(), m_endEffector)),
-        new InstantCommand((() -> m_endEffector.stopEffector()), m_endEffector));
+    // return new SequentialCommandGroup(
+    //     new ParallelDeadlineGroup(new WaitCommand(2), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive)),
+    //     new ParallelDeadlineGroup(new WaitCommand(0.1), new RunCommand(() -> m_robotDrive.drive(0, 0, 0, false), m_robotDrive)),
+    //     new ParallelDeadlineGroup(new WaitCommand(3), new InstantCommand(() -> m_endEffector.outtakeCoral(), m_endEffector)),
+    //     new InstantCommand((() -> m_endEffector.stopEffector()), m_endEffector));
+
+    // Simple drive forwards
+    return new SimpleDriveForwards(m_robotDrive, 2, 1.5);
+
+    // Center drive forwards and score
+    // return new DriveForwardsL1(m_robotDrive, m_endEffector, 3, 1);
+
+    // Blue left
+    // return new BlueLeft(m_robotDrive, m_elevator, m_endEffector);
+
+    // Red right
+    // return new RedRight(m_robotDrive, m_elevator, m_endEffector);
+
+
 
     // return new ParallelDeadlineGroup(new WaitCommand(3), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive));
 
