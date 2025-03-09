@@ -93,7 +93,7 @@ public final class Constants {
     public static final double kDrivingGearRatio = 6.12; // SDS MK4i's in L2 configuration
 
     // TODO: Tune this PID before running on a robot on the ground
-    public static final double kPModuleTurningController = 0.2;//0.3;
+    public static final double kPModuleTurningController = 0.3;
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         new Translation2d(kWheelBase / 2, kTrackWidth / 2),
@@ -157,7 +157,7 @@ public final class Constants {
     // public static final double kElevatorUpMaxSpeed = 0.6;
     public static final double kElevatorUpMaxSpeed = 1;
 
-    public static final double kElevatorDownMaxSpeed = -0.35;
+    public static final double kElevatorDownMaxSpeed = -0.45;
     public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
     public static final double kElevatorBottom = 0.2;
@@ -188,9 +188,9 @@ public final class Constants {
     public static final int kEffectorMotorPort = 53;
     public static final int kEndEffectorCANrangePort = 8;
 
-    public static final double kPEndEffector = 0.8;
-    public static final double kPivotMaxSpeedRetract = 0.3;
-    public static final double kPivotMaxSpeedExtend = -0.3;
+    public static final double kPEndEffector = 0.5;
+    public static final double kPivotMaxSpeedRetract = 0.4;
+    public static final double kPivotMaxSpeedExtend = -0.4;
 
     public static final double kL1Pivot = 0.5;
     public static final double kL23Pivot = 0.5;

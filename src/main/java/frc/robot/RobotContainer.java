@@ -294,11 +294,13 @@ public void initSubsystems() {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    SequentialCommandGroup left = new SequentialCommandGroup();
+
     // An example command will be run in autonomous
     return new SequentialCommandGroup(
         new ParallelDeadlineGroup(new WaitCommand(2), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive)),
         new ParallelDeadlineGroup(new WaitCommand(0.1), new RunCommand(() -> m_robotDrive.drive(0, 0, 0, false), m_robotDrive)),
-        // new ParallelDeadlineGroup(new WaitCommand(3), new InstantCommand(() -> m_endEffector.outtakeCoral(), m_endEffector)),
+        new ParallelDeadlineGroup(new WaitCommand(3), new InstantCommand(() -> m_endEffector.outtakeCoral(), m_endEffector)),
         new InstantCommand((() -> m_endEffector.stopEffector()), m_endEffector));
 
     // return new ParallelDeadlineGroup(new WaitCommand(3), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive));
