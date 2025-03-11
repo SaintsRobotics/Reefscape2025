@@ -10,7 +10,7 @@ import frc.robot.Constants.EndEffectorConstants;
 public class Interlocks {
     private double m_elevatorHeight = 0;
     private double m_pivotPosition = 0;
-    private boolean m_holdingAlgea = false;
+    // private boolean m_holdingAlgea = false;
 
     /**
      * Updates the internal logic with the latest elevator height
@@ -33,7 +33,7 @@ public class Interlocks {
      * @param isHolding True if holding algae. False otherwise
      */
     public void setAlgeaHolding(boolean isHolding) {
-        m_holdingAlgea = isHolding;
+        // m_holdingAlgea = isHolding;
     }
 
     /**
@@ -80,9 +80,9 @@ public class Interlocks {
         speed = MathUtil.clamp(speed, EndEffectorConstants.kPivotMaxSpeedExtend,
                 EndEffectorConstants.kPivotMaxSpeedRetract);
 
-        if (false && m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension && speed > 0) {
-            return EndEffectorConstants.kPivotFeedForwards;
-        }
+        // if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension && speed > 0) {
+        //     return EndEffectorConstants.kPivotFeedForwards;
+        // }
 
         Pair<Double, Double> closestLimit = null;
         double minDist = Double.MAX_VALUE;
