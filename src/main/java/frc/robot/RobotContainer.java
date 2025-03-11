@@ -11,8 +11,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -22,26 +20,22 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutonConstants;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.AutonCommands;
-import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToReef;
-import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
-import frc.robot.commands.PivotCommand;
-import frc.robot.commands.PlaceGrabAlgaeCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
-import frc.robot.commands.SmartPivotCommand;
+import frc.robot.commands.scoring.L1Command;
+import frc.robot.commands.scoring.L2Command;
+import frc.robot.commands.scoring.L3Command;
+import frc.robot.commands.scoring.L4Command;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -63,9 +57,9 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
-	private final AutonCommands m_autonCommands = new AutonCommands(m_elevator, m_endEffector);
+  private final AutonCommands m_autonCommands = new AutonCommands(m_elevator, m_endEffector);
 
-    private final SendableChooser<Command> m_autoChooser;
+  private final SendableChooser<Command> m_autoChooser;
   private boolean m_coralMode = true;
 
   /**
@@ -130,10 +124,9 @@ public class RobotContainer {
 
 public void initSubsystems() {
     // cancel commands
-    new InstantCommand(() -> {
-    }, m_elevator, m_endEffector).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).schedule();
+    new InstantCommand(() -> {}, m_elevator, m_endEffector).schedule();
 
-    m_elevator.zeroPosition();
+    // m_elevator.zeroPosition();
     m_elevator.setHeight(m_elevator.getCurrentHeight());
     m_endEffector.pivotTo(m_endEffector.getPivotPosition());
 }
@@ -230,12 +223,14 @@ public void initSubsystems() {
     // full manual elevator
     new JoystickButton(m_operatorController, Button.kB.value)
             .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
+            .and(() -> m_operatorController.getYButton())
             .whileTrue(new RunCommand(() -> {
                 m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar); // no need to apply deadband here because of trigger
             }, m_elevator));
 
     // semi manual elevator
     new JoystickButton(m_operatorController, Button.kB.value).negate()
+            .and(() -> m_operatorController.getYButton())
             .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
                     IOConstants.kControllerDeadband) != 0)
             .whileTrue(new ElevatorSemiAutomaticDriveCommand(
@@ -249,7 +244,7 @@ public void initSubsystems() {
                     }, m_endEffector, m_elevator));
 
     // pivot
-    new Trigger(() -> MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0)
+    new Trigger(() -> (MathUtil.applyDeadband(m_operatorController.getRightY(), IOConstants.kControllerDeadband) != 0) && m_operatorController.getYButton())
             .whileTrue(new RunCommand(() -> {
                 m_endEffector.setSpeed(-m_operatorController.getRightY() * IOConstants.kPivotAxisScalar); // no need to apply deadband here because of trigger
             }, m_endEffector));
@@ -302,116 +297,16 @@ public void initSubsystems() {
 
 
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1
-        .onTrue(new ConditionalCommand(
-            // coral
-            new SequentialCommandGroup(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        new PivotCommand(m_endEffector, 0.698),
-                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
-                        new PivotCommand(m_endEffector, 1.608),
-
-                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
-                    ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, 1.3),
-                new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
-                new PivotCommand(m_endEffector, 0.05)), 
-            // algae
-            new SequentialCommandGroup(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        new PivotCommand(m_endEffector, 0.698),
-                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
-                        new PivotCommand(m_endEffector, 1.608),
-
-                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
-                    ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, .3 * 2 * Math.PI),
-                new ElevatorCommand(ElevatorConstants.kL1Height, m_elevator, m_endEffector),
-                new PivotCommand(m_endEffector, 2.727)
-            ),
-            () -> m_coralMode));
+        .onTrue(new L1Command(m_endEffector, m_elevator, () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
-        .onTrue(new ConditionalCommand(
-            // coral
-            new SequentialCommandGroup(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        new PivotCommand(m_endEffector, 0.698),
-                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
-                        new PivotCommand(m_endEffector, 1.608),
-
-                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
-                    ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, 1.3),
-                new ElevatorCommand(ElevatorConstants.kL2Height, m_elevator, m_endEffector),
-                new PivotCommand(m_endEffector, 0.717)), 
-            // algae
-            new SequentialCommandGroup(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        new PivotCommand(m_endEffector, 0.698),
-                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
-                        new PivotCommand(m_endEffector, 1.608),
-
-                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
-                    ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, .3 * 2 * Math.PI),
-                new ElevatorCommand(6.1, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 2.746)),
-            () -> m_coralMode));
+        .onTrue(new L2Command(m_endEffector, m_elevator, () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
-        .onTrue(new ConditionalCommand(
-            // coral
-            new SequentialCommandGroup(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        new PivotCommand(m_endEffector, 0.698),
-                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
-                        new PivotCommand(m_endEffector, 1.608),
-
-                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
-                    ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, 1.3),
-                new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector),
-                new PivotCommand(m_endEffector, 1.035
-                )), 
-            // algae
-            new SequentialCommandGroup(
-                new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        new PivotCommand(m_endEffector, 0.698),
-                        new ElevatorCommand(13.8, m_elevator, m_endEffector),
-                        new PivotCommand(m_endEffector, 1.608),
-
-                        new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector)
-                    ),
-                    new InstantCommand(), () -> m_elevator.getCurrentHeight() >= 12),
-                new PivotCommand(m_endEffector, .3 * 2 * Math.PI),
-                new ElevatorCommand(11.2, m_elevator, m_endEffector), 
-                new PivotCommand(m_endEffector, 2.672)),
-            () -> m_coralMode));
+        .onTrue(new L3Command(m_endEffector, m_elevator, () -> m_coralMode));
 
     new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
-        .onTrue(new ConditionalCommand(
-            // coral
-            new SequentialCommandGroup(
-                new PivotCommand(m_endEffector, 1.3),
-                new ElevatorCommand(ElevatorConstants.kL3Height, m_elevator, m_endEffector),
-                new PivotCommand(m_endEffector, 1.035),
-                new ElevatorCommand(13.8, m_elevator, m_endEffector),
-                new PivotCommand(m_endEffector, 0.698), 
-                new ElevatorCommand(17.8, m_elevator, m_endEffector)),
-            // algae
-            new SequentialCommandGroup(),
-            () -> m_coralMode));
+        .onTrue(new L4Command(m_endEffector, m_elevator, () -> m_coralMode));
   }
 
   public Command getAutonomousCommand() {

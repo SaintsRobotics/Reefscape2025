@@ -62,7 +62,7 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
-    public static final double kElevatorAxisScalar = 0.3; //TODO: tune
+    public static final double kElevatorAxisScalar = 0.15; //TODO: tune
     public static final double kPivotAxisScalar = -0.25; //TODO: tune
 
     public static final int kDPadUp = 0;
@@ -104,10 +104,10 @@ public final class Constants {
     public static final double kWheelDiameterMeters = 0.1;
 
     /** Gear ratio between the motor and the wheel. */
-    public static final double kDrivingGearRatio = 6.75; // SDS MK4i's in L2 configuration
+    public static final double kDrivingGearRatio = 6.12; // SDS MK4i's in L2 configuration
 
     // TODO: Tune this PID before running on a robot on the ground
-    public static final double kPModuleTurningController = 0.2;//0.3;
+    public static final double kPModuleTurningController = 0.3;
 
     public static final Translation2d[] kModulePositions = new Translation2d[] {
       new Translation2d(kWheelBase / 2, kTrackWidth / 2),
@@ -143,8 +143,8 @@ public final class Constants {
     // TODO: Update cam pose relative to center of bot
     public static final Pose3d kCamPos = new Pose3d(
       // new Translation3d(0.3048,0.254,0),
-      new Translation3d(0, 0, 0),
-      new Rotation3d(0,0,0)
+      new Translation3d(0.34925, -0.2413, 0.2),
+      new Rotation3d(180,10,0)
     );
 
     public static final String kLimelightName = "limelight";
@@ -156,7 +156,7 @@ public final class Constants {
     public static final Vector<N3> kOdometrySTDDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
 
-    public static final boolean kUseVision = false;
+    public static final boolean kUseVision = true;
   }
 
   public static final class AutonConstants {
@@ -181,16 +181,16 @@ public final class Constants {
     public static final int kElevatorCANrangePort = 9;
 
     // TODO: Tune PID for elevator
-    public static final double kPElevator = 0.6;
-    public static final double kMaxV = 15;
-    public static final double kMaxA = 15;
+    public static final double kPElevator = 0.9;
+    public static final double kMaxV = 30;
+    public static final double kMaxA = 30;
 
     // TODO: Set these constants
     public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
     // public static final double kElevatorUpMaxSpeed = 0.6;
-    public static final double kElevatorUpMaxSpeed = 0.6;
+    public static final double kElevatorUpMaxSpeed = 1;
 
-    public static final double kElevatorDownMaxSpeed = -0.3;
+    public static final double kElevatorDownMaxSpeed = -0.45;
     public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
     public static final double kElevatorBottom = 0.2;
@@ -221,18 +221,18 @@ public final class Constants {
     public static final int kEffectorMotorPort = 53;
     public static final int kEndEffectorCANrangePort = 8;
 
-    public static final double kPEndEffector = 0.8;
-    public static final double kPivotMaxSpeedRetract = 0.15;
-    public static final double kPivotMaxSpeedExtend = -0.15;
+    public static final double kPEndEffector = 0.5;
+    public static final double kPivotMaxSpeedRetract = 0.4;
+    public static final double kPivotMaxSpeedExtend = -0.4;
 
     public static final double kL1Pivot = 0.5;
     public static final double kL23Pivot = 0.5;
     public static final double kL4Pivot = 0.5;
 
-    public static final double kAlgaeIntakeSpeed = 0.5;
+    public static final double kAlgaeIntakeSpeed = 0.75;
     public static final double kCoralIntakeSpeed = -0.25;
     public static final double kAlgaeOuttakeSpeed = -0.5;
-    public static final double kCoralOuttakeSpeed = 0.25;
+    public static final double kCoralOuttakeSpeed = -0.25;
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
 

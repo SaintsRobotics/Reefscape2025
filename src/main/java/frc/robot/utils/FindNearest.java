@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class FindNearest {
 
   // Scoring locations for the blue alliance
-  private static final Pose2d[] blueScoringLocations = {
+  public static final Pose2d[] blueScoringLocations = {
       new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)),
       new Pose2d(new Translation2d(5.27, 2.98), Rotation2d.fromDegrees(120)),
       new Pose2d(new Translation2d(5.01, 2.82), Rotation2d.fromDegrees(120)),
@@ -28,19 +28,19 @@ public class FindNearest {
   };
 
   // Scoring locations for the red alliance
-  private static final Pose2d[] redScoringLocations = new Pose2d[blueScoringLocations.length];
+  public static final Pose2d[] redScoringLocations = new Pose2d[blueScoringLocations.length];
   static {
     for (int i = 0; i < blueScoringLocations.length; i++) {
       redScoringLocations[i] = AllianceFlipUtil.apply(blueScoringLocations[i]);
     }
   }
 
-  private static final Pose2d[] blueSources = {
-      new Pose2d(new Translation2d(1.7, 0.65), Rotation2d.fromDegrees(-127.5)),
-      new Pose2d(new Translation2d(1.7, 7.38), Rotation2d.fromDegrees(127.5))
+  public static final Pose2d[] blueSources = {
+      new Pose2d(new Translation2d(1.7, 0.65), Rotation2d.fromDegrees(-127.5 + 180)),
+      new Pose2d(new Translation2d(1.7, 7.38), Rotation2d.fromDegrees(127.5 - 180))
   };
 
-  private static final Pose2d[] redSources = new Pose2d[blueSources.length];
+  public static final Pose2d[] redSources = new Pose2d[blueSources.length];
   static {
     for (int i = 0; i < blueSources.length; i++) {
       redSources[i] = AllianceFlipUtil.apply(blueSources[i]);

@@ -21,9 +21,9 @@ public class DriveToPose extends Command {
   private final Pose2d m_targetPose;
   private Timer m_timer = new Timer();
 
-  private final TrapezoidProfile.Constraints constraints = new Constraints(DriveConstants.kMaxSpeedMetersPerSecond, 5);
+  private final TrapezoidProfile.Constraints constraints = new Constraints(DriveConstants.kMaxSpeedMetersPerSecond / 3, 5 / 2);
   private final TrapezoidProfile.Constraints angularConstraints = new Constraints(
-      DriveConstants.kMaxAngularSpeedRadiansPerSecond, 5);
+      DriveConstants.kMaxAngularSpeedRadiansPerSecond / 3, 5 / 3);
 
   private final ProfiledPIDController xController = new ProfiledPIDController(3.0, 0.01, 0, constraints);
   private final ProfiledPIDController yController = new ProfiledPIDController(3.0, 0.01, 0, constraints);
