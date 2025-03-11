@@ -36,54 +36,6 @@ public class Interlocks {
         m_holdingAlgea = isHolding;
     }
 
-    // /**
-    //  * DO NOT CALL
-    //  * clamps the setpoint to valid elevator setpoints
-    //  * @param setpoint The desired setpoint
-    //  * @return The clamped setpoint
-    //  */
-    // public double clampElevatorMotorSetpoint(double setpoint) {
-    //     if (true) {
-    //         throw new RuntimeException("Not yet implemented");
-    //     }
-    //     // first clamp setpoint to extension limits;
-    //     setpoint = MathUtil.clamp(setpoint, ElevatorConstants.kElevatorBottom, ElevatorConstants.kElevatorTop);
-
-    //     final Entry<Double, Pair<Double, Double>> currentLimit = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight);
-    //     final Entry<Double, Pair<Double, Double>> setpointLimts = EndEffectorConstants.kSafePivotPositions.floorEntry(setpoint);
-
-    //     Entry<Double, Pair<Double, Double>> iteratedLimit = currentLimit;
-    //     Entry<Double, Pair<Double, Double>> lastValidLimit;
-
-    //     /*
-    //      * This algorithm works by iterating each limit until we find a limit where m_pivotPosition does not satisfy
-    //      * The limit immediatly before this invalid limit is the max/min setpoint
-    //      */
-    //     while (iteratedLimit != setpointLimts) {
-    //         // save previous valid since that must be valid
-    //         lastValidLimit = iteratedLimit;
-
-    //         // determine direction
-    //         if (iteratedLimit.getKey() < setpointLimts.getKey()) { // going up
-    //             iteratedLimit = EndEffectorConstants.kSafePivotPositions.higherEntry(iteratedLimit.getKey());
-    //         }
-    //         else { // going down
-    //             iteratedLimit = EndEffectorConstants.kSafePivotPositions.lowerEntry(iteratedLimit.getKey());
-    //         }
-
-    //         // check if setpoint is valid in iteratedLimit
-    //         if (m_pivotPosition < iteratedLimit.getValue().getFirst() || m_pivotPosition > iteratedLimit.getValue().getSecond()) { // out of bounds
-    //             // clamp to between lastValidLimit and one higher
-    //             final Entry<Double, Pair<Double, Double>> oneHigherLimit = EndEffectorConstants.kSafePivotPositions.higherEntry(lastValidLimit.getKey());
-
-    //             return MathUtil.clamp(setpoint, lastValidLimit.getKey(), oneHigherLimit.getKey());
-    //         }
-    //     }
-
-    //     // if the code reaches here, that means there was no issue with the setpoint
-    //     return setpoint;
-    // }
-
     /**
      * clamps the speed to valid elevator speeds
      * should always be called before setting elevator motor
@@ -115,27 +67,6 @@ public class Interlocks {
         return ElevatorConstants.kElevatorFeedForward;
     }
 
-    // /**
-    //  * DO NOT CALL
-    //  * clamps the setpoint to valid pivot setpoints
-    //  * @param setpoint The desired setpoint
-    //  * @return The clamped setpoint
-    //  */
-    // public double clampPivotMotorSetpoint(double setpoint) {
-    //     if (true) {
-    //         throw new RuntimeException("Not yet implemented");
-    //     }
-    //     final Pair<Double, Double> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight)
-    //             .getValue();
-
-    //     // clamp beyond .3 if holding algae
-    //     if (m_holdingAlgea) {
-    //         setpoint = Math.min(setpoint, EndEffectorConstants.kMinAlgaeExtension);
-    //     }
-
-    //     return MathUtil.clamp(setpoint, pivotLimits.getFirst(), pivotLimits.getSecond());
-    // }
-
     /**
      * clamps the speed to valid pivot speeds
      * should always be called before setting pivot motor
@@ -143,18 +74,34 @@ public class Interlocks {
      * @return The clamped speed
      */
     public double clampPivotMotorSet(double speed) {
-        final List<Pair<Double, Double>> pivotLimits = EndEffectorConstants.kSafePivotPositions.floorEntry(m_elevatorHeight).getValue();
+        final List<Pair<Double, Double>> pivotLimits = EndEffectorConstants.kSafePivotPositions
+                .floorEntry(m_elevatorHeight).getValue();
 
-        speed = MathUtil.clamp(speed, EndEffectorConstants.kPivotMaxSpeedExtend, EndEffectorConstants.kPivotMaxSpeedRetract);
+        speed = MathUtil.clamp(speed, EndEffectorConstants.kPivotMaxSpeedExtend,
+                EndEffectorConstants.kPivotMaxSpeedRetract);
 
-        if (m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension && speed > 0) {
+        if (false && m_holdingAlgea && m_pivotPosition < EndEffectorConstants.kMinAlgaeExtension && speed > 0) {
             return EndEffectorConstants.kPivotFeedForwards;
         }
 
+        Pair<Double, Double> closestLimit = null;
+        double minDist = Double.MAX_VALUE;
+
         for (Pair<Double, Double> limit : pivotLimits) {
-            if ((m_pivotPosition >= limit.getFirst() || speed < 0) && (m_pivotPosition <= limit.getSecond() || speed > 0)) {
+            if ((m_pivotPosition >= limit.getFirst()) && (m_pivotPosition <= limit.getSecond())) {
                 return speed;
             }
+
+            final double min = Math.min(Math.abs(m_pivotPosition - limit.getFirst()),
+                    Math.abs(m_pivotPosition - limit.getSecond()));
+            if (min < minDist) {
+                minDist = min;
+                closestLimit = limit;
+            }
+        }
+
+        if ((m_pivotPosition < closestLimit.getFirst() && speed < 0) || (m_pivotPosition > closestLimit.getSecond() && speed > 0)) {
+            return speed;
         }
 
         return EndEffectorConstants.kPivotFeedForwards;
