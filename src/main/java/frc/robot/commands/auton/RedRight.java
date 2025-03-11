@@ -31,19 +31,19 @@ public class RedRight extends SequentialCommandGroup {
             new InstantCommand(() -> driveSubsystem.resetOdometry(startingPose), driveSubsystem),
             new WaitCommand(1),
             new DriveToPose(driveSubsystem, FindNearest.redScoringLocations[9].plus(new Transform2d(FindNearest.redScoringLocations[9], startingPose).times(0.15))),
-            // new L4Command(endEffector, elevator, () -> true),
+            new L4Command(endEffector, elevator, () -> true),
             new DriveToPose(driveSubsystem, FindNearest.redScoringLocations[9]),
-            // new ParallelDeadlineGroup(new WaitCommand(1), new InstantCommand(() -> endEffector.outtakeCoral(), endEffector)),
-            // new InstantCommand((() -> endEffector.stopEffector()), endEffector),
+            new ParallelDeadlineGroup(new WaitCommand(1), new InstantCommand(() -> endEffector.outtakeCoral(), endEffector)),
+            new InstantCommand((() -> endEffector.stopEffector()), endEffector),
             new DriveToPose(driveSubsystem, FindNearest.redScoringLocations[9].plus(new Transform2d(startingPose, FindNearest.redScoringLocations[9]).times(0.15))),
-            // new L1Command(endEffector, elevator, () -> true),
+            new L1Command(endEffector, elevator, () -> true),
             new DriveToPose(driveSubsystem, FindNearest.redSources[1]),
-            // new PlaceGrabCoralCommand(endEffector, false)
+            new PlaceGrabCoralCommand(endEffector, false),
             new DriveToPose(driveSubsystem, FindNearest.redScoringLocations[7].plus(new Transform2d(FindNearest.redSources[1], FindNearest.redScoringLocations[7]).times(-0.15))),
-            // new L4Command(endEffector, elevator, () -> true),
+            new L4Command(endEffector, elevator, () -> true),
             new DriveToPose(driveSubsystem, FindNearest.redScoringLocations[7]),
-            // new ParallelDeadlineGroup(new WaitCommand(1), new InstantCommand(() -> endEffector.outtakeCoral(), endEffector)),
-            // new InstantCommand((() -> endEffector.stopEffector()), endEffector),
+            new ParallelDeadlineGroup(new WaitCommand(1), new InstantCommand(() -> endEffector.outtakeCoral(), endEffector)),
+            new InstantCommand((() -> endEffector.stopEffector()), endEffector),
             new DriveToPose(driveSubsystem, FindNearest.redScoringLocations[7].plus(new Transform2d(FindNearest.redSources[1], FindNearest.redScoringLocations[7]).times(-0.15)))    
         );
     }

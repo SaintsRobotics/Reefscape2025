@@ -281,10 +281,12 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void setHeading(double heading) {
+    SmartDashboard.putNumber("pre", m_gyro.getAngle());
     m_gyro.reset();
     m_gyro.setAngleAdjustment(heading);
     m_gyroAngle = heading;
     resetOdometry(getPose());
+    SmartDashboard.putNumber("post", m_gyro.getAngle());
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
