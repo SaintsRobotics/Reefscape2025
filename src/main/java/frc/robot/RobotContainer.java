@@ -57,8 +57,6 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
-  private final AutonCommands m_autonCommands = new AutonCommands(m_elevator, m_endEffector);
-
   private final SendableChooser<Command> m_autoChooser;
   private boolean m_coralMode = true;
 
@@ -71,17 +69,18 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-        AutoBuilder.configure(m_robotDrive::getPose, (pose) -> m_robotDrive.resetOdometry(pose), () -> m_robotDrive.getRobotRelativeSpeeds(),
-                (speeds) -> m_robotDrive.autonDrive(speeds),
-                new PPHolonomicDriveController(AutonConstants.kTranslationConstants, AutonConstants.kRotationConstants),
-                AutonConstants.kBotConfig,
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, m_robotDrive);
+    AutoBuilder.configure(m_robotDrive::getPose, (pose) -> m_robotDrive.resetOdometry(pose),
+            () -> m_robotDrive.getRobotRelativeSpeeds(),
+            (speeds) -> m_robotDrive.autonDrive(speeds),
+            new PPHolonomicDriveController(AutonConstants.kTranslationConstants, AutonConstants.kRotationConstants),
+            AutonConstants.kBotConfig,
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, m_robotDrive);
 
+    AutonCommands.setSubsystems(m_elevator, m_endEffector);
+    AutonCommands.Commands.registerAutonCommands();
 
-        AutonCommands.Commands.registerAutonCommands();
-
-        m_autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData(m_autoChooser);
+    m_autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData(m_autoChooser);
 
     m_robotDrive.setDefaultCommand(
         new RunCommand(

@@ -12,7 +12,12 @@ public class AutonCommands {
 	private static ElevatorSubsystem m_elevator;
 	private static EndEffectorSubsystem m_endEffector;
 
-	public AutonCommands(ElevatorSubsystem elevator, EndEffectorSubsystem endEffector) {
+	/**
+	 * Call before registering commands
+	 * @param elevator
+	 * @param endEffector
+	 */
+	public static void setSubsystems(ElevatorSubsystem elevator, EndEffectorSubsystem endEffector) {
 		m_elevator = elevator;
 		m_endEffector = endEffector;
 	}
