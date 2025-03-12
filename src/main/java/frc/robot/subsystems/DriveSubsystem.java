@@ -8,7 +8,6 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -276,8 +275,18 @@ public class DriveSubsystem extends SubsystemBase {
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     m_gyro.reset();
+    m_gyro.setAngleAdjustment(0);
     m_gyroAngle = 0;
     resetOdometry(getPose());
+  }
+
+  public void setHeading(double heading) {
+    SmartDashboard.putNumber("pre", m_gyro.getAngle());
+    m_gyro.reset();
+    m_gyro.setAngleAdjustment(heading);
+    m_gyroAngle = heading;
+    resetOdometry(getPose());
+    SmartDashboard.putNumber("post", m_gyro.getAngle());
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
