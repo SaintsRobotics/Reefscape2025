@@ -280,9 +280,10 @@ public final class Constants {
     public static final double kAlgaeOutAngle = 0.3 * 2 * Math.PI;
     public static final double kL2AlgaeAngle = 2.746;
     public static final double kL3AlgaeAngle = 2.672;
+    public static final double kBargeAngle = 0.3 * 2 * Math.PI; //TODO: tune
 
     public static final double kL2AlgaeHeight = 6.1;
     public static final double kL3AlgaeHeight = 11.2;
-    public static final double kBargeHeight = 20;
+    public static final double kBargeHeight = 20; // TODO: tune
   }
 }
