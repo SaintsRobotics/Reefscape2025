@@ -8,6 +8,7 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.utils.FindNearest;
@@ -37,6 +38,13 @@ public class DriveToReef extends Command {
   @Override
   public void initialize() {
     m_targetPose = FindNearest.getNearestScoringLocation(m_driveSubsystem.getPose());
+
+    // null check if no nearest (i.e. exceeds max distance)
+    if (m_targetPose == null) {
+      m_driveToPose = new InstantCommand(); // to avoid null reference
+      cancel();
+      return;
+    }
 
     m_driveToPose = new DriveToPose(m_driveSubsystem, m_targetPose);
 
