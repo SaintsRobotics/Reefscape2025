@@ -164,11 +164,6 @@ public final class Constants {
     public static final double kElevatorTop = 21;
     public static final double kElevatorSensorMaxTrustDistance = 10;
 
-    public static final double kL1Height = 0.2;
-    public static final double kL2Height = 4.1;
-    public static final double kL3Height = 10.5;
-    public static final double kL4Height = 20;
-
     public static final double kPositionTolerance = 0.04; //TODO: tune
     public static final double kVelocityTolerance = 1;
 
@@ -263,5 +258,31 @@ public final class Constants {
             Map.entry(100000.0,Arrays.asList(Pair.of(0.279* Math.PI * 2, 0.500 * Math.PI * 2),
                                                Pair.of(0.043* Math.PI * 2, 0.118 * Math.PI * 2)))
         )); 
+  }
+
+  public static final class SetpointConstants {
+    public static final double kL1CoralHeight = 0.2;
+    public static final double kL2CoralHeight = 4.1;
+    public static final double kL3CoralHeight = 10.5;
+
+    public static final double kL4CoralSingleHeight = 13.8;
+    public static final double kL4CoralDoubleHeight = 18;
+
+    public static final double kL1CoralAngle = 0.05;
+    public static final double kL2CoralAngle = 0.717;
+    public static final double kL3CoralAngle = 1.035;
+
+    public static final double kL4CoralNoneAngle = 1.3;
+    public static final double kL4CoralSingleAngle = 1.608;
+    public static final double kL4CoralDoubleAngle = 0.698;
+
+    public static final double kProcessorAngle = 2.727;
+    public static final double kAlgaeOutAngle = 0.3 * 2 * Math.PI;
+    public static final double kL2AlgaeAngle = 2.746;
+    public static final double kL3AlgaeAngle = 2.672;
+
+    public static final double kL2AlgaeHeight = 6.1;
+    public static final double kL3AlgaeHeight = 11.2;
+    public static final double kBargeHeight = 20;
   }
 }
