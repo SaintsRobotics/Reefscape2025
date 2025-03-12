@@ -1,5 +1,6 @@
 package frc.robot.commands.scoring;
 
+import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,7 +14,7 @@ import frc.robot.commands.scoring.algae.AlgaeL4Command;
 import frc.robot.commands.scoring.coral.CoralL4Command;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
-import frc.robot.utils.CommandUtils;
+import static frc.robot.utils.CommandUtils.generateNConditionalCommand;
 
 public class L4Command extends ConditionalCommand {
     public static enum ElevatorReverserState {
@@ -37,23 +38,23 @@ public class L4Command extends ConditionalCommand {
     }
 
     public static Command reverseL4Commad(EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
-        return CommandUtils.generateTripleConditionalCommand(
-            new SequentialCommandGroup(
-                ),
-                new SequentialCommandGroup(
-                    new PivotCommand(endEffector, SetpointConstants.kL4CoralSingleAngle),
-                    new ElevatorCommand(SetpointConstants.kL3AlgaeHeight, elevator, endEffector),
-                    getStateCommand(ElevatorReverserState.STATE_REVERSE_NONE)
-                ),
-                new SequentialCommandGroup(
-                    new PivotCommand(endEffector, SetpointConstants.kL4CoralDoubleAngle),
-                    new ElevatorCommand(SetpointConstants.kL4CoralSingleHeight, elevator, endEffector),
-                    getStateCommand(ElevatorReverserState.STATE_REVERSE_SINGLE),
-                    new PivotCommand(endEffector, SetpointConstants.kL4CoralSingleAngle),
-                    new ElevatorCommand(SetpointConstants.kL3AlgaeHeight, elevator, endEffector),
-                    getStateCommand(ElevatorReverserState.STATE_REVERSE_NONE)
-                ),
-                () -> m_state == ElevatorReverserState.STATE_REVERSE_NONE,
-                () -> m_state == ElevatorReverserState.STATE_REVERSE_SINGLE);
+        return generateNConditionalCommand(
+                Arrays.asList(
+                    new SequentialCommandGroup(),
+                    new SequentialCommandGroup(
+                        new PivotCommand(endEffector, SetpointConstants.kL4CoralSingleAngle),
+                        new ElevatorCommand(SetpointConstants.kL3AlgaeHeight, elevator, endEffector),
+                        getStateCommand(ElevatorReverserState.STATE_REVERSE_NONE)),
+                    new SequentialCommandGroup(
+                        new PivotCommand(endEffector, SetpointConstants.kL4CoralDoubleAngle),
+                        new ElevatorCommand(SetpointConstants.kL4CoralSingleHeight, elevator, endEffector),
+                        getStateCommand(ElevatorReverserState.STATE_REVERSE_SINGLE),
+                        new PivotCommand(endEffector, SetpointConstants.kL4CoralSingleAngle),
+                        new ElevatorCommand(SetpointConstants.kL3AlgaeHeight, elevator, endEffector),
+                        getStateCommand(ElevatorReverserState.STATE_REVERSE_NONE))),
+                Arrays.asList(
+                        () -> m_state == ElevatorReverserState.STATE_REVERSE_NONE,
+                        () -> m_state == ElevatorReverserState.STATE_REVERSE_SINGLE,
+                        () -> m_state == ElevatorReverserState.STATE_REVERSE_DOUBLE));
     }
 }

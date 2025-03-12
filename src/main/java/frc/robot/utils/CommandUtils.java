@@ -1,27 +1,32 @@
 package frc.robot.utils;
 
+import java.security.InvalidParameterException;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 
 public class CommandUtils {
-      /**
-     * Creates a three way conditional command. May cause uninteded behavior if both cond1 and cond2 are true
-     * @param command1 command to run if cond1 is true
-     * @param command2 command to run if and only if cond2 is true
-     * @param command3 command to run if and only if cond1 is false and cond2 is false
-     * @param cond1 must be mutually exclusive to cond2
-     * @param cond2 must be mutually exclusive to cond1
-     * @return a three way conditional command
+    /**
+     * Creates a conditional command with N commands. N must be greater than 2
+     * @param commands The list of commands with length N
+     * @param conditions The list of conditions. Condition i being true means command i will run. The <b>last</b> command in the list has priority. Must have length N
      */
-    public static Command generateTripleConditionalCommand(Command command1, Command command2, Command command3, BooleanSupplier cond1, BooleanSupplier cond2) {
-        return new ConditionalCommand(
-            command1,
-            new ConditionalCommand(
-                command2,
-                command3,
-                cond2),
-            cond1);
+    public static Command generateNConditionalCommand(List<Command> commands, List<BooleanSupplier> conditions) {
+        final int N = commands.size();
+        if (N < 2) {
+            throw new InvalidParameterException("N must be greater than 2");
+        }
+
+        ConditionalCommand[] commandArray = new ConditionalCommand[N-1];
+        commandArray[0] = new ConditionalCommand(commands.get(1), commands.get(0), conditions.get(1));
+
+        // iterate in batches of two
+        for (int i = 2; i < N; i++) {
+            commandArray[i-1] = new ConditionalCommand(commands.get(i), commandArray[i-2], conditions.get(i));
+        }
+
+        return commandArray[N-2];
     }
 }
