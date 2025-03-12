@@ -13,15 +13,16 @@ public class CoralL4Command extends SequentialCommandGroup {
 
     public CoralL4Command(EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
         addCommands(
-            new PivotCommand(endEffector, SetpointConstants.kL4CoralNoneAngle),
-            new ElevatorCommand(SetpointConstants.kL3CoralHeight, elevator, endEffector),
-            new PivotCommand(endEffector, SetpointConstants.kL4CoralSingleAngle),
-            L4Command.getStateCommand(ElevatorReverserState.STATE_REVERSE_SINGLE),
-            new ElevatorCommand(SetpointConstants.kL4CoralSingleHeight, elevator, endEffector),
-            new PivotCommand(endEffector, SetpointConstants.kL4CoralDoubleAngle),
-            L4Command.getStateCommand(ElevatorReverserState.STATE_REVERSE_DOUBLE),
-            new ElevatorCommand(SetpointConstants.kL4CoralDoubleHeight, elevator, endEffector)
-        );
+                L4Command.reverseL4Commad(endEffector, elevator), // safeguard to avoid deadlock in case already at L4.
+                                                                  // TODO: maybe replace with conditional command
+                new PivotCommand(endEffector, SetpointConstants.kL4CoralNoneAngle),
+                new ElevatorCommand(SetpointConstants.kL3CoralHeight, elevator, endEffector),
+                new PivotCommand(endEffector, SetpointConstants.kL4CoralSingleAngle),
+                L4Command.getStateCommand(ElevatorReverserState.STATE_REVERSE_SINGLE),
+                new ElevatorCommand(SetpointConstants.kL4CoralSingleHeight, elevator, endEffector),
+                new PivotCommand(endEffector, SetpointConstants.kL4CoralDoubleAngle),
+                L4Command.getStateCommand(ElevatorReverserState.STATE_REVERSE_DOUBLE),
+                new ElevatorCommand(SetpointConstants.kL4CoralDoubleHeight, elevator, endEffector));
     }
-    
+
 }
