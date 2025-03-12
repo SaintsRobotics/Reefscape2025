@@ -176,7 +176,7 @@ public final class Constants {
     public static final double kLowHeightSlowdownMaxSpeed = -.1;
 
     // inches
-    public static final double kSensorOffset = -4.40;
+    public static final double kSensorOffset = -4.40; //TODO: tune
 
     public static final double kBoundaryHintThreshold = 0.5;
     public static final int kSampleCount = 5;
