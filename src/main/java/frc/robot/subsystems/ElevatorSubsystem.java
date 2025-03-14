@@ -82,6 +82,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
     SmartDashboard.putNumber("Elevator Setpoint", m_PIDController.getGoal().position);
     SmartDashboard.putNumber("Elevator output", m_output);
+    SmartDashboard.putNumber("Elevator motor out", m_elevatorMotor.get());
   }
 
   public void fastPeriodic() {

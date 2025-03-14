@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.DriveToPose;
@@ -27,8 +26,7 @@ public class RedRight extends SequentialCommandGroup {
             // new ParallelDeadlineGroup(new WaitCommand(0.1), new RunCommand(() -> driveSubsystem.drive(0, 0, 0, false), driveSubsystem)),
             // new ParallelDeadlineGroup(new WaitCommand(3), new InstantCommand(() -> endEffector.outtakeCoral(), endEffector)),
             // new InstantCommand((() -> endEffector.stopEffector()), endEffector)
-            new InstantCommand(() -> driveSubsystem.setHeading(Math.toRadians(0)), driveSubsystem),
-            new InstantCommand(() -> driveSubsystem.resetOdometry(startingPose), driveSubsystem),
+            new InstantCommand(() -> driveSubsystem.resetOdometry(startingPose, false), driveSubsystem),
             new WaitCommand(1),
             new DriveToPose(driveSubsystem, FindNearest.redScoringLocations[9].plus(new Transform2d(FindNearest.redScoringLocations[9], startingPose).times(0.15))),
             new L4Command(endEffector, elevator, () -> true),

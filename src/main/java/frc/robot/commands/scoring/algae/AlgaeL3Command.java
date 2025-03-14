@@ -17,7 +17,7 @@ public class AlgaeL3Command extends SequentialCommandGroup {
                 new UndoCoralL4Command(endEffector, elevator),
                 new InstantCommand(),
                 () -> elevator.getCurrentHeight() >= 12),
-            new PivotCommand(endEffector, 0.3 * 2 * Math.PI),
+            new PivotCommand(endEffector, 0.4 * 2 * Math.PI),
             new ElevatorCommand(11.2, elevator, endEffector), 
             new PivotCommand(endEffector, 2.672)
         );

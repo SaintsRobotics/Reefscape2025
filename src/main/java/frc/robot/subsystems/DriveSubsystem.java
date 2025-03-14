@@ -259,6 +259,16 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
+    resetOdometry(pose, true);
+  }
+
+  /**
+   * Resets the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   * @param ignoreRotation True if rotation in pose should be ignored (i.e. use gyro)
+   */
+  public void resetOdometry(Pose2d pose, boolean ignoreRotation) {
     final Rotation2d rot = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
 
     m_poseEstimator.resetPosition(
@@ -269,24 +279,25 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         },
-        new Pose2d(pose.getTranslation(), rot));
+        ignoreRotation ? new Pose2d(pose.getTranslation(), rot) : pose);
   }
 
-  /** Zeroes the heading of the robot. */
+  /**
+   * Sets the current heading to zero
+   * @param heading heading in radians
+   */
   public void zeroHeading() {
-    m_gyro.reset();
-    m_gyro.setAngleAdjustment(0);
-    m_gyroAngle = 0;
-    resetOdometry(getPose());
+    zeroHeading(0);
   }
 
-  public void setHeading(double heading) {
-    SmartDashboard.putNumber("pre", m_gyro.getAngle());
-    m_gyro.reset();
-    m_gyro.setAngleAdjustment(heading);
+  /**
+   * Sets the current heading to heading
+   * @param heading heading in radians
+   */
+  public void zeroHeading(double heading) {
+    m_gyro.reset(); // does not actually need to be the correct value. all uses only care about rate
     m_gyroAngle = heading;
-    resetOdometry(getPose());
-    SmartDashboard.putNumber("post", m_gyro.getAngle());
+    resetOdometry(new Pose2d(getPose().getX(), getPose().getY(), new Rotation2d(heading)), false);
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
