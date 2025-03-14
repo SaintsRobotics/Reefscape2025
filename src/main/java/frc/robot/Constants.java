@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -163,14 +164,14 @@ public final class Constants {
   }
 
   public static final class AutonConstants {
-    private static final Mass kRobotMass = Kilogram.of(0);
-    private static final MomentOfInertia kMomentOfInertia = KilogramSquareMeters.of(0);
-    private static final double kCoefficientOfStaticFriction = 0;
+    private static final Mass kRobotMass = Pounds.of(138);
+    private static final MomentOfInertia kMomentOfInertia = KilogramSquareMeters.of(1);
+    private static final double kCoefficientOfStaticFriction = 0.5;
     private static final DCMotor kDriveMotorType = DCMotor.getNeoVortex(1);
-    private static final Current kMaxDriveCurrent = Amp.of(0);
+    private static final Current kMaxDriveCurrent = Amp.of(60);
 
-    public static final PIDConstants kTranslationConstants = new PIDConstants(0, 0, 0); // TODO: tune
-    public static final PIDConstants kRotationConstants = new PIDConstants(0, 0, 0); // TODO: tune
+    public static final PIDConstants kTranslationConstants = new PIDConstants(3, 0, 0); // TODO: tune
+    public static final PIDConstants kRotationConstants = new PIDConstants(8, 0, 0); // TODO: tune
     public static final RobotConfig kBotConfig = new RobotConfig(kRobotMass, kMomentOfInertia,
         new ModuleConfig(Meter.of(DriveConstants.kWheelDiameterMeters / 2),
             MetersPerSecond.of(DriveConstants.kMaxSpeedMetersPerSecond), kCoefficientOfStaticFriction, kDriveMotorType,
