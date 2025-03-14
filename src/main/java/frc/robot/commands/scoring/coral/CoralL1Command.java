@@ -15,7 +15,10 @@ public class CoralL1Command extends SequentialCommandGroup {
         addCommands(
             new ConditionalCommand(
                 new UndoCoralL4Command(endEffector, elevator),
-                // new ConditionalCommand(new PivotCommand(endEffector, 1.3), new InstantCommand(), () -> elevator.getCurrentHeight() > 1),
+                // new ConditionalCommand(
+                //   new PivotCommand(endEffector, 1.3), 
+                //   new InstantCommand(), 
+                //   () -> elevator.getCurrentHeight() > 1 || endEffector.getPivotPosition() > 0.25),
                 new PivotCommand(endEffector, 1.3),
                 () -> elevator.getCurrentHeight() >= 12),
             // new PivotCommand(endEffector, 1.3),

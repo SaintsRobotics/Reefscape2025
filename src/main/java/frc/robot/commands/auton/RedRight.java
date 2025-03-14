@@ -27,7 +27,7 @@ public class RedRight extends SequentialCommandGroup {
             // new ParallelDeadlineGroup(new WaitCommand(0.1), new RunCommand(() -> driveSubsystem.drive(0, 0, 0, false), driveSubsystem)),
             // new ParallelDeadlineGroup(new WaitCommand(3), new InstantCommand(() -> endEffector.outtakeCoral(), endEffector)),
             // new InstantCommand((() -> endEffector.stopEffector()), endEffector)
-            new InstantCommand(() -> driveSubsystem.setHeading(Math.toRadians(0)), driveSubsystem),
+            new InstantCommand(() -> driveSubsystem.zeroHeading(Math.toRadians(0)), driveSubsystem),
             new InstantCommand(() -> driveSubsystem.resetOdometry(startingPose), driveSubsystem),
             new WaitCommand(1),
             new DriveToPose(driveSubsystem, FindNearest.redScoringLocations[9].plus(new Transform2d(FindNearest.redScoringLocations[9], startingPose).times(0.15))),

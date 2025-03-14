@@ -4,32 +4,34 @@
 
 package frc.robot;
 
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.AutonConstants;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.AutonCommands;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
-import frc.robot.commands.auton.BlueLeft;
-import frc.robot.commands.auton.DriveForwardsL1;
-import frc.robot.commands.auton.RedRight;
-import frc.robot.commands.auton.SimpleDriveForwards;
 import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L2Command;
 import frc.robot.commands.scoring.L3Command;
@@ -55,6 +57,7 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
+  private final SendableChooser<Command> m_autoChooser;
   private boolean m_coralMode = true;
 
   /**
@@ -65,6 +68,19 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
+
+    AutoBuilder.configure(m_robotDrive::getPose, (pose) -> m_robotDrive.resetOdometry(pose),
+            () -> m_robotDrive.getRobotRelativeSpeeds(),
+            (speeds) -> m_robotDrive.autonDrive(speeds),
+            new PPHolonomicDriveController(AutonConstants.kTranslationConstants, AutonConstants.kRotationConstants),
+            AutonConstants.kBotConfig,
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, m_robotDrive);
+
+    AutonCommands.setSubsystems(m_elevator, m_endEffector);
+    AutonCommands.Commands.registerAutonCommands();
+
+    m_autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData(m_autoChooser);
 
     m_robotDrive.setDefaultCommand(
         new RunCommand(
@@ -292,40 +308,8 @@ public void initSubsystems() {
         .onTrue(new L4Command(m_endEffector, m_elevator, () -> m_coralMode));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
-    SequentialCommandGroup left = new SequentialCommandGroup();
-
-    // An example command will be run in autonomous
-    // return new SequentialCommandGroup(
-    //     new ParallelDeadlineGroup(new WaitCommand(2), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive)),
-    //     new ParallelDeadlineGroup(new WaitCommand(0.1), new RunCommand(() -> m_robotDrive.drive(0, 0, 0, false), m_robotDrive)),
-    //     new ParallelDeadlineGroup(new WaitCommand(3), new InstantCommand(() -> m_endEffector.outtakeCoral(), m_endEffector)),
-    //     new InstantCommand((() -> m_endEffector.stopEffector()), m_endEffector));
-
-    // Simple drive forwards
-    // return new SimpleDriveForwards(m_robotDrive, 2, 1.5);
-
-    // Center drive forwards and score
-    return new DriveForwardsL1(m_robotDrive, m_endEffector, 3, 1);
-
-    // Blue left
-    // return new BlueLeft(m_robotDrive, m_elevator, m_endEffector);
-
-    // Red right
-    // return new RedRight(m_robotDrive, m_elevator, m_endEffector);
-
-
-
-    // return new ParallelDeadlineGroup(new WaitCommand(3), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive));
-
-    // return new InstantCommand(() -> {m_robotDrive.resetOdometry(new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));}, m_robotDrive);
-    // return new DriveToPose(m_robotDrive, new Pose2d(new Translation2d(5.81, 3.86), Rotation2d.fromDegrees(180)));
-    // return new DriveToReef(m_robotDrive);
+    return m_autoChooser.getSelected();
   }
 
   /**
