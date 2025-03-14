@@ -48,7 +48,7 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
-    public static final double kElevatorAxisScalar = 0.15; //TODO: tune
+    public static final double kElevatorAxisScalar = 0.05; //TODO: tune
     public static final double kPivotAxisScalar = -0.25; //TODO: tune
 
     public static final int kDPadUp = 0;
@@ -152,15 +152,15 @@ public final class Constants {
 
     // TODO: Tune PID for elevator
     public static final double kPElevator = 0.9;
-    public static final double kMaxV = 30;
-    public static final double kMaxA = 30;
+    public static final double kMaxV = 50;
+    public static final double kMaxA = 50;
 
     // TODO: Set these constants
     public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
     // public static final double kElevatorUpMaxSpeed = 0.6;
     public static final double kElevatorUpMaxSpeed = 1;
 
-    public static final double kElevatorDownMaxSpeed = -0.45;
+    public static final double kElevatorDownMaxSpeed = -0.6;
     public static final double kElevatorFeedForward = 0.03;
     public static final double kElevatorSpeedScalar = 1;
     public static final double kElevatorBottom = 0.2;

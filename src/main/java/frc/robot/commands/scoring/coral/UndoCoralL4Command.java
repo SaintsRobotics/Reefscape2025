@@ -13,9 +13,9 @@ public class UndoCoralL4Command extends SequentialCommandGroup {
         addCommands(
             new PivotCommand(endEffector, 0.698),
             new ElevatorCommand(13.8, elevator, endEffector),
-            new PivotCommand(endEffector, 1.608),
+            new PivotCommand(endEffector, 1.608)
 
-            new ElevatorCommand(ElevatorConstants.kL3Height, elevator, endEffector)
+            // new ElevatorCommand(ElevatorConstants.kL3Height, elevator, endEffector)
         );
     }
 
