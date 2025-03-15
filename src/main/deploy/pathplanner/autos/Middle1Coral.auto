@@ -7,43 +7,43 @@
         {
           "type": "path",
           "data": {
+            "pathName": "MiddleCoralPre1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RAISE_ELEVATOR_L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "MiddleCoral1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "OUTTAKE_CORAL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeMiddle2"
+            "pathName": "MiddleCoral1Reverse"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "GET_CORAL"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "CoralHPOuttakeLeft2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "LOWER_ELEVATOR"
           }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": "MiddleAutons",
   "choreoAuto": false
 }

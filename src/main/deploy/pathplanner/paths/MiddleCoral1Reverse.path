@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.825063131313131,
-        "y": 5.488636363636363
+        "x": 5.878219696969698,
+        "y": 4.167297979797979
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.0734722570073085,
-        "y": 5.460477772196904
+        "x": 6.255063405421623,
+        "y": 4.144823775569902
       },
       "isLocked": false,
-      "linkedName": "Left Coral Pre 2"
+      "linkedName": "Middle Coral Post"
     },
     {
       "anchor": {
-        "x": 3.906376262626263,
-        "y": 5.305681818181817
+        "x": 6.091666666666666,
+        "y": 4.167297979797979
       },
       "prevControl": {
-        "x": 3.6594091782158737,
-        "y": 5.247564048524418
+        "x": 5.610254035310656,
+        "y": 4.222591803401016
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Coral Post 2"
+      "linkedName": "Middle Coral Pre"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "LeftPaths",
+  "folder": "MiddlePath",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
+            "pathName": "MiddleCoralPre1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "MiddleCoral1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "OUTTAKE_CORAL"
           }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": "MiddleAutons",
   "choreoAuto": false
 }

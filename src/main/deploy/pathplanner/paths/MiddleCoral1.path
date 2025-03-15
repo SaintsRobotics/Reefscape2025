@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.547679924242425,
-        "y": 4.06311553030303
+        "x": 6.091666666666666,
+        "y": 4.167297979797979
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.732007575757576,
-        "y": 3.9487689393939394
+        "x": 5.767487327263593,
+        "y": 4.175734007931447
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Middle Coral Pre"
     },
     {
       "anchor": {
-        "x": 5.985,
-        "y": 4.185
+        "x": 5.878219696969698,
+        "y": 4.167297979797979
       },
       "prevControl": {
-        "x": 7.02936553030303,
-        "y": 4.169753787878787
+        "x": 6.188226896551667,
+        "y": 4.151039241346116
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Middle Coral Post"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 0.75,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -50,5 +50,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

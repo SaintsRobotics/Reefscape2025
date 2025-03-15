@@ -75,6 +75,18 @@
           "data": {
             "name": "OUTTAKE_CORAL"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftCoral2Reverse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LOWER_ELEVATOR"
+          }
         }
       ]
     }

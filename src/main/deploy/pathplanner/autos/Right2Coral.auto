@@ -7,19 +7,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MiddleCoral1"
+            "pathName": "RightCoralPre1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "RAISE_ELEVATOR_L4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeMiddle2"
+            "pathName": "RightCoralPost1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OUTTAKE_CORAL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralIntakePre2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LOWER_ELEVATOR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralIntakePost2"
           }
         },
         {
@@ -31,43 +55,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPOuttakeLeft2"
+            "pathName": "RightCoralPre2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "RAISE_ELEVATOR_L4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeLeft3"
+            "pathName": "RightCoralPost2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "GET_CORAL"
+            "name": "OUTTAKE_CORAL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPOuttakeLeft3"
+            "pathName": "RightCoral2Reverse"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "LOWER_ELEVATOR"
           }
         }
       ]
     }
   },
-  "resetOdom": false,
-  "folder": "MiddleAutons",
+  "resetOdom": true,
+  "folder": "RightAutons",
   "choreoAuto": false
 }
