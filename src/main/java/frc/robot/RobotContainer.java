@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -22,6 +23,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
+import frc.robot.commands.HapticCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
 import frc.robot.commands.auton.DriveForwardsL1;
 import frc.robot.commands.scoring.L1Command;
@@ -203,7 +205,10 @@ public void initSubsystems() {
     new Trigger(() -> m_driverController.getLeftTriggerAxis() > IOConstants.kControllerDeadband)
         .whileTrue(new ConditionalCommand(
           // coral
-          new PlaceGrabCoralCommand(m_endEffector, false),
+          new SequentialCommandGroup(
+            new PlaceGrabCoralCommand(m_endEffector, false), 
+            new HapticCommand(m_driverController, 0.3, 1),
+            new HapticCommand(m_operatorController, 0.3, 1)),
           // algae
           new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
@@ -251,16 +256,25 @@ public void initSubsystems() {
 
     // operator POV buttons
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1
-        .onTrue(new L1Command(m_endEffector, m_elevator, () -> m_coralMode));
+        .onTrue(
+            new SequentialCommandGroup(
+                new L1Command(m_endEffector, m_elevator, () -> m_coralMode), 
+                new HapticCommand(m_driverController, 0.3, 1)));
 
     new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
-        .onTrue(new L2Command(m_endEffector, m_elevator, () -> m_coralMode));
+        .onTrue(new SequentialCommandGroup(
+            new L2Command(m_endEffector, m_elevator, () -> m_coralMode), 
+            new HapticCommand(m_driverController, 0.3, 1)));
 
     new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
-        .onTrue(new L3Command(m_endEffector, m_elevator, () -> m_coralMode));
+        .onTrue(new SequentialCommandGroup(
+            new L3Command(m_endEffector, m_elevator, () -> m_coralMode), 
+            new HapticCommand(m_driverController, 0.3, 1)));
 
     new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
-        .onTrue(new L4Command(m_endEffector, m_elevator, () -> m_coralMode));
+        .onTrue(new SequentialCommandGroup(
+            new L4Command(m_endEffector, m_elevator, () -> m_coralMode), 
+            new HapticCommand(m_driverController, 0.3, 1)));
   }
 
   /**
