@@ -71,9 +71,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
 
     m_speedOverride = 0;
+    final double sensedDistance = m_elevatorRange.getDistance().getValueAsDouble() + ElevatorConstants.kSensorOffset;
 
-    if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
-      //zeroPositionNoReset(m_sensorFilter.calculate(sensedDistance));
+    if (sensedDistance < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
+      zeroPositionNoReset(m_sensorFilter.calculate(sensedDistance));
     }
     else {
       m_sensorFilter.reset();
