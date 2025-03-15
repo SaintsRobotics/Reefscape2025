@@ -207,7 +207,8 @@ public void initSubsystems() {
           // coral
           new SequentialCommandGroup(
             new PlaceGrabCoralCommand(m_endEffector, false), 
-            new HapticCommand(m_driverController, 0.5, 1)),
+            new HapticCommand(m_driverController, 0.3, 1),
+            new HapticCommand(m_operatorController, 0.3, 1)),
           // algae
           new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
