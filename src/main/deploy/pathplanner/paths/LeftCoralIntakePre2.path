@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.563131313131313,
-        "y": 5.427651515151515
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 5.58483388565056,
-        "y": 5.168330828389659
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
         "x": 5.349684343434343,
         "y": 5.173547979797979
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.755103877983342,
+        "y": 5.654100911267767
+      },
+      "isLocked": false,
+      "linkedName": "Left Coral Post"
+    },
+    {
+      "anchor": {
+        "x": 5.563131313131313,
+        "y": 5.427651515151515
+      },
       "prevControl": {
-        "x": 5.162971107733937,
-        "y": 5.339795288390583
+        "x": 5.219066295314767,
+        "y": 5.017577883472898
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Coral Post"
+      "linkedName": "Left Coral Pre"
     }
   ],
   "rotationTargets": [],

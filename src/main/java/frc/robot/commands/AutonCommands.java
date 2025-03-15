@@ -28,12 +28,6 @@ public class AutonCommands {
 			// TODO: fill stubs
 			GET_CORAL(
 							new SequentialCommandGroup(new PlaceGrabCoralCommand(m_endEffector, false))),
-			PLACE_CORAL_L1(
-							new SequentialCommandGroup()),
-			PLACE_CORAL_L2(
-							new SequentialCommandGroup()),
-			PLACE_CORAL_L3(
-							new SequentialCommandGroup()),
 			PLACE_CORAL_L4(
 							new SequentialCommandGroup()),
 			RAISE_ELEVATOR_L4(

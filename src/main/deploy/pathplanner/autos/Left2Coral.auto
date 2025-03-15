@@ -7,19 +7,43 @@
         {
           "type": "path",
           "data": {
+            "pathName": "LeftCoralPre1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RAISE_ELEVATOR_L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "LeftCoral1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "OUTTAKE_CORAL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeLeft2"
+            "pathName": "LeftCoralIntakePre2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LOWER_ELEVATOR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftCoralIntake2"
           }
         },
         {
@@ -31,43 +55,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPOuttakeLeft2"
+            "pathName": "LeftCoralPre2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "RAISE_ELEVATOR_L4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "CoralHPIntakeLeft3"
+            "pathName": "LeftCoral2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "GET_CORAL"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "CoralHPOuttakeLeft3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PLACE_CORAL_L4"
+            "name": "OUTTAKE_CORAL"
           }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": "LeftAutons",
   "choreoAuto": false
 }
