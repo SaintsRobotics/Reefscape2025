@@ -33,7 +33,7 @@ public class AutonCommands {
 			RAISE_ELEVATOR_L4(
 							new SequentialCommandGroup(new CoralL4Command(m_endEffector, m_elevator))),
 
-			OUTTAKE_CROAL(
+			OUTTAKE_CORAL(
 				new SequentialCommandGroup(new PlaceGrabCoralCommand(m_endEffector, true))
 			),
 			LOWER_ELEVATOR(
