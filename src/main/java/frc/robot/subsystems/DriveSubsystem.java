@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants;
+import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.SlewRateLimiter;
 import frc.robot.Robot;
@@ -73,6 +75,7 @@ public class DriveSubsystem extends SubsystemBase {
       VisionConstants.kVisionSTDDevs);
 
   private final Field2d m_field = new Field2d();
+  private final Field2d m_flippedField = new Field2d();
 
   private final SlewRateLimiter m_xSpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAccelerationUnitsPerSecond);
   private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAccelerationUnitsPerSecond);
@@ -84,6 +87,7 @@ public class DriveSubsystem extends SubsystemBase {
     this.zeroHeading();
     this.resetOdometry(new Pose2d());
     SmartDashboard.putData("Field", m_field);
+    SmartDashboard.putData("flipped field", m_flippedField);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -101,6 +105,18 @@ public class DriveSubsystem extends SubsystemBase {
           VisionConstants.kCamPos.getRotation().getY(),
           VisionConstants.kCamPos.getRotation().getZ());
       LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, VisionConstants.kIMUMode);
+
+      if (VisionConstants.kUseTwoLL) {
+        LimelightHelpers.setCameraPose_RobotSpace(
+          VisionConstants.kLimelightName2,
+          VisionConstants.kCamPos2.getX(),
+          VisionConstants.kCamPos2.getY(),
+          VisionConstants.kCamPos2.getZ(),
+          VisionConstants.kCamPos2.getRotation().getX(),
+          VisionConstants.kCamPos2.getRotation().getY(),
+          VisionConstants.kCamPos2.getRotation().getZ());
+        LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName2, VisionConstants.kIMUMode);
+      }
     }
 
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds());
@@ -138,6 +154,23 @@ public class DriveSubsystem extends SubsystemBase {
       }
     }
 
+    boolean limelight2Real = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightName2) != 0.0;
+      if (VisionConstants.kUseTwoLL && limelight2Real && Robot.isReal()) {
+        // Update LimeLight with current robot orientation
+        LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName2, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+
+        // Get the pose estimate
+        LimelightHelpers.PoseEstimate limelight2Measurement = LimelightHelpers
+          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName2);
+
+      // Add it to your pose estimator if it is a valid measurement
+        if (limelight2Measurement != null && limelight2Measurement.tagCount != 0 && m_gyro.getRate() < 720) {
+          m_poseEstimator.addVisionMeasurement(
+            limelight2Measurement.pose,
+            limelight2Measurement.timestampSeconds);
+        }
+      }
+
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
     SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
@@ -163,6 +196,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logDataDesired);
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
+
+    Pose2d flippedPose = AllianceFlipUtil.apply(getPose());
+    m_flippedField.setRobotPose(flippedPose);
+    SmartDashboard.putNumber("flip X", flippedPose.getX());
+    SmartDashboard.putNumber("flip Y", flippedPose.getY());
+    SmartDashboard.putNumber("flip Rot", flippedPose.getRotation().getDegrees());
   }
 
   /**
@@ -269,7 +308,16 @@ public class DriveSubsystem extends SubsystemBase {
    * @param ignoreRotation True if rotation in pose should be ignored (i.e. use gyro)
    */
   public void resetOdometry(Pose2d pose, boolean ignoreRotation) {
-    final Rotation2d rot = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
+    Rotation2d rot = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
+
+    // if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+    //   SmartDashboard.putBoolean("red side", true);
+    //   rot.rotateBy(new Rotation2d(Math.PI));
+    // }
+
+    // rot.rotateBy(new Rotation2d(Math.PI));
+
+    rot = new Rotation2d(rot.getRadians() + Math.PI);
 
     m_poseEstimator.resetPosition(
         rot,

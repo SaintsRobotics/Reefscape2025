@@ -129,11 +129,20 @@ public final class Constants {
     // TODO: Update cam pose relative to center of bot
     public static final Pose3d kCamPos = new Pose3d(
       // new Translation3d(0.3048,0.254,0),
-      new Translation3d(0.34925, -0.2413, 0.2),
-      new Rotation3d(180,10,0)
+      new Translation3d(0.34925, -0.24, 0.2667),
+      new Rotation3d(0,10,0)
+    );
+// 8.5 (13-8.5)/2
+
+// 10.5 and 13.5
+    public static final Pose3d kCamPos2 = new Pose3d(
+      // new Translation3d(0.3048,0.254,0),
+      new Translation3d(0.1778, 0.2159, 0.3429),
+      new Rotation3d(0,0,0)
     );
 
     public static final String kLimelightName = "limelight";
+    public static final String kLimelightName2 = "limelight-sr";
 
     // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
     public static final int kIMUMode = 0;
@@ -143,6 +152,7 @@ public final class Constants {
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
 
     public static final boolean kUseVision = true;
+    public static final boolean kUseTwoLL = true;
   }
 
   public static final class ElevatorConstants {
@@ -191,7 +201,7 @@ public final class Constants {
     public static final int kEffectorMotorPort = 53;
     public static final int kEndEffectorCANrangePort = 8;
 
-    public static final double kPEndEffector = 0.35;
+    public static final double kPEndEffector = 0.4;
     public static final double kPivotMaxSpeedRetract = 0.4;
     public static final double kPivotMaxSpeedExtend = -0.4;
 
@@ -268,13 +278,13 @@ public final class Constants {
     //     )); 
     public static final NavigableMap<Double, List<Pair<Double, Double>>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-100000.0, Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.435 * Math.PI * 2))),
-            Map.entry(-10000.0,  Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.435 * Math.PI * 2))),
-            Map.entry(0.20,    Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.435 * Math.PI * 2))),
-            Map.entry(10000.0, Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.500 * Math.PI * 2),
-                                               Pair.of(0.02 * Math.PI * 2, 0.118 * Math.PI * 2))),
-            Map.entry(100000.0,Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.500 * Math.PI * 2),
-                                               Pair.of(0.02 * Math.PI * 2, 0.118 * Math.PI * 2)))
+            Map.entry(-100000.0, Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(-10000.0,  Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(0.20,    Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.45 * Math.PI * 2))),
+            Map.entry(10000.0, Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.600 * Math.PI * 2),
+                                               Pair.of(0.02 * Math.PI * 2, 0.618 * Math.PI * 2))),
+            Map.entry(100000.0,Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.600 * Math.PI * 2),
+                                               Pair.of(0.02 * Math.PI * 2, 0.618 * Math.PI * 2)))
         )); 
   }
 }

@@ -26,6 +26,7 @@ import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.HapticCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
 import frc.robot.commands.auton.DriveForwardsL1;
+import frc.robot.commands.auton.RedRight;
 import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L2Command;
 import frc.robot.commands.scoring.L3Command;
@@ -294,13 +295,13 @@ public void initSubsystems() {
     // return new SimpleDriveForwards(m_robotDrive, 2, 1.5);
 
     // Center drive forwards and score
-    return new DriveForwardsL1(m_robotDrive, m_endEffector, 3, 1);
+    // return new DriveForwardsL1(m_robotDrive, m_endEffector, 3, 1);
 
     // Blue left
     // return new BlueLeft(m_robotDrive, m_elevator, m_endEffector);
 
     // Red right
-    // return new RedRight(m_robotDrive, m_elevator, m_endEffector);
+    return new RedRight(m_robotDrive, m_elevator, m_endEffector);
 
 
 
