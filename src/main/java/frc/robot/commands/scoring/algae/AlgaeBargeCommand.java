@@ -7,10 +7,10 @@ import frc.robot.commands.PivotCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 
-public class AlgaeL4Command extends SequentialCommandGroup {
-
-    public AlgaeL4Command(EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
-        addCommands(
+public class AlgaeBargeCommand extends SequentialCommandGroup {
+    
+    public AlgaeBargeCommand(EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
+        super(
             new ParallelCommandGroup(
                 new PivotCommand(endEffector, 2.746),
                 new ElevatorNoPivotCommand(21, elevator))

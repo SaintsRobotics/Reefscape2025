@@ -32,7 +32,7 @@ import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L2Command;
 import frc.robot.commands.scoring.L3Command;
 import frc.robot.commands.scoring.L4Command;
-import frc.robot.commands.scoring.algae.AlgaeL4Command;
+import frc.robot.commands.scoring.algae.AlgaeBargeCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -229,7 +229,7 @@ public void initSubsystems() {
     // driver barge flip
     new JoystickButton(m_driverController, Button.kY.value)
         .onTrue(new SequentialCommandGroup(
-            new AlgaeL4Command(m_endEffector, m_elevator),
+            new AlgaeBargeCommand(m_endEffector, m_elevator),
             new BargeFlipCommand(m_endEffector),
             new ParallelCommandGroup(
                 new HapticCommand(m_driverController, 0.3, 1),
