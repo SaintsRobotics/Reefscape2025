@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.IOConstants;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class HapticCommand extends Command {
@@ -22,6 +23,10 @@ public class HapticCommand extends Command {
     m_controller = controller;
     m_value = value;
     m_time = time;
+  }
+
+  public HapticCommand(XboxController controller) {
+    this(controller, IOConstants.kHapticTime, IOConstants.kHapticStrength);
   }
 
   // Called when the command is initially scheduled.

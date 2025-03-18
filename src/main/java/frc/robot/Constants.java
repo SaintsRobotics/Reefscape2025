@@ -35,8 +35,7 @@ import edu.wpi.first.math.numbers.N3;
 public final class Constants {
 
   public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
-  public static final double kFastPeriodicOfset = 1e-6; // 1 micro second, no noticable effect other than scheduling
-                                                        // order
+  public static final double kFastPeriodicOfset = 1e-6; // 1 micro second, no noticable effect other than order
 
   /**
    * Input/Output constants
@@ -55,6 +54,9 @@ public final class Constants {
     public static final int kDPadRight = 90;
     public static final int kDPadDown = 180;
     public static final int kDPadLeft = 270;
+
+    public static final double kHapticTime = 0.3;
+    public static final double kHapticStrength = 1;
   }
 
   public static final class DriveConstants {

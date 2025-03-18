@@ -211,8 +211,8 @@ public void initSubsystems() {
           new SequentialCommandGroup(
             new PlaceGrabCoralCommand(m_endEffector, false),
             new ParallelCommandGroup(
-                new HapticCommand(m_driverController, 0.3, 1),
-                new HapticCommand(m_operatorController, 0.3, 1))),
+                new HapticCommand(m_driverController),
+                new HapticCommand(m_operatorController))),
           // algae
           new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
@@ -232,8 +232,8 @@ public void initSubsystems() {
             new AlgaeBargeCommand(m_endEffector, m_elevator),
             new BargeFlipCommand(m_endEffector),
             new ParallelCommandGroup(
-                new HapticCommand(m_driverController, 0.3, 1),
-                new HapticCommand(m_operatorController, 0.3, 1)
+                new HapticCommand(m_driverController),
+                new HapticCommand(m_operatorController)
         )));
 
     // -------- elevator bindings -------- //
@@ -273,22 +273,22 @@ public void initSubsystems() {
         .onTrue(
             new SequentialCommandGroup(
                 new L1Command(m_endEffector, m_elevator, () -> m_coralMode), 
-                new HapticCommand(m_driverController, 0.3, 1)));
+                new HapticCommand(m_driverController)));
 
     new POVButton(m_operatorController, IOConstants.kDPadRight) // Right - L2
         .onTrue(new SequentialCommandGroup(
             new L2Command(m_endEffector, m_elevator, () -> m_coralMode), 
-            new HapticCommand(m_driverController, 0.3, 1)));
+            new HapticCommand(m_driverController)));
 
     new POVButton(m_operatorController, IOConstants.kDPadDown) // Down - L3
         .onTrue(new SequentialCommandGroup(
             new L3Command(m_endEffector, m_elevator, () -> m_coralMode), 
-            new HapticCommand(m_driverController, 0.3, 1)));
+            new HapticCommand(m_driverController)));
 
     new POVButton(m_operatorController, IOConstants.kDPadLeft) // Left - L4
         .onTrue(new SequentialCommandGroup(
             new L4Command(m_endEffector, m_elevator, () -> m_coralMode), 
-            new HapticCommand(m_driverController, 0.3, 1)));
+            new HapticCommand(m_driverController)));
   }
 
   /**
