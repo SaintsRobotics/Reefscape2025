@@ -138,46 +138,14 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
 
-    boolean leftLLReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightNameLeft) != 0.0;
-    if (VisionConstants.kUseVision && Robot.isReal() && leftLLReal) {
-      // Update LimeLight with current robot orientation
-      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightNameLeft, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
-
-      // Get the pose estimate
-      LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers
-          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightNameLeft);
-
-      // Add it to your pose estimator if it is a valid measurement
-      if (limelightMeasurementLeft != null && limelightMeasurementLeft.tagCount != 0 && m_gyro.getRate() < 720) {
-        m_poseEstimator.addVisionMeasurement(
-            limelightMeasurementLeft.pose,
-            limelightMeasurementLeft.timestampSeconds);
-      }
-    }
-
-    boolean rightLLReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightNameRight) != 0.0;
-      if (VisionConstants.kUseRightLL && rightLLReal && Robot.isReal()) {
-        // Update LimeLight with current robot orientation
-        LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightNameRight, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
-
-        // Get the pose estimate
-        LimelightHelpers.PoseEstimate limelightMeasurementRight = LimelightHelpers
-          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightNameRight);
-
-      // Add it to your pose estimator if it is a valid measurement
-        if (limelightMeasurementRight != null && limelightMeasurementRight.tagCount != 0 && m_gyro.getRate() < 720) {
-          m_poseEstimator.addVisionMeasurement(
-            limelightMeasurementRight.pose,
-            limelightMeasurementRight.timestampSeconds);
-        }
-      }
+    measureLimelight(VisionConstants.kLimelightNameLeft, VisionConstants.kUseLeftLL);
+    measureLimelight(VisionConstants.kLimelightNameRight, VisionConstants.kUseRightLL);
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
     SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
     SmartDashboard.putNumber("odometryX", m_poseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("odometryY", m_poseEstimator.getEstimatedPosition().getY());
-    SmartDashboard.putBoolean("Limelight isreal", leftLLReal);
 
     // AdvantageScope Logging
     // max speed = 1 (for ease of use in AdvantageScope)
@@ -203,6 +171,31 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("flip X", flippedPose.getX());
     SmartDashboard.putNumber("flip Y", flippedPose.getY());
     SmartDashboard.putNumber("flip Rot", flippedPose.getRotation().getDegrees());
+  }
+
+  public void measureLimelight(String name, boolean useLimelight) {
+
+    if (!useLimelight) {
+      return;
+    }
+
+    boolean LLreal = LimelightHelpers.getLatency_Pipeline(name) != 0.0;
+    if (VisionConstants.kUseVision && Robot.isReal() && LLreal) {
+      // Update LimeLight with current robot orientation
+      LimelightHelpers.SetRobotOrientation(name, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+
+      // Get the pose estimate
+      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+
+      // Add it to your pose estimator if it is a valid measurement
+      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
+        m_poseEstimator.addVisionMeasurement(
+            limelightMeasurement.pose,
+            limelightMeasurement.timestampSeconds);
+      }
+    }
+
+    SmartDashboard.putBoolean(name + " valid", LLreal);
   }
 
   /**
