@@ -127,21 +127,19 @@ public final class Constants {
 
   public static final class VisionConstants {
     // TODO: Update cam pose relative to center of bot
-    public static final Pose3d kCamPos = new Pose3d(
+    public static final Pose3d kCamPosLeft = new Pose3d(
       // new Translation3d(0.3048,0.254,0),
       new Translation3d(0.3429, -0.2413, 0.2413),
       new Rotation3d(0,10,0)
     );
-// 8.5 (13-8.5)/2
 
-// 10.5 and 13.5
-    public static final Pose3d kCamPos2 = new Pose3d(
+    public static final Pose3d kCamPosRight = new Pose3d(
       new Translation3d(0.3429, 0.2413, 0.2413),
       new Rotation3d(0,0,0)
     );
 
-    public static final String kLimelightName = "limelight";
-    public static final String kLimelightName2 = "limelight-sr";
+    public static final String kLimelightNameLeft = "limelight";
+    public static final String kLimelightNameRight = "limelight-sr";
 
     // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
     public static final int kIMUMode = 0;
@@ -151,7 +149,8 @@ public final class Constants {
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
 
     public static final boolean kUseVision = true;
-    public static final boolean kUseTwoLL = true;
+    public static final boolean kUseLeftLL = true;
+    public static final boolean kUseRightLL = true;
   }
 
   public static final class ElevatorConstants {

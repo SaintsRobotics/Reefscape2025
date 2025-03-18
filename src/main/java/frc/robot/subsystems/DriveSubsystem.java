@@ -96,26 +96,28 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.setVisionMeasurementStdDevs(VisionConstants.kVisionSTDDevs);
 
     if (VisionConstants.kUseVision && Robot.isReal()) {
-      LimelightHelpers.setCameraPose_RobotSpace(
-          VisionConstants.kLimelightName,
-          VisionConstants.kCamPos.getX(),
-          VisionConstants.kCamPos.getY(),
-          VisionConstants.kCamPos.getZ(),
-          VisionConstants.kCamPos.getRotation().getX(),
-          VisionConstants.kCamPos.getRotation().getY(),
-          VisionConstants.kCamPos.getRotation().getZ());
-      LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, VisionConstants.kIMUMode);
-
-      if (VisionConstants.kUseTwoLL) {
+      if (VisionConstants.kUseLeftLL) {
         LimelightHelpers.setCameraPose_RobotSpace(
-          VisionConstants.kLimelightName2,
-          VisionConstants.kCamPos2.getX(),
-          VisionConstants.kCamPos2.getY(),
-          VisionConstants.kCamPos2.getZ(),
-          VisionConstants.kCamPos2.getRotation().getX(),
-          VisionConstants.kCamPos2.getRotation().getY(),
-          VisionConstants.kCamPos2.getRotation().getZ());
-        LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName2, VisionConstants.kIMUMode);
+            VisionConstants.kLimelightNameLeft,
+            VisionConstants.kCamPosLeft.getX(),
+            VisionConstants.kCamPosLeft.getY(),
+            VisionConstants.kCamPosLeft.getZ(),
+            VisionConstants.kCamPosLeft.getRotation().getX(),
+            VisionConstants.kCamPosLeft.getRotation().getY(),
+            VisionConstants.kCamPosLeft.getRotation().getZ());
+        LimelightHelpers.SetIMUMode(VisionConstants.kLimelightNameLeft, VisionConstants.kIMUMode);
+      }
+
+      if (VisionConstants.kUseRightLL) {
+        LimelightHelpers.setCameraPose_RobotSpace(
+          VisionConstants.kLimelightNameRight,
+          VisionConstants.kCamPosRight.getX(),
+          VisionConstants.kCamPosRight.getY(),
+          VisionConstants.kCamPosRight.getZ(),
+          VisionConstants.kCamPosRight.getRotation().getX(),
+          VisionConstants.kCamPosRight.getRotation().getY(),
+          VisionConstants.kCamPosRight.getRotation().getZ());
+        LimelightHelpers.SetIMUMode(VisionConstants.kLimelightNameRight, VisionConstants.kIMUMode);
       }
     }
 
@@ -137,37 +139,37 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
 
-    boolean limelightReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightName) != 0.0;
-    if (VisionConstants.kUseVision && Robot.isReal() && limelightReal) {
+    boolean leftLLReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightNameLeft) != 0.0;
+    if (VisionConstants.kUseVision && Robot.isReal() && leftLLReal) {
       // Update LimeLight with current robot orientation
-      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightNameLeft, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
       // Get the pose estimate
-      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers
-          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
+      LimelightHelpers.PoseEstimate limelightMeasurementLeft = LimelightHelpers
+          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightNameLeft);
 
       // Add it to your pose estimator if it is a valid measurement
-      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
+      if (limelightMeasurementLeft != null && limelightMeasurementLeft.tagCount != 0 && m_gyro.getRate() < 720) {
         m_poseEstimator.addVisionMeasurement(
-            limelightMeasurement.pose,
-            limelightMeasurement.timestampSeconds);
+            limelightMeasurementLeft.pose,
+            limelightMeasurementLeft.timestampSeconds);
       }
     }
 
-    boolean limelight2Real = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightName2) != 0.0;
-      if (VisionConstants.kUseTwoLL && limelight2Real && Robot.isReal()) {
+    boolean rightLLReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightNameRight) != 0.0;
+      if (VisionConstants.kUseRightLL && rightLLReal && Robot.isReal()) {
         // Update LimeLight with current robot orientation
-        LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName2, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+        LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightNameRight, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
         // Get the pose estimate
-        LimelightHelpers.PoseEstimate limelight2Measurement = LimelightHelpers
-          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName2);
+        LimelightHelpers.PoseEstimate limelightMeasurementRight = LimelightHelpers
+          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightNameRight);
 
       // Add it to your pose estimator if it is a valid measurement
-        if (limelight2Measurement != null && limelight2Measurement.tagCount != 0 && m_gyro.getRate() < 720) {
+        if (limelightMeasurementRight != null && limelightMeasurementRight.tagCount != 0 && m_gyro.getRate() < 720) {
           m_poseEstimator.addVisionMeasurement(
-            limelight2Measurement.pose,
-            limelight2Measurement.timestampSeconds);
+            limelightMeasurementRight.pose,
+            limelightMeasurementRight.timestampSeconds);
         }
       }
 
@@ -176,7 +178,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
     SmartDashboard.putNumber("odometryX", m_poseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("odometryY", m_poseEstimator.getEstimatedPosition().getY());
-    SmartDashboard.putBoolean("Limelight isreal", limelightReal);
+    SmartDashboard.putBoolean("Limelight isreal", leftLLReal);
 
     // AdvantageScope Logging
     // max speed = 1 (for ease of use in AdvantageScope)
