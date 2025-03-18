@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -26,11 +27,12 @@ import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.HapticCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
 import frc.robot.commands.auton.DriveForwardsL1;
-import frc.robot.commands.auton.RedRight;
+import frc.robot.commands.scoring.BargeFlipCommand;
 import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L2Command;
 import frc.robot.commands.scoring.L3Command;
 import frc.robot.commands.scoring.L4Command;
+import frc.robot.commands.scoring.algae.AlgaeL4Command;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -207,9 +209,10 @@ public void initSubsystems() {
         .whileTrue(new ConditionalCommand(
           // coral
           new SequentialCommandGroup(
-            new PlaceGrabCoralCommand(m_endEffector, false), 
-            new HapticCommand(m_driverController, 0.3, 1),
-            new HapticCommand(m_operatorController, 0.3, 1)),
+            new PlaceGrabCoralCommand(m_endEffector, false),
+            new ParallelCommandGroup(
+                new HapticCommand(m_driverController, 0.3, 1),
+                new HapticCommand(m_operatorController, 0.3, 1))),
           // algae
           new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
@@ -222,6 +225,16 @@ public void initSubsystems() {
           // algae
           new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector, m_endEffector),
           () -> m_coralMode));
+
+    // driver barge flip
+    new JoystickButton(m_driverController, Button.kY.value)
+        .onTrue(new SequentialCommandGroup(
+            new AlgaeL4Command(m_endEffector, m_elevator),
+            new BargeFlipCommand(m_endEffector),
+            new ParallelCommandGroup(
+                new HapticCommand(m_driverController, 0.3, 1),
+                new HapticCommand(m_operatorController, 0.3, 1)
+        )));
 
     // -------- elevator bindings -------- //
     // operator zero elevator position
@@ -295,13 +308,13 @@ public void initSubsystems() {
     // return new SimpleDriveForwards(m_robotDrive, 2, 1.5);
 
     // Center drive forwards and score
-    // return new DriveForwardsL1(m_robotDrive, m_endEffector, 3, 1);
+    return new DriveForwardsL1(m_robotDrive, m_endEffector, 3, 1);
 
     // Blue left
     // return new BlueLeft(m_robotDrive, m_elevator, m_endEffector);
 
     // Red right
-    return new RedRight(m_robotDrive, m_elevator, m_endEffector);
+    // return new RedRight(m_robotDrive, m_elevator, m_endEffector);
 
 
 
