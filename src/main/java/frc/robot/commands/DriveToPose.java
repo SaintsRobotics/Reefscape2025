@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -71,8 +72,15 @@ public class DriveToPose extends Command {
     double thetaSpeed = thetaController.calculate(currentPose.getRotation().getRadians(),
         m_targetPose.getRotation().getRadians());
 
+    if(DriverStation.isDSAttached()){
+      if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+        xSpeed = -xSpeed;
+        ySpeed = -ySpeed;
+      }
+    }
+
     if (DriveConstants.kAutoDriving) {
-      m_driveSubsystem.drive(-xSpeed, -ySpeed, thetaSpeed, true);
+      m_driveSubsystem.drive(xSpeed, ySpeed, thetaSpeed, true);
     }
   }
 

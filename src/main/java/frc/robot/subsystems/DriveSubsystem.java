@@ -316,8 +316,11 @@ public class DriveSubsystem extends SubsystemBase {
     // }
 
     // rot.rotateBy(new Rotation2d(Math.PI));
-
-    rot = new Rotation2d(rot.getRadians() + Math.PI);
+    if(DriverStation.isDSAttached()){
+      if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+        rot = new Rotation2d(rot.getRadians() + Math.PI);
+      }
+    }
 
     m_poseEstimator.resetPosition(
         rot,
