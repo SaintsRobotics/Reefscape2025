@@ -117,33 +117,33 @@ public void initSubsystems() {
   /**
    * Use this method to define your button->command mappings.
    * 
-   * Driver Controls:
+   * New Driver Controls:
    *    left axis X/Y:                  robot translation
    *    right axis X:                   robot rotation
-   *    left trigger:                   slow mode
-   *    right bumper:                   robot relative
+   *    right axis Y:                   elevator up to set position + elevator down all the way/intake position
+   *    right axis Y + left bumper      elevator increment
+   *    X:                              manual intake
+   *    B:                              manual outtake
+   *    left trigger:                   coral grab/place
+   *    right trigger:                  algae grab/place
+   *    right bumper:                   slow mode drive
+   *    
+   * 
+   * New Operator Cotrols
    *    start:                          zero heading
    *    back:                           reset gyro
-   *    A (left bumper pressed):        auto align to reef
-   * 
-   * Operator Controls:
-   *    left axis Y (B unpressed):      semi-automatic elevator speed
-   *    left axis Y (B pressed):        manual elevator speed
-   *    right axis Y:                   manual pivot speed
-   *    A (right bumper unpressed):     intake algae
-   *    A (right bumper pressed):       outtake algae
-   *    X (right bumper unpressed):     intake coral
-   *    X (right bumper pressed):       outtake coral
-   *    start (left bumper pressed):    increment elevator (see 1)
-   *    back (left bumper presssed):    reset elevator (see 2)
+   *    left bumper:                    auto align to reef
+   *    right bumper:                   robot relative
+   *    right stick press:              smart pivot
+   *    left stick press:               reset elevator
    *    Dpad up:                        L1 elevator position
    *    Dpad right:                     L2 elevator position
    *    Dpad down:                      L3 elevator position
    *    Dpad left:                      L4 elevator position
-   *    right trigger:                  grab algae
-   *    Y button:                       place algae
-   *    left trigger:                   place/grab coral
-   *    right stick press               smart pivot
+   *    
+   * 
+   * 
+   * Operator Controls:
    * 
    *    1: Increments both the elevator offset and setpoint.
    *        Does not cause any movement. Used to move elevator
@@ -155,14 +155,14 @@ public void initSubsystems() {
    */
   private void configureBindings() {
     
-    new JoystickButton(m_driverController, Button.kStart.value)
+    new JoystickButton(m_operatorController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
 
-    new JoystickButton(m_driverController, Button.kBack.value)
+    new JoystickButton(m_operatorController, Button.kBack.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
-    new JoystickButton(m_driverController, Button.kA.value)
-       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+    new JoystickButton(m_operatorController, Button.kLeftBumper.value)
+       .whileTrue(new DriveToReef(m_robotDrive, () -> m_operatorController.getLeftBumperButton()));
 
     // new JoystickButton(m_operatorController, Button.kRightBumper.value).negate()
     //                 .and(m_operatorController::getAButton)
@@ -189,7 +189,7 @@ public void initSubsystems() {
     //         .whileTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector))
     //         .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
 
-    new JoystickButton(m_operatorController, Button.kA.value)
+    /*new JoystickButton(m_operatorController, Button.kA.value)
       .onTrue(new InstantCommand(m_endEffector::intakeCoral, m_endEffector))
       .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
 
@@ -201,7 +201,25 @@ public void initSubsystems() {
             .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(5), m_elevator));
 
     new JoystickButton(m_operatorController, Button.kBack.value)
-            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator));
+            .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(), m_elevator));*/
+    
+    //Driver left trigger - intake
+    new Trigger(() -> m_driverController.getLeftTriggerAxis() > IOConstants.kControllerDeadband)
+    .whileTrue(new ConditionalCommand(
+         // coral
+        new PlaceGrabCoralCommand(m_endEffector, false),
+          // algae
+        new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
+          () -> m_coralMode));
+    // Driver right trigger - outtake
+    new Trigger(() -> m_driverController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
+    .whileTrue(new ConditionalCommand(
+      // coral
+      new PlaceGrabCoralCommand(m_endEffector, true),
+      // algae
+      new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector, m_endEffector),
+      () -> m_coralMode));
+          
 
     // full manual elevator
     new JoystickButton(m_operatorController, Button.kB.value)
@@ -257,24 +275,6 @@ public void initSubsystems() {
           m_coralMode = true;
           SmartDashboard.putBoolean("coral mode", m_coralMode);
         }));
-
-    // Driver left trigger - intake (use m_coralMode)
-    new Trigger(() -> m_driverController.getLeftTriggerAxis() > IOConstants.kControllerDeadband)
-        .whileTrue(new ConditionalCommand(
-          // coral
-          new PlaceGrabCoralCommand(m_endEffector, false),
-          // algae
-          new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
-          () -> m_coralMode));
-
-    // Driver right trigger - outtake
-    new Trigger(() -> m_driverController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
-        .whileTrue(new ConditionalCommand(
-          // coral
-          new PlaceGrabCoralCommand(m_endEffector, true),
-          // algae
-          new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector, m_endEffector),
-          () -> m_coralMode));
 
 
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1
