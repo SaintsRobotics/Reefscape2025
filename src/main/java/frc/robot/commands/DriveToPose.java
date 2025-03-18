@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.utils.AllianceFlipUtil;
 
 public class DriveToPose extends Command {
 
@@ -72,11 +73,9 @@ public class DriveToPose extends Command {
     double thetaSpeed = thetaController.calculate(currentPose.getRotation().getRadians(),
         m_targetPose.getRotation().getRadians());
 
-    if(DriverStation.isDSAttached()){
-      if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+    if (AllianceFlipUtil.shouldFlip()){
         xSpeed = -xSpeed;
         ySpeed = -ySpeed;
-      }
     }
 
     if (DriveConstants.kAutoDriving) {
