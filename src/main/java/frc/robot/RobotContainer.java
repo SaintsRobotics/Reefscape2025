@@ -120,6 +120,8 @@ public void initSubsystems() {
    *    back:                           reset gyro
    *    A (left bumper pressed):        auto align to reef
    *    B (left bumper pressed):        auto align to cage
+   *    X:                              unlock and extend hang winch
+   *    Y:                              retract and lock hang winch
    * 
    * Operator Controls:
    *    left axis Y (B unpressed):      semi-automatic elevator speed
@@ -160,9 +162,11 @@ public void initSubsystems() {
       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
     
     // one button for autoalign, one button for extend, one for retract, both triggers for manual extend/retract
+    //align to cage
     new JoystickButton(m_driverController, Button.kB.value)
       .whileTrue(new DriveToCage(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
     
+    //climber controls
     new JoystickButton(m_driverController, Button.kX.value)
       .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition))
       .onFalse(new InstantCommand(() -> m_climber.setLockPosition(ClimberConstants.kLockedPosition), m_climber));
