@@ -204,7 +204,7 @@ public void initSubsystems() {
 
     // operator hold to outtake coral (or weakly intake algae)
     new JoystickButton(m_operatorController, Button.kX.value)
-      .onTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector))
+      .onTrue(new RunCommand(m_endEffector::reverseCoral, m_endEffector))
       .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
     
     // operator pivot manual control

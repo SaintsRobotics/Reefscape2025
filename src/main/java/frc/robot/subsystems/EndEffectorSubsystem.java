@@ -47,6 +47,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
     pivotConfig.idleMode(IdleMode.kBrake);
     pivotConfig.absoluteEncoder.positionConversionFactor(Math.PI * 2); // convert to radians
 
+    SparkFlexConfig effectorConfig = new SparkFlexConfig();
+    effectorConfig.idleMode(IdleMode.kBrake);
+
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
     m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
 
@@ -130,6 +133,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public void outtakeCoral(){
     effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
+  }
+
+  public void reverseCoral() {
+    effectorOutput = EndEffectorConstants.kCoralReverseSpeed;
   }
 
   public void stopEffector() {
