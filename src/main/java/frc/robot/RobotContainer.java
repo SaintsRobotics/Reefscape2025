@@ -237,7 +237,7 @@ public void initSubsystems() {
                 new HapticCommand(m_driverController),
                 new HapticCommand(m_operatorController))),
           // algae
-          new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
+          new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector),
           () -> m_coralMode));
 
     // driver outtake
@@ -246,7 +246,7 @@ public void initSubsystems() {
           // coral
           new PlaceGrabCoralCommand(m_endEffector, true),
           // algae
-          new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector, m_endEffector),
+          new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector),
           () -> m_coralMode));
 
     // driver barge flip
