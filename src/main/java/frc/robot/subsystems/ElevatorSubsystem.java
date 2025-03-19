@@ -23,7 +23,7 @@ import frc.robot.utils.Interlocks;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private final SparkFlex m_elevatorMotor;
-  private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
+  // private final CANrange m_elevatorRange = new CANrange(ElevatorConstants.kElevatorCANrangePort);
 
   private final TrapezoidProfile.Constraints m_contraints = new TrapezoidProfile.Constraints(ElevatorConstants.kMaxV, ElevatorConstants.kMaxA);
   private final ProfiledPIDController m_PIDController = new ProfiledPIDController(ElevatorConstants.kPElevator, 0, 0, m_contraints, Constants.kFastPeriodicPeriod);
@@ -72,16 +72,17 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     m_speedOverride = 0;
 
-    if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
+    // if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
       //zeroPositionNoReset(m_sensorFilter.calculate(sensedDistance));
-    }
-    else {
-      m_sensorFilter.reset();
-    }
+    // }
+    // else {
+    //   m_sensorFilter.reset();
+    // }
 
     SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
     SmartDashboard.putNumber("Elevator Setpoint", m_PIDController.getGoal().position);
     SmartDashboard.putNumber("Elevator output", m_output);
+    SmartDashboard.putNumber("Elevator motor out", m_elevatorMotor.get());
   }
 
   public void fastPeriodic() {
