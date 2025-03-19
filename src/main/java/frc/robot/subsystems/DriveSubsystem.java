@@ -105,6 +105,8 @@ public class DriveSubsystem extends SubsystemBase {
             VisionConstants.kCamPosLeft.getRotation().getY(),
             VisionConstants.kCamPosLeft.getRotation().getZ());
         LimelightHelpers.SetIMUMode(VisionConstants.kLimelightNameLeft, VisionConstants.kIMUMode);
+
+        LimelightHelpers.setCropWindow(VisionConstants.kLimelightNameLeft, -1, 1, -1, 0.4);
       }
 
       if (VisionConstants.kUseRightLL) {
@@ -117,6 +119,8 @@ public class DriveSubsystem extends SubsystemBase {
           VisionConstants.kCamPosRight.getRotation().getY(),
           VisionConstants.kCamPosRight.getRotation().getZ());
         LimelightHelpers.SetIMUMode(VisionConstants.kLimelightNameRight, VisionConstants.kIMUMode);
+
+        LimelightHelpers.setCropWindow(VisionConstants.kLimelightNameRight, -1, 1, -1, 0.4);
       }
     }
 

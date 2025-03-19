@@ -12,7 +12,7 @@ public class AlgaeProcessorCommand extends SequentialCommandGroup {
 
     public AlgaeProcessorCommand(EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
         super(
-            new ParallelCommandGroup(new PivotCommand(endEffector, 2.727),
+            new ParallelCommandGroup(new PivotCommand(endEffector, 1.9),
             new ElevatorNoPivotCommand(ElevatorConstants.kL1Height, elevator))
         );
     }

@@ -35,7 +35,7 @@ public class BargeFlipCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_timer.get() > 0.15) {
+    if (m_timer.get() > 0.25) {
       m_endEffector.outtakeAlgae();
     }
   }

@@ -140,6 +140,8 @@ public final class Constants {
       new Rotation3d(0,0,0)
     );
 
+    
+
     public static final String kLimelightNameLeft = "limelight";
     public static final String kLimelightNameRight = "limelight-sr";
 
@@ -262,11 +264,12 @@ public final class Constants {
      */
     public static final NavigableMap<Double, List<Pair<Double, Double>>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-100000.0, Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(-10000.0,  Arrays.asList(Pair.of(0.02 * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(0.20,    Arrays.asList(Pair.of(0.35 * Math.PI * 2, 0.45 * Math.PI * 2))),
-            Map.entry(1000.0,  Arrays.asList(Pair.of(0.35 * Math.PI * 2, 0.62 * Math.PI * 2))),
-            Map.entry(10000.0, Arrays.asList(Pair.of(0.35 * Math.PI * 2, 0.62 * Math.PI * 2)))
+            Map.entry(-100000.0, Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
+            Map.entry(-10000.0,  Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
+            Map.entry(3.5,    Arrays.asList(Pair.of(0.25, 0.45 * Math.PI * 2))),
+            Map.entry(13.0,    Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
+            Map.entry(1000.0,  Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2))),
+            Map.entry(10000.0, Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2)))
         )); 
   }
 }
