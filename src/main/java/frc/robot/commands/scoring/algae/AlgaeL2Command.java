@@ -11,8 +11,9 @@ public class AlgaeL2Command extends SequentialCommandGroup {
 
     public AlgaeL2Command(EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
         super(
-            new ParallelCommandGroup(new PivotCommand(endEffector, 2.746),
-            new ElevatorNoPivotCommand(6.1, elevator))
+            new ParallelCommandGroup(
+                new PivotCommand(endEffector, 2.746),
+                new ElevatorNoPivotCommand(6.1, elevator))
         );
     }
     

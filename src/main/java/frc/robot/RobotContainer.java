@@ -4,10 +4,17 @@
 
 package frc.robot;
 
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -17,11 +24,13 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.AutonConstants;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.AutonCommands;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.HapticCommand;
@@ -54,6 +63,7 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
 
+  private final SendableChooser<Command> m_autoChooser;
   private boolean m_coralMode = true;
 
   /**
@@ -64,6 +74,19 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
+
+    AutoBuilder.configure(m_robotDrive::getPose, (pose) -> m_robotDrive.resetOdometry(pose),
+            () -> m_robotDrive.getRobotRelativeSpeeds(),
+            (speeds) -> m_robotDrive.autonDrive(speeds),
+            new PPHolonomicDriveController(AutonConstants.kTranslationConstants, AutonConstants.kRotationConstants),
+            AutonConstants.kBotConfig,
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, m_robotDrive);
+
+    AutonCommands.setSubsystems(m_elevator, m_endEffector);
+    AutonCommands.Commands.registerAutonCommands();
+
+    m_autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData(m_autoChooser);
 
     m_robotDrive.setDefaultCommand(
         new RunCommand(
@@ -181,7 +204,7 @@ public void initSubsystems() {
 
     // operator hold to outtake coral (or weakly intake algae)
     new JoystickButton(m_operatorController, Button.kX.value)
-      .onTrue(new RunCommand(m_endEffector::outtakeCoral, m_endEffector))
+      .onTrue(new RunCommand(m_endEffector::reverseCoral, m_endEffector))
       .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
     
     // operator pivot manual control
@@ -214,7 +237,7 @@ public void initSubsystems() {
                 new HapticCommand(m_driverController),
                 new HapticCommand(m_operatorController))),
           // algae
-          new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector, m_endEffector),
+          new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector),
           () -> m_coralMode));
 
     // driver outtake
@@ -223,7 +246,7 @@ public void initSubsystems() {
           // coral
           new PlaceGrabCoralCommand(m_endEffector, true),
           // algae
-          new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector, m_endEffector),
+          new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector),
           () -> m_coralMode));
 
     // driver barge flip
@@ -291,12 +314,9 @@ public void initSubsystems() {
             new HapticCommand(m_driverController)));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
+    return m_autoChooser.getSelected();
+
     // An example command will be run in autonomous
     // return new SequentialCommandGroup(
     //     new ParallelDeadlineGroup(new WaitCommand(2), new RunCommand(() -> m_robotDrive.drive(1, 0, 0, false), m_robotDrive)),
@@ -308,7 +328,7 @@ public void initSubsystems() {
     // return new SimpleDriveForwards(m_robotDrive, 2, 1.5);
 
     // Center drive forwards and score
-    return new DriveForwardsL1(m_robotDrive, m_endEffector, 3, 1);
+    // return new DriveForwardsL1(m_robotDrive, m_endEffector, 3, 1);
 
     // Blue left
     // return new BlueLeft(m_robotDrive, m_elevator, m_endEffector);

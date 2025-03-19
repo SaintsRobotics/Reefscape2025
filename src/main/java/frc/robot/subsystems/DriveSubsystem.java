@@ -296,7 +296,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    resetOdometry(pose, true);
+    resetOdometry(pose, false);
   }
 
   /**
@@ -356,5 +356,13 @@ public class DriveSubsystem extends SubsystemBase {
     // simulator
     m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates).omegaRadiansPerSecond
         * Constants.kFastPeriodicPeriod;
+  }
+
+  public void autonDrive(ChassisSpeeds speeds) {
+    m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
+  }
+
+  public ChassisSpeeds getRobotRelativeSpeeds() {
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates);
   }
 }

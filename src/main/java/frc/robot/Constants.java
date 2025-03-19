@@ -4,6 +4,17 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amp;
+import static edu.wpi.first.units.Units.Kilogram;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
+
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +30,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -97,11 +112,14 @@ public final class Constants {
     // TODO: Tune this PID before running on a robot on the ground
     public static final double kPModuleTurningController = 0.3;
 
-    public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+    public static final Translation2d[] kModulePositions = new Translation2d[] {
+      new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+      new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+      new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+      new Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
+    };
+
+    public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModulePositions);
 
     /** For a a SDS Mk4i L1 swerve base with Neos */
     public static final double kMaxSpeedMetersPerSecond = 4.4196;
@@ -157,6 +175,22 @@ public final class Constants {
     public static final boolean kUseRightLL = true;
   }
 
+  public static final class AutonConstants {
+    private static final Mass kRobotMass = Pounds.of(138);
+    private static final MomentOfInertia kMomentOfInertia = KilogramSquareMeters.of(1);
+    private static final double kCoefficientOfStaticFriction = 0.5;
+    private static final DCMotor kDriveMotorType = DCMotor.getNeoVortex(1);
+    private static final Current kMaxDriveCurrent = Amp.of(60);
+
+    public static final PIDConstants kTranslationConstants = new PIDConstants(3, 0, 0); // TODO: tune
+    public static final PIDConstants kRotationConstants = new PIDConstants(8, 0, 0); // TODO: tune
+    public static final RobotConfig kBotConfig = new RobotConfig(kRobotMass, kMomentOfInertia,
+        new ModuleConfig(Meter.of(DriveConstants.kWheelDiameterMeters / 2),
+            MetersPerSecond.of(DriveConstants.kMaxSpeedMetersPerSecond), kCoefficientOfStaticFriction, kDriveMotorType,
+            DriveConstants.kDrivingGearRatio, kMaxDriveCurrent, 4),
+        DriveConstants.kModulePositions);
+  }
+  
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
     public static final int kElevatorMotorPort = 50;
@@ -212,9 +246,10 @@ public final class Constants {
     public static final double kL4Pivot = 0.5;
 
     public static final double kAlgaeIntakeSpeed = 0.75;
-    public static final double kCoralIntakeSpeed = -0.25;
+    public static final double kCoralIntakeSpeed = -0.4;
     public static final double kAlgaeOuttakeSpeed = -0.5;
-    public static final double kCoralOuttakeSpeed = -0.25;
+    public static final double kCoralOuttakeSpeed = -0.4;
+    public static final double kCoralReverseSpeed = 0.25;
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
 

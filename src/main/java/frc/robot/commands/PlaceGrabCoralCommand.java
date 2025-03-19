@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import frc.robot.Robot;
 import frc.robot.subsystems.EndEffectorSubsystem;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -21,7 +22,7 @@ public class PlaceGrabCoralCommand extends SequentialCommandGroup {
         new ParallelDeadlineGroup(new Command() {
           @Override
           public boolean isFinished() {
-              return !endEffectorSubsystem.isHolding();
+              return !endEffectorSubsystem.isHolding() || Robot.isSimulation();
           }
         }, new StartEndCommand(endEffectorSubsystem::intakeCoral, endEffectorSubsystem::stopEffector))
         //new PivotCommand(endEffectorSubsystem, 0)
@@ -33,7 +34,7 @@ public class PlaceGrabCoralCommand extends SequentialCommandGroup {
         new ParallelDeadlineGroup(new Command() {
           @Override
           public boolean isFinished() {
-              return endEffectorSubsystem.isHolding();
+              return endEffectorSubsystem.isHolding() || Robot.isSimulation();
           }
         }, new StartEndCommand(endEffectorSubsystem::intakeCoral, endEffectorSubsystem::stopEffector))
         //new PivotCommand(endEffectorSubsystem, 0)
