@@ -35,8 +35,7 @@ import edu.wpi.first.math.numbers.N3;
 public final class Constants {
 
   public static final double kFastPeriodicPeriod = 0.01; // 100Hz, 10ms
-  public static final double kFastPeriodicOfset = 1e-6; // 1 micro second, no noticable effect other than scheduling
-                                                        // order
+  public static final double kFastPeriodicOfset = 1e-6; // 1 micro second, no noticable effect other than order
 
   /**
    * Input/Output constants
@@ -55,6 +54,9 @@ public final class Constants {
     public static final int kDPadRight = 90;
     public static final int kDPadDown = 180;
     public static final int kDPadLeft = 270;
+
+    public static final double kHapticTime = 0.3;
+    public static final double kHapticStrength = 1;
   }
 
   public static final class DriveConstants {
@@ -127,13 +129,21 @@ public final class Constants {
 
   public static final class VisionConstants {
     // TODO: Update cam pose relative to center of bot
-    public static final Pose3d kCamPos = new Pose3d(
+    public static final Pose3d kCamPosLeft = new Pose3d(
       // new Translation3d(0.3048,0.254,0),
-      new Translation3d(0.34925, -0.2413, 0.2),
-      new Rotation3d(180,10,0)
+      new Translation3d(0.3429, -0.2413, 0.2413),
+      new Rotation3d(0,10,0)
     );
 
-    public static final String kLimelightName = "limelight";
+    public static final Pose3d kCamPosRight = new Pose3d(
+      new Translation3d(0.3429, 0.2413, 0.2413),
+      new Rotation3d(0,0,0)
+    );
+
+    
+
+    public static final String kLimelightNameLeft = "limelight";
+    public static final String kLimelightNameRight = "limelight-sr";
 
     // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
     public static final int kIMUMode = 0;
@@ -143,6 +153,8 @@ public final class Constants {
     public static final Vector<N3> kVisionSTDDevs = VecBuilder.fill(0.7, 0.7, 999999);
 
     public static final boolean kUseVision = true;
+    public static final boolean kUseLeftLL = true;
+    public static final boolean kUseRightLL = true;
   }
 
   public static final class ElevatorConstants {
@@ -168,7 +180,7 @@ public final class Constants {
     public static final double kElevatorSensorMaxTrustDistance = 10;
 
     public static final double kL1Height = 0.2;
-    public static final double kL2Height = 4.1;
+    public static final double kL2Height = 3;
     public static final double kL3Height = 10.5;
     public static final double kL4Height = 20;
 
@@ -191,7 +203,7 @@ public final class Constants {
     public static final int kEffectorMotorPort = 53;
     public static final int kEndEffectorCANrangePort = 8;
 
-    public static final double kPEndEffector = 0.5;
+    public static final double kPEndEffector = 0.4;
     public static final double kPivotMaxSpeedRetract = 0.4;
     public static final double kPivotMaxSpeedExtend = -0.4;
 
@@ -252,19 +264,12 @@ public final class Constants {
      */
     public static final NavigableMap<Double, List<Pair<Double, Double>>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
-            Map.entry(-100000.0, Arrays.asList(Pair.of(0.005 * Math.PI * 2, 0.435 * Math.PI * 2))),
-            Map.entry(-10000.0,  Arrays.asList(Pair.of(0.005 * Math.PI * 2, 0.435 * Math.PI * 2))),
-            Map.entry(0.20,    Arrays.asList(Pair.of(0.005 * Math.PI * 2, 0.435 * Math.PI * 2))),
-            Map.entry(1.1,     Arrays.asList(Pair.of(0.036 * Math.PI * 2, 0.500 * Math.PI * 2))),
-            Map.entry(4.6,     Arrays.asList(Pair.of(0.090 * Math.PI * 2, 0.500 * Math.PI * 2))),
-            Map.entry(8.1,    Arrays.asList(Pair.of(0.165* Math.PI * 2, 0.500 * Math.PI * 2))),
-            Map.entry(13.5,    Arrays.asList(Pair.of(0.067* Math.PI * 2, 0.500 * Math.PI * 2))),
-            Map.entry(15.2,    Arrays.asList(Pair.of(0.279* Math.PI * 2, 0.500 * Math.PI * 2),
-                                               Pair.of(0.050* Math.PI * 2, 0.118 * Math.PI * 2))),
-            Map.entry(10000.0, Arrays.asList(Pair.of(0.279* Math.PI * 2, 0.500 * Math.PI * 2),
-                                               Pair.of(0.043* Math.PI * 2, 0.118 * Math.PI * 2))),
-            Map.entry(100000.0,Arrays.asList(Pair.of(0.279* Math.PI * 2, 0.500 * Math.PI * 2),
-                                               Pair.of(0.043* Math.PI * 2, 0.118 * Math.PI * 2)))
+            Map.entry(-100000.0, Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
+            Map.entry(-10000.0,  Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
+            Map.entry(3.5,    Arrays.asList(Pair.of(0.25, 0.45 * Math.PI * 2))),
+            Map.entry(13.0,    Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
+            Map.entry(1000.0,  Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2))),
+            Map.entry(10000.0, Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2)))
         )); 
   }
 }
