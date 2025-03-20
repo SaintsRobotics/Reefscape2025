@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
@@ -35,6 +36,7 @@ import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.HapticCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
+import frc.robot.commands.climber.ClimberCommand;
 import frc.robot.commands.scoring.BargeFlipCommand;
 import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L2Command;
@@ -259,6 +261,13 @@ public void initSubsystems() {
                 new HapticCommand(m_driverController),
                 new HapticCommand(m_operatorController)
         )));
+
+    // -------- climber bindings -------- //
+    new JoystickButton(m_operatorController, Button.kY.value)
+        .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition));
+
+    new JoystickButton(m_operatorController, Button.kB.value)
+        .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition));
 
     // -------- elevator bindings -------- //
     // operator zero elevator position

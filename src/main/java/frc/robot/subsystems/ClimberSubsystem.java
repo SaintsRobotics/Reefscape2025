@@ -21,10 +21,8 @@ public class ClimberSubsystem extends SubsystemBase {
   private final SparkFlex m_windingMotor;
   private final Servo m_lockingServo;
 
-  private final PIDController m_PIDController = new PIDController(ClimberConstants.kPWindingMotor, 0, 0, Constants.kFastPeriodicPeriod);
-
   private double m_windingSetpoint = 0;
-  private double m_speedOverride;
+  private double m_currentWindingError = 0;
 
   /** Creates a new ClimberSubsystem. */
   public ClimberSubsystem() {
@@ -33,32 +31,27 @@ public class ClimberSubsystem extends SubsystemBase {
 
     m_windingMotor = new SparkFlex(ClimberConstants.kWindingMotorPort, MotorType.kBrushless);
     m_windingMotor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    m_windingMotor.getEncoder().setPosition(0);
 
     m_lockingServo = new Servo(ClimberConstants.kLockingServoPWMPort);
-    m_speedOverride = 0;
-  } 
+  }
 
   public void fastPeriodic() {
-    double output = m_PIDController.calculate(m_windingMotor.getEncoder().getPosition(),
-    m_windingSetpoint) + ClimberConstants.kWindingMotorFeedForward;
-    output = m_speedOverride == 0 ? output : m_speedOverride;
+    double output = 0;
+    double currentPosition = m_windingMotor.getEncoder().getPosition();
+    m_currentWindingError = Math.abs(currentPosition - m_windingSetpoint);
+    if (m_currentWindingError > 0.5) {
+      if (currentPosition < m_windingSetpoint) {
+        output = 1;
+      } else {
+        output = -0.5;
+      }
+    }
 
-    output = MathUtil.clamp(output, -ClimberConstants.kWindingMotorMaxSpeed, ClimberConstants.kWindingMotorMaxSpeed);
     m_windingMotor.set(output);
   }
 
-  @Override
-  public void periodic() {
-    m_speedOverride = 0;
-  }
-
-  public void setLockPosition(int lockPosition) {
+  public void setLockPosition(double lockPosition) {
     m_lockingServo.setAngle(lockPosition);
-  }
-
-  public void setWinchSpeed(double speed) {
-    m_speedOverride = speed;
   }
 
   public void setWindingSetpoint(double setpoint) {
@@ -66,10 +59,6 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public boolean windingAtSetpoint() {
-    return m_PIDController.atSetpoint();
-  }
-
-  public void syncSetpoint() {
-    m_windingSetpoint = m_windingMotor.getEncoder().getPosition();
+    return m_currentWindingError < 0.5;
   }
 }
