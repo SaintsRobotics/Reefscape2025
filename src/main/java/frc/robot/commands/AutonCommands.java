@@ -4,11 +4,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.scoring.L4Command;
 import frc.robot.commands.scoring.coral.CoralL1Command;
 import frc.robot.commands.scoring.coral.CoralL4Command;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.EndEffectorSubsystem.IntakeState;
 
 public class AutonCommands {
 	private static ElevatorSubsystem m_elevator;
@@ -16,6 +16,7 @@ public class AutonCommands {
 
 	/**
 	 * Call before registering commands
+	 * 
 	 * @param elevator
 	 * @param endEffector
 	 */
@@ -25,37 +26,33 @@ public class AutonCommands {
 	}
 
 	public static enum Commands {
-			// TODO: fill stubs
-			GET_CORAL(
-							new SequentialCommandGroup(new PlaceGrabCoralCommand(m_endEffector, false))),
-			PLACE_CORAL_L4(
-							new SequentialCommandGroup()),
-			RAISE_ELEVATOR_L4(
-							new SequentialCommandGroup(new CoralL4Command(m_endEffector, m_elevator))),
+		GET_CORAL(
+				new SequentialCommandGroup(new CoralCommand(m_endEffector, IntakeState.IntakeCoral))),
+		PLACE_CORAL_L4(
+				new SequentialCommandGroup()),
+		RAISE_ELEVATOR_L4(
+				new SequentialCommandGroup(new CoralL4Command(m_endEffector, m_elevator))),
 
-			OUTTAKE_CORAL(
-				new SequentialCommandGroup(new PlaceGrabCoralCommand(m_endEffector, true))
-			),
-			LOWER_ELEVATOR(
-				new SequentialCommandGroup(new CoralL1Command(m_endEffector, m_elevator))
-			),
+		OUTTAKE_CORAL(
+				new SequentialCommandGroup(new CoralCommand(m_endEffector, IntakeState.OuttakeCoral))),
+		LOWER_ELEVATOR(
+				new SequentialCommandGroup(new CoralL1Command(m_endEffector, m_elevator))),
 
-			GET_ALGAE(
-							new SequentialCommandGroup()),
-			PLACE_ALGAE(
-							new SequentialCommandGroup()),
-							;
-			
-			private final Command m_command;
+		GET_ALGAE(
+				new SequentialCommandGroup()),
+		PLACE_ALGAE(
+				new SequentialCommandGroup());
 
-			private Commands(Command command) {
-					m_command = command;
+		private final Command m_command;
+
+		private Commands(Command command) {
+			m_command = command;
+		}
+
+		public static void registerAutonCommands() {
+			for (Commands command : values()) {
+				NamedCommands.registerCommand(command.name(), command.m_command);
 			}
-
-			public static void registerAutonCommands() {
-					for (Commands command : values()) {
-							NamedCommands.registerCommand(command.name(), command.m_command);
-					}
-			}
+		}
 	}
 }

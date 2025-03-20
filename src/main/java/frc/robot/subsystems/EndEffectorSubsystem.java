@@ -37,6 +37,18 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   private double m_aggressiveComponent;
 
+  public enum IntakeState {
+    IntakeCoral,
+    OuttakeCoral,
+    IntakeAlgae,
+    OuttakeAlgae,
+    ReverseCoral,
+    ForceCoral,
+    Idle
+  }
+
+  public IntakeState m_intakeState;
+
   // Pivoting controls: A is L1, B is L2 & L3, Y is L4 or use right joystick
   // Intake/Outtake controls: Right Bumper: Intake Algae, Left Bumper: Outtake Algae
   //                          Right Trigger: Intake Coral, Left Trigger Outtake Coral
@@ -96,6 +108,35 @@ public class EndEffectorSubsystem extends SubsystemBase {
     m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
     m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
 
+    switch(m_intakeState) {
+      case IntakeCoral:
+        if (!isHolding()) {
+          effectorOutput = EndEffectorConstants.kCoralIntakeSpeed;
+        } else {
+          m_intakeState = IntakeState.Idle;
+          effectorOutput = 0;
+        }
+        break;
+      case IntakeAlgae:
+      effectorOutput = EndEffectorConstants.kAlgaeIntakeSpeed;
+        break;
+      case OuttakeAlgae:
+      effectorOutput = EndEffectorConstants.kAlgaeOuttakeSpeed;
+        break;
+      case OuttakeCoral:
+        effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
+        break;
+      case ReverseCoral:
+        effectorOutput = EndEffectorConstants.kCoralReverseSpeed;
+        break;
+      case ForceCoral:
+        effectorOutput = EndEffectorConstants.kCoralIntakeSpeed;
+        break;
+      case Idle:
+        effectorOutput = 0;
+        break;
+    }
+
     m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
     m_effectorMotor.set(effectorOutput);
   }
@@ -114,33 +155,42 @@ public class EndEffectorSubsystem extends SubsystemBase {
     return targetRotation;
   }
 
-  // commented out because this code does not make sense
-  // pivot motor should be controlled with a pid in fastperiodic
-  // maybe these should be m_coralMotor or m_algaeMotor?
+  public void setIntakeState(IntakeState intakeState) {
+    m_intakeState = intakeState;
+  }
+
+  public IntakeState getIntakeState() {
+    return m_intakeState;
+  }
+
   public void intakeAlgae(){
-    effectorOutput = EndEffectorConstants.kAlgaeIntakeSpeed;
+    m_intakeState = IntakeState.IntakeAlgae;
   }
 
   public void intakeCoral(){
     if (m_endEffectorRange.getDistance().getValueAsDouble() != 0) {
-      effectorOutput = EndEffectorConstants.kCoralIntakeSpeed;
+      m_intakeState = IntakeState.IntakeCoral;
     }
   }
 
   public void outtakeAlgae(){
-    effectorOutput = EndEffectorConstants.kAlgaeOuttakeSpeed;
+    m_intakeState = IntakeState.OuttakeAlgae;
   }
 
   public void outtakeCoral(){
-    effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
+    m_intakeState = IntakeState.OuttakeCoral;
   }
 
   public void reverseCoral() {
-    effectorOutput = EndEffectorConstants.kCoralReverseSpeed;
+    m_intakeState = IntakeState.ReverseCoral;
+  }
+
+  public void forceCoral() {
+    m_intakeState = IntakeState.ForceCoral;
   }
 
   public void stopEffector() {
-    effectorOutput = 0;
+    m_intakeState = IntakeState.Idle;
   }
 
   public void setSpeed(double speed) {
