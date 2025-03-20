@@ -13,6 +13,7 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,6 +35,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final Interlocks m_interlocks;
 
   private double m_speedOverride;
+
+  private final MedianFilter m_sensorFilter = new MedianFilter(ElevatorConstants.kSampleCount);
 
   public ElevatorSubsystem(Interlocks interlocks) {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
@@ -69,19 +72,17 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     m_speedOverride = 0;
 
-    /*
-     * if (m_elevatorRange.getDistance().getValueAsDouble() <
-     * ElevatorConstants.kElevatorDistanceThreshold) {
-     * // This offset is set when the distance sensor detects that the elevator is
-     * at the bottom
-     * // At the bottom, the motor's position + offset should equal 0
-     * zeroPosition();
-     * }
-     */
+    // if (m_elevatorRange.getDistance().getValueAsDouble() < ElevatorConstants.kElevatorSensorMaxTrustDistance) {
+      //zeroPositionNoReset(m_sensorFilter.calculate(sensedDistance));
+    // }
+    // else {
+    //   m_sensorFilter.reset();
+    // }
 
     SmartDashboard.putNumber("Elevator Height", getCurrentHeight());
     SmartDashboard.putNumber("Elevator Setpoint", m_PIDController.getGoal().position);
     SmartDashboard.putNumber("Elevator output", m_output);
+    SmartDashboard.putNumber("Elevator motor out", m_elevatorMotor.get());
   }
 
   public void fastPeriodic() {
@@ -131,8 +132,12 @@ public class ElevatorSubsystem extends SubsystemBase {
    * @param offset
    */
   public void zeroPosition(double offset) {
-    m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
+    zeroPositionNoReset(offset);
     setHeight(offset);
     m_PIDController.reset(offset);
+  }
+
+  private void zeroPositionNoReset(double offset) {
+    m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
   }
 }

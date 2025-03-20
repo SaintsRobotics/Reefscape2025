@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,6 +35,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   private double m_speedOverride;
 
+  private double m_aggressiveComponent;
+
   // Pivoting controls: A is L1, B is L2 & L3, Y is L4 or use right joystick
   // Intake/Outtake controls: Right Bumper: Intake Algae, Left Bumper: Outtake Algae
   //                          Right Trigger: Intake Coral, Left Trigger Outtake Coral
@@ -45,6 +46,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
     SparkFlexConfig pivotConfig = new SparkFlexConfig();
     pivotConfig.idleMode(IdleMode.kBrake);
     pivotConfig.absoluteEncoder.positionConversionFactor(Math.PI * 2); // convert to radians
+
+    SparkFlexConfig effectorConfig = new SparkFlexConfig();
+    effectorConfig.idleMode(IdleMode.kBrake);
 
     m_pivotMotor = new SparkFlex(EndEffectorConstants.kPivotMotorPort, MotorType.kBrushless);
     m_effectorMotor = new SparkFlex(EndEffectorConstants.kEffectorMotorPort, MotorType.kBrushless);
@@ -56,6 +60,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
 
     m_interlocks = interlocks;
+    m_aggressiveComponent = 0;
   }
 
   @Override
@@ -82,11 +87,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
     SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
     SmartDashboard.putNumber("Pivot Output", m_output);
+    SmartDashboard.putNumber("Pivot Setpoint", m_PIDController.getSetpoint());
+    SmartDashboard.putBoolean("Pivot atSetpoint", atSetpoint());
     // This method will be called once per scheduler run
   }
 
   public void fastPeriodic(){
-    m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation);
+    m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
     m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
 
     m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
@@ -94,7 +101,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
   }
 
   public void pivotTo(double setpoint) {
+    pivotTo(setpoint, false);
+  }
+
+  public void pivotTo(double setpoint, boolean aggressive) {
+    m_aggressiveComponent = aggressive ? Math.signum(setpoint) * EndEffectorConstants.kAgressiveComponent : 0;
     targetRotation = setpoint; //TODO: clamp setpoint
+    m_PIDController.setSetpoint(targetRotation + m_aggressiveComponent);
   }
 
   public double getSetpoint() {
@@ -122,11 +135,16 @@ public class EndEffectorSubsystem extends SubsystemBase {
     effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
   }
 
+  public void reverseCoral() {
+    effectorOutput = EndEffectorConstants.kCoralReverseSpeed;
+  }
+
   public void stopEffector() {
     effectorOutput = 0;
   }
 
   public void setSpeed(double speed) {
+    m_aggressiveComponent = 0;
     m_speedOverride = speed;
   }
 

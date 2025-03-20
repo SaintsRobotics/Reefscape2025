@@ -10,9 +10,11 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.utils.AllianceFlipUtil;
 
 public class DriveToPose extends Command {
 
@@ -21,9 +23,9 @@ public class DriveToPose extends Command {
   private final Pose2d m_targetPose;
   private Timer m_timer = new Timer();
 
-  private final TrapezoidProfile.Constraints constraints = new Constraints(DriveConstants.kMaxSpeedMetersPerSecond, 5);
+  private final TrapezoidProfile.Constraints constraints = new Constraints(DriveConstants.kMaxSpeedMetersPerSecond / 3, 5 / 2);
   private final TrapezoidProfile.Constraints angularConstraints = new Constraints(
-      DriveConstants.kMaxAngularSpeedRadiansPerSecond, 5);
+      DriveConstants.kMaxAngularSpeedRadiansPerSecond / 10, 5 / 10);
 
   private final ProfiledPIDController xController = new ProfiledPIDController(3.0, 0.01, 0, constraints);
   private final ProfiledPIDController yController = new ProfiledPIDController(3.0, 0.01, 0, constraints);
@@ -34,8 +36,8 @@ public class DriveToPose extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveSubsystem);
 
-    xController.setTolerance(0.01, 0.05);
-    yController.setTolerance(0.01, 0.05);
+    xController.setTolerance(0.005, 0.05);
+    yController.setTolerance(0.005, 0.05);
     thetaController.setTolerance(Math.toRadians(1.5), 0.05);
 
     thetaController.enableContinuousInput(0, Math.PI * 2);
@@ -54,6 +56,10 @@ public class DriveToPose extends Command {
     xController.reset(new State(currentPose.getX(), 0));
     yController.reset(new State(currentPose.getY(), 0));
     thetaController.reset(new State(currentPose.getRotation().getRadians(), 0));
+
+    SmartDashboard.putNumber("drive target X", m_targetPose.getX());
+    SmartDashboard.putNumber("drive target Y", m_targetPose.getY());
+    SmartDashboard.putNumber("drive target Rot", m_targetPose.getRotation().getDegrees());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -66,6 +72,11 @@ public class DriveToPose extends Command {
 
     double thetaSpeed = thetaController.calculate(currentPose.getRotation().getRadians(),
         m_targetPose.getRotation().getRadians());
+
+    if (AllianceFlipUtil.shouldFlip()){
+        xSpeed = -xSpeed;
+        ySpeed = -ySpeed;
+    }
 
     if (DriveConstants.kAutoDriving) {
       m_driveSubsystem.drive(xSpeed, ySpeed, thetaSpeed, true);
@@ -82,7 +93,7 @@ public class DriveToPose extends Command {
   @Override
   public boolean isFinished() {
     final double distance = currentPose.getTranslation().getDistance(m_targetPose.getTranslation());
-    return distance < DriveConstants.kMaxDistanceToPose || !DriveConstants.kAutoDriving || (xController.atGoal() &&
+    return distance < DriveConstants.kMaxAutoDistance || !DriveConstants.kAutoDriving || (xController.atGoal() &&
         yController.atGoal() &&
         thetaController.atGoal());
   }

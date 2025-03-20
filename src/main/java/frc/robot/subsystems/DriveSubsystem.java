@@ -8,7 +8,6 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants;
+import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.SlewRateLimiter;
 import frc.robot.Robot;
@@ -74,6 +74,7 @@ public class DriveSubsystem extends SubsystemBase {
       VisionConstants.kVisionSTDDevs);
 
   private final Field2d m_field = new Field2d();
+  private final Field2d m_flippedField = new Field2d();
 
   private final SlewRateLimiter m_xSpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAccelerationUnitsPerSecond);
   private final SlewRateLimiter m_ySpeedLimiter = new SlewRateLimiter(DriveConstants.kMaxAccelerationUnitsPerSecond);
@@ -85,6 +86,7 @@ public class DriveSubsystem extends SubsystemBase {
     this.zeroHeading();
     this.resetOdometry(new Pose2d());
     SmartDashboard.putData("Field", m_field);
+    SmartDashboard.putData("flipped field", m_flippedField);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -93,15 +95,33 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.setVisionMeasurementStdDevs(VisionConstants.kVisionSTDDevs);
 
     if (VisionConstants.kUseVision && Robot.isReal()) {
-      LimelightHelpers.setCameraPose_RobotSpace(
-          VisionConstants.kLimelightName,
-          VisionConstants.kCamPos.getX(),
-          VisionConstants.kCamPos.getY(),
-          VisionConstants.kCamPos.getZ(),
-          VisionConstants.kCamPos.getRotation().getX(),
-          VisionConstants.kCamPos.getRotation().getY(),
-          VisionConstants.kCamPos.getRotation().getZ());
-      LimelightHelpers.SetIMUMode(VisionConstants.kLimelightName, VisionConstants.kIMUMode);
+      if (VisionConstants.kUseLeftLL) {
+        LimelightHelpers.setCameraPose_RobotSpace(
+            VisionConstants.kLimelightNameLeft,
+            VisionConstants.kCamPosLeft.getX(),
+            VisionConstants.kCamPosLeft.getY(),
+            VisionConstants.kCamPosLeft.getZ(),
+            VisionConstants.kCamPosLeft.getRotation().getX(),
+            VisionConstants.kCamPosLeft.getRotation().getY(),
+            VisionConstants.kCamPosLeft.getRotation().getZ());
+        LimelightHelpers.SetIMUMode(VisionConstants.kLimelightNameLeft, VisionConstants.kIMUMode);
+
+        LimelightHelpers.setCropWindow(VisionConstants.kLimelightNameLeft, -1, 1, -1, 0.4);
+      }
+
+      if (VisionConstants.kUseRightLL) {
+        LimelightHelpers.setCameraPose_RobotSpace(
+          VisionConstants.kLimelightNameRight,
+          VisionConstants.kCamPosRight.getX(),
+          VisionConstants.kCamPosRight.getY(),
+          VisionConstants.kCamPosRight.getZ(),
+          VisionConstants.kCamPosRight.getRotation().getX(),
+          VisionConstants.kCamPosRight.getRotation().getY(),
+          VisionConstants.kCamPosRight.getRotation().getZ());
+        LimelightHelpers.SetIMUMode(VisionConstants.kLimelightNameRight, VisionConstants.kIMUMode);
+
+        LimelightHelpers.setCropWindow(VisionConstants.kLimelightNameRight, -1, 1, -1, 0.4);
+      }
     }
 
     m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds());
@@ -122,29 +142,14 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
 
-    boolean limelightReal = LimelightHelpers.getLatency_Pipeline(VisionConstants.kLimelightName) != 0.0;
-    if (VisionConstants.kUseVision && Robot.isReal() && limelightReal) {
-      // Update LimeLight with current robot orientation
-      LimelightHelpers.SetRobotOrientation(VisionConstants.kLimelightName, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
-
-      // Get the pose estimate
-      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers
-          .getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.kLimelightName);
-
-      // Add it to your pose estimator if it is a valid measurement
-      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
-        m_poseEstimator.addVisionMeasurement(
-            limelightMeasurement.pose,
-            limelightMeasurement.timestampSeconds);
-      }
-    }
+    measureLimelight(VisionConstants.kLimelightNameLeft, VisionConstants.kUseLeftLL);
+    measureLimelight(VisionConstants.kLimelightNameRight, VisionConstants.kUseRightLL);
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
     SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
     SmartDashboard.putNumber("odometryX", m_poseEstimator.getEstimatedPosition().getX());
     SmartDashboard.putNumber("odometryY", m_poseEstimator.getEstimatedPosition().getY());
-    SmartDashboard.putBoolean("Limelight isreal", limelightReal);
 
     // AdvantageScope Logging
     // max speed = 1 (for ease of use in AdvantageScope)
@@ -164,6 +169,37 @@ public class DriveSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logDataDesired);
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
+
+    Pose2d flippedPose = AllianceFlipUtil.apply(getPose());
+    m_flippedField.setRobotPose(flippedPose);
+    SmartDashboard.putNumber("flip X", flippedPose.getX());
+    SmartDashboard.putNumber("flip Y", flippedPose.getY());
+    SmartDashboard.putNumber("flip Rot", flippedPose.getRotation().getDegrees());
+  }
+
+  public void measureLimelight(String name, boolean useLimelight) {
+
+    if (!useLimelight) {
+      return;
+    }
+
+    boolean LLreal = LimelightHelpers.getLatency_Pipeline(name) != 0.0;
+    if (VisionConstants.kUseVision && Robot.isReal() && LLreal) {
+      // Update LimeLight with current robot orientation
+      LimelightHelpers.SetRobotOrientation(name, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+
+      // Get the pose estimate
+      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+
+      // Add it to your pose estimator if it is a valid measurement
+      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
+        m_poseEstimator.addVisionMeasurement(
+            limelightMeasurement.pose,
+            limelightMeasurement.timestampSeconds);
+      }
+    }
+
+    SmartDashboard.putBoolean(name + " valid", LLreal);
   }
 
   /**
@@ -260,7 +296,21 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    final Rotation2d rot = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
+    resetOdometry(pose, false);
+  }
+
+  /**
+   * Resets the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   * @param ignoreRotation True if rotation in pose should be ignored (i.e. use gyro)
+   */
+  public void resetOdometry(Pose2d pose, boolean ignoreRotation) {
+    Rotation2d rot = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
+
+    if (AllianceFlipUtil.shouldFlip()) {
+        rot = new Rotation2d(rot.getRadians() + Math.PI);
+    }
 
     m_poseEstimator.resetPosition(
         rot,
@@ -270,14 +320,25 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         },
-        new Pose2d(pose.getTranslation(), rot));
+        ignoreRotation ? new Pose2d(pose.getTranslation(), rot) : pose);
   }
 
-  /** Zeroes the heading of the robot. */
+  /**
+   * Sets the current heading to zero
+   * @param heading heading in radians
+   */
   public void zeroHeading() {
-    m_gyro.reset();
-    m_gyroAngle = 0;
-    resetOdometry(getPose());
+    zeroHeading(0);
+  }
+
+  /**
+   * Sets the current heading to heading
+   * @param heading heading in radians
+   */
+  public void zeroHeading(double heading) {
+    m_gyro.reset(); // does not actually need to be the correct value. all uses only care about rate
+    m_gyroAngle = heading;
+    resetOdometry(new Pose2d(getPose().getX(), getPose().getY(), new Rotation2d(heading)), false);
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
@@ -295,5 +356,13 @@ public class DriveSubsystem extends SubsystemBase {
     // simulator
     m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates).omegaRadiansPerSecond
         * Constants.kFastPeriodicPeriod;
+  }
+
+  public void autonDrive(ChassisSpeeds speeds) {
+    m_desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
+  }
+
+  public ChassisSpeeds getRobotRelativeSpeeds() {
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(m_desiredStates);
   }
 }

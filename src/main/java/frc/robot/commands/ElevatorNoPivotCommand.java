@@ -5,41 +5,43 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Robot;
-import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PivotCommand extends Command {
-  private final EndEffectorSubsystem m_endEffector;
-  private final double m_setpoint;
+public class ElevatorNoPivotCommand extends Command {
+  private final ElevatorSubsystem m_elevatorSubsystem;
 
-  /** Creates a new PivotCommand. */
-  public PivotCommand(EndEffectorSubsystem endEffector, double setpoint) {
-    addRequirements(endEffector);
+  private final double m_desiredHeight;
 
-    m_endEffector = endEffector;
-    m_setpoint = setpoint;
+  /** Creates a new ElevatorPivotCommand. */
+  public ElevatorNoPivotCommand(double desiredHeight, ElevatorSubsystem elevatorSubsystem) {
+    addRequirements(elevatorSubsystem);
+
+    m_desiredHeight = desiredHeight;
+    m_elevatorSubsystem = elevatorSubsystem;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_endEffector.pivotTo(m_setpoint);
+    m_elevatorSubsystem.setHeight(m_desiredHeight);
+    // m_endEffectorSubsystem.pivotTo(m_desiredPivot);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_endEffector.pivotTo(m_setpoint); // needs to be in execute in case smart pivot changes setpoint
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_elevatorSubsystem.setHeight(m_elevatorSubsystem.getCurrentHeight());
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_endEffector.getSetpoint() == m_setpoint && m_endEffector.atSetpoint() || Robot.isSimulation();
+    return m_elevatorSubsystem.getHeightSetpoint() == m_desiredHeight && m_elevatorSubsystem.atSetpoint();
   }
 }
