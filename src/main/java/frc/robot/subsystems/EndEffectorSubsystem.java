@@ -24,7 +24,8 @@ public class EndEffectorSubsystem extends SubsystemBase {
   private final SparkFlex m_effectorMotor;
   private final CANrange m_endEffectorRange = new CANrange(EndEffectorConstants.kEndEffectorCANrangePort);
 
-  private final PIDController m_PIDController = new PIDController(EndEffectorConstants.kPEndEffector, 0, 0, Constants.kFastPeriodicPeriod);
+  private final PIDController m_PIDController = new PIDController(EndEffectorConstants.kPEndEffector, 0, 0,
+      Constants.kFastPeriodicPeriod);
 
   private double targetRotation = 0;
   private double effectorOutput = 0;
@@ -50,8 +51,9 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public IntakeState m_intakeState;
 
   // Pivoting controls: A is L1, B is L2 & L3, Y is L4 or use right joystick
-  // Intake/Outtake controls: Right Bumper: Intake Algae, Left Bumper: Outtake Algae
-  //                          Right Trigger: Intake Coral, Left Trigger Outtake Coral
+  // Intake/Outtake controls: Right Bumper: Intake Algae, Left Bumper: Outtake
+  // Algae
+  // Right Trigger: Intake Coral, Left Trigger Outtake Coral
 
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem(Interlocks interlocks) {
@@ -79,21 +81,22 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void periodic() {
     m_interlocks.setPivotPosition(getPivotPosition());
 
-      /*
+    /*
      * The order of callbacks is as follows:
-     *  The timed robot periodic will run
-     *    Then the command command scheduler will run
-     *      Then all periodics will run
-     *      Then all commands will run
-     *    Then the fast periodics will run
-     *    Then the fast periodics will run again
+     * The timed robot periodic will run
+     * Then the command command scheduler will run
+     * Then all periodics will run
+     * Then all commands will run
+     * Then the fast periodics will run
+     * Then the fast periodics will run again
      * 
      * This means that we will set overrideSpeed to 0 in each periodic
-     *  Then a command might cause this to become non zero
-     *  In that case, the two fast periodics will use the speed override instead of the setpoint
+     * Then a command might cause this to become non zero
+     * In that case, the two fast periodics will use the speed override instead of
+     * the setpoint
      */
 
-     m_speedOverride = 0;
+    m_speedOverride = 0;
 
     SmartDashboard.putBoolean("Is Holding", isHolding());
     SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
@@ -104,12 +107,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public void fastPeriodic(){
+  public void fastPeriodic() {
     m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
     m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
 
-    switch(m_intakeState) {
+    switch (m_intakeState) {
       case IntakeCoral:
+        // We are doing this check here in fast periodic so we react to intookened coral faster
         if (!isHolding()) {
           effectorOutput = EndEffectorConstants.kCoralIntakeSpeed;
         } else {
@@ -118,10 +122,10 @@ public class EndEffectorSubsystem extends SubsystemBase {
         }
         break;
       case IntakeAlgae:
-      effectorOutput = EndEffectorConstants.kAlgaeIntakeSpeed;
+        effectorOutput = EndEffectorConstants.kAlgaeIntakeSpeed;
         break;
       case OuttakeAlgae:
-      effectorOutput = EndEffectorConstants.kAlgaeOuttakeSpeed;
+        effectorOutput = EndEffectorConstants.kAlgaeOuttakeSpeed;
         break;
       case OuttakeCoral:
         effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
@@ -147,7 +151,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public void pivotTo(double setpoint, boolean aggressive) {
     m_aggressiveComponent = aggressive ? Math.signum(setpoint) * EndEffectorConstants.kAgressiveComponent : 0;
-    targetRotation = setpoint; //TODO: clamp setpoint
+    targetRotation = setpoint; // TODO: clamp setpoint
     m_PIDController.setSetpoint(targetRotation + m_aggressiveComponent);
   }
 
@@ -163,21 +167,21 @@ public class EndEffectorSubsystem extends SubsystemBase {
     return m_intakeState;
   }
 
-  public void intakeAlgae(){
+  public void intakeAlgae() {
     m_intakeState = IntakeState.IntakeAlgae;
   }
 
-  public void intakeCoral(){
+  public void intakeCoral() {
     if (m_endEffectorRange.getDistance().getValueAsDouble() != 0) {
       m_intakeState = IntakeState.IntakeCoral;
     }
   }
 
-  public void outtakeAlgae(){
+  public void outtakeAlgae() {
     m_intakeState = IntakeState.OuttakeAlgae;
   }
 
-  public void outtakeCoral(){
+  public void outtakeCoral() {
     m_intakeState = IntakeState.OuttakeCoral;
   }
 
@@ -205,6 +209,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   /**
    * Checks if currently holding
+   * 
    * @return True if either a coral or algae is currently being held
    */
   public boolean isHolding() {

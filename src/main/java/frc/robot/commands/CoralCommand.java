@@ -17,7 +17,12 @@ public class CoralCommand extends Command {
 
   /** Creates a new CoralCommand. */
   public CoralCommand(EndEffectorSubsystem endEffectorSubsystem, IntakeState intakeState) {
-    // Use addRequirements() here to declare subsystem dependencies.
+    /*
+     * We aren't requiring the end effector subsystem here because moving the
+     * intake wheels does not affect the safety of the bot in any other way,
+     * and this allows us to also simultaneously run commands that pivot the end
+     * effector
+     */
 
     m_endEffectorSubsystem = endEffectorSubsystem;
     m_intakeState = intakeState;
@@ -31,7 +36,8 @@ public class CoralCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -49,8 +55,7 @@ public class CoralCommand extends Command {
 
     if (m_intakeState == IntakeState.IntakeCoral) {
       return m_endEffectorSubsystem.isHolding();
-    } 
-    else if (m_intakeState == IntakeState.OuttakeCoral) {
+    } else if (m_intakeState == IntakeState.OuttakeCoral) {
       return !m_endEffectorSubsystem.isHolding();
     }
 
