@@ -48,6 +48,21 @@ public class FindNearest {
     }
   }
 
+  private static final Pose2d[] blueCages = {
+    //TODO: find the right pose2ds for the cages
+    // center of field is about x = 8.775, y = 4.025
+    new Pose2d(new Translation2d(7.58, 5.075), Rotation2d.fromDegrees(180)),
+    new Pose2d(new Translation2d(7.58, 6.165), Rotation2d.fromDegrees(180)),
+    new Pose2d(new Translation2d(7.58, 7.265), Rotation2d.fromDegrees(180)),
+  };
+
+  private static final Pose2d[] redCages = new Pose2d[blueCages.length];
+  static {
+    for (int i = 0; i < blueCages.length; i++) {
+      redCages[i] = AllianceFlipUtil.apply(blueCages[i]);
+    }
+  }
+
   public static Pose2d getNearestScoringLocation(Pose2d currentPose) {
     Pose2d[] scoringLocations = AllianceFlipUtil.shouldFlip() ? redScoringLocations : blueScoringLocations;
     Pose2d nearestLocation = null;
@@ -78,5 +93,21 @@ public class FindNearest {
     }
 
     return nearestSource;
+  }
+
+  public static Pose2d getNearestCage(Pose2d currentPose) {
+    Pose2d[] cages = AllianceFlipUtil.shouldFlip() ? redCages : blueCages;
+    Pose2d nearestCage = null;
+    double nearestDistance = DriveConstants.kMaxAutoDistance;
+
+    for (Pose2d cage : cages) {
+      double distance = currentPose.getTranslation().getDistance(cage.getTranslation());
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestCage = cage;
+      }
+    }
+
+    return nearestCage;
   }
 }

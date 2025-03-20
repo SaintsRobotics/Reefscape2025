@@ -62,8 +62,8 @@ public final class Constants {
     public static final double kControllerDeadband = 0.15;
     public static final double kSlowModeScalar = 0.8;
 
-    public static final double kElevatorAxisScalar = 0.05; //TODO: tune
-    public static final double kPivotAxisScalar = -0.25; //TODO: tune
+    public static final double kElevatorAxisScalar = 0.05; // TODO: tune
+    public static final double kPivotAxisScalar = -0.25; // TODO: tune
 
     public static final int kDPadUp = 0;
     public static final int kDPadRight = 90;
@@ -113,10 +113,10 @@ public final class Constants {
     public static final double kPModuleTurningController = 0.3;
 
     public static final Translation2d[] kModulePositions = new Translation2d[] {
-      new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-      new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-      new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-      new Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
     };
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModulePositions);
@@ -126,7 +126,7 @@ public final class Constants {
 
     // TODO: Set max acceleration constants
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
-    
+
     /** For a a SDS Mk4i L1 swerve base with Neos */
     public static final double kMaxAngularSpeedRadiansPerSecond = 10.8164;
 
@@ -136,7 +136,7 @@ public final class Constants {
     public static final double kPHeadingCorrectionController = 5;
 
     public static final boolean kAutoDriving = true;
-    
+
     // TODO: set these on real robot
     public static final double kMaxAccelerationUnitsPerSecond = 100;
     public static final double kMaxAngularAccelerationUnitsPerSecond = 100;
@@ -148,17 +148,13 @@ public final class Constants {
   public static final class VisionConstants {
     // TODO: Update cam pose relative to center of bot
     public static final Pose3d kCamPosLeft = new Pose3d(
-      // new Translation3d(0.3048,0.254,0),
-      new Translation3d(0.3429, -0.2413, 0.2413),
-      new Rotation3d(0,10,0)
-    );
+        // new Translation3d(0.3048,0.254,0),
+        new Translation3d(0.3429, -0.2413, 0.2413),
+        new Rotation3d(0, 10, 0));
 
     public static final Pose3d kCamPosRight = new Pose3d(
-      new Translation3d(0.3429, 0.2413, 0.2413),
-      new Rotation3d(0,0,0)
-    );
-
-    
+        new Translation3d(0.3429, 0.2413, 0.2413),
+        new Rotation3d(0, 0, 0));
 
     public static final String kLimelightNameLeft = "limelight";
     public static final String kLimelightNameRight = "limelight-sr";
@@ -190,7 +186,7 @@ public final class Constants {
             DriveConstants.kDrivingGearRatio, kMaxDriveCurrent, 4),
         DriveConstants.kModulePositions);
   }
-  
+
   public static final class ElevatorConstants {
     // TODO: Set motor and distance sensor ports
     public static final int kElevatorMotorPort = 50;
@@ -202,7 +198,7 @@ public final class Constants {
     public static final double kMaxA = 50;
 
     // TODO: Set these constants
-    public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
+    public static final double kElevatorGearing = 0.2; // 20 rot = 4 inch of first stage
     // public static final double kElevatorUpMaxSpeed = 0.6;
     public static final double kElevatorUpMaxSpeed = 1;
 
@@ -218,7 +214,7 @@ public final class Constants {
     public static final double kL3Height = 10.5;
     public static final double kL4Height = 20;
 
-    public static final double kPositionTolerance = 0.04; //TODO: tune
+    public static final double kPositionTolerance = 0.04; // TODO: tune
     public static final double kVelocityTolerance = 1;
 
     public static final double kLowHeightSlowdownThreshold = 1;
@@ -231,7 +227,7 @@ public final class Constants {
     public static final int kSampleCount = 5;
   }
 
-  public static final class EndEffectorConstants{
+  public static final class EndEffectorConstants {
     // TODO: Set these constants
     public static final int kPivotMotorPort = 52;
     public static final int kEffectorMotorPort = 53;
@@ -273,8 +269,10 @@ public final class Constants {
     /**
      * Holds the safe minimum and maximum limits of end effector's pivot based on
      * elevator height
-     * Each key is the starting (from zero) elevator height for the limit. Height is inclusive
-     * Each value is a Pair with the minimum and maximum pivot angles (inclusive) in radians,
+     * Each key is the starting (from zero) elevator height for the limit. Height is
+     * inclusive
+     * Each value is a Pair with the minimum and maximum pivot angles (inclusive) in
+     * radians,
      * respectively
      * 
      * For example:
@@ -288,23 +286,38 @@ public final class Constants {
      * 
      * means that:
      * pivot angles between elevator heights [-1, 0) must be from 0 to 90 degrees
-     *  this acts as a safeguard for negative values, should be less than min
-     *  physical height
+     * this acts as a safeguard for negative values, should be less than min
+     * physical height
      * pivot angles between elevator heights [0, 1) must be from 0 to 90 degrees,
      * pivot angles between elevator heights [1, 5) must be from 90 to 180
      * pivot angles between elevator heights [5, infinity) must be from 90 to 180
      * degrees
-     *  this acts as a safeguard for very high values, should be greater than max
-     *  physical height
+     * this acts as a safeguard for very high values, should be greater than max
+     * physical height
      */
     public static final NavigableMap<Double, List<Pair<Double, Double>>> kSafePivotPositions = new TreeMap<>(
         Map.ofEntries(
             Map.entry(-100000.0, Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
-            Map.entry(-10000.0,  Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
-            Map.entry(3.5,    Arrays.asList(Pair.of(0.25, 0.45 * Math.PI * 2))),
-            Map.entry(13.0,    Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
-            Map.entry(1000.0,  Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2))),
-            Map.entry(10000.0, Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2)))
-        )); 
+            Map.entry(-10000.0, Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
+            Map.entry(3.5, Arrays.asList(Pair.of(0.25, 0.45 * Math.PI * 2))),
+            Map.entry(13.0, Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
+            Map.entry(1000.0, Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2))),
+            Map.entry(10000.0, Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2)))));
+  }
+
+  public static final class ClimberConstants {
+    // TODO: set these constants
+    public static final int kWindingMotorPort = 40;
+    public static final int kLockingServoPWMPort = 2;
+
+    public static final double kConversionFactor = 1.0 / 135.0;
+
+    public static final double kPWindingMotor = 0.03;
+
+    public static final double kWindingExtendedPosition = 1;
+    public static final double kWindingRetractedPosition = 0.1;
+
+    public static final int kLockedPosition = 0;
+    public static final int kUnlockedPosition = 200;
   }
 }

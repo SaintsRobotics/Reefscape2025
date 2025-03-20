@@ -11,8 +11,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,9 +24,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants.AutonConstants;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
@@ -35,13 +36,14 @@ import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.HapticCommand;
 import frc.robot.commands.PlaceGrabCoralCommand;
-import frc.robot.commands.auton.DriveForwardsL1;
+import frc.robot.commands.climber.ClimberCommand;
 import frc.robot.commands.scoring.BargeFlipCommand;
 import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L2Command;
 import frc.robot.commands.scoring.L3Command;
 import frc.robot.commands.scoring.L4Command;
 import frc.robot.commands.scoring.algae.AlgaeBargeCommand;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -57,6 +59,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final Interlocks m_interlocks = new Interlocks();
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  private final ClimberSubsystem m_climber = new ClimberSubsystem();
   private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(m_interlocks);
   private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(m_interlocks);
 
@@ -259,6 +262,13 @@ public void initSubsystems() {
                 new HapticCommand(m_operatorController)
         )));
 
+    // -------- climber bindings -------- //
+    new JoystickButton(m_operatorController, Button.kY.value)
+        .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition));
+
+    new JoystickButton(m_operatorController, Button.kB.value)
+        .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition));
+
     // -------- elevator bindings -------- //
     // operator zero elevator position
     new JoystickButton(m_operatorController, Button.kBack.value)
@@ -355,6 +365,7 @@ public void initSubsystems() {
    */
   public void fastPeriodic() {
     m_robotDrive.fastPeriodic();
+    m_climber.fastPeriodic();
     m_elevator.fastPeriodic();
     m_endEffector.fastPeriodic();
   }
