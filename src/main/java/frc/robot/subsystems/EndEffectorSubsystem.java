@@ -48,12 +48,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
     Idle
   }
 
-  public IntakeState m_intakeState;
-
-  // Pivoting controls: A is L1, B is L2 & L3, Y is L4 or use right joystick
-  // Intake/Outtake controls: Right Bumper: Intake Algae, Left Bumper: Outtake
-  // Algae
-  // Right Trigger: Intake Coral, Left Trigger Outtake Coral
+  public IntakeState m_intakeState = IntakeState.Idle;
 
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem(Interlocks interlocks) {
@@ -70,7 +65,6 @@ public class EndEffectorSubsystem extends SubsystemBase {
     // TODO: set to reset and persist after testing
     m_pivotMotor.configure(pivotConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    // TODO: maybe reverse effector motor
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
 
     m_interlocks = interlocks;
