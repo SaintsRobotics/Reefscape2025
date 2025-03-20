@@ -267,7 +267,7 @@ public void initSubsystems() {
         .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition));
 
     new JoystickButton(m_operatorController, Button.kB.value)
-        .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingExtendedPosition));
+        .onTrue(new ClimberCommand(m_climber, ClimberConstants.kWindingRetractedPosition));
 
     // -------- elevator bindings -------- //
     // operator zero elevator position
