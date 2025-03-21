@@ -81,9 +81,22 @@ public class LEDSubsystem extends SubsystemBase {
    * Creates a command that runs a pattern on the entire LED strip.
    *
    * @param pattern the LED pattern to run
+   * @param name Name of the command
    */
   public Command runPatternCommand(LEDPattern pattern, String name) {
     return run(() -> pattern.applyTo(m_buffer)).withName(name);
+    // return animate(pattern, " pattern command");
+  }
+
+  /**
+   * Creates a command that runs a pattern on the entire LED strip.
+   *
+   * @param pattern the LED pattern to run
+   * @param name Name of the command
+   * @param time timeout for the command to end (seconds)
+   */
+  public Command runPatternCommand(LEDPattern pattern, String name, double time) {
+    return run(() -> pattern.applyTo(m_buffer)).withName(name).withTimeout(Seconds.of(time));
     // return animate(pattern, " pattern command");
   }
 
@@ -131,14 +144,14 @@ public class LEDSubsystem extends SubsystemBase {
       coralMode);
 
     // System.out.println(coralMode.getAsBoolean());
-    // if (coralMode.getAsBoolean()) {
-    //   if (isHolding.getAsBoolean()) {
-    //     return runPatternCommand(LEDPattern.solid(new Color(0, 255, 255)), "intookened coral");
-    //   } else {
-    //     return runPatternCommand(LEDPattern.solid(new Color(128, 0, 255)), "coral mode");
-    //   }
-    // } else {
-    //   return runPatternCommand(LEDPattern.solid(new Color(0, 255, 0)), "algae");
-    // }
+  //   if (coralMode.getAsBoolean()) {
+  //     if (isHolding.getAsBoolean()) {
+  //       return runPatternCommand(LEDPattern.solid(new Color(0, 255, 255)), "intookened coral");
+  //     } else {
+  //       return runPatternCommand(LEDPattern.solid(new Color(128, 0, 255)), "coral mode");
+  //     }
+  //   } else {
+  //     return runPatternCommand(LEDPattern.solid(new Color(0, 255, 0)), "algae");
+  //   }
   }
 }

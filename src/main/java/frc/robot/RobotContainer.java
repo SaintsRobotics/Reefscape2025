@@ -130,7 +130,7 @@ public class RobotContainer {
     }, () -> {
     }, m_endEffector));
 
-    m_ledSubsystem.setDefaultCommand(m_ledSubsystem.coralModeCommand(() -> m_coralMode, m_endEffector::isHolding));
+    m_ledSubsystem.setDefaultCommand(m_ledSubsystem.coralModeCommand(() -> m_coralMode, m_endEffector::isHolding).withTimeout(0.25));
 }
 
 /**
