@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -45,6 +46,7 @@ import frc.robot.commands.scoring.algae.AlgaeBargeCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.utils.Interlocks;
 
 /*
@@ -59,6 +61,7 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final ElevatorSubsystem m_elevator = new ElevatorSubsystem(m_interlocks);
   private final EndEffectorSubsystem m_endEffector = new EndEffectorSubsystem(m_interlocks);
+  private final LEDSubsystem m_ledSubsystem = new LEDSubsystem();
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
@@ -121,12 +124,18 @@ public class RobotContainer {
         m_elevator.setHeight(m_elevator.getCurrentHeight());
     }, () -> {
     }, m_elevator));
+
     m_endEffector.setDefaultCommand(new StartEndCommand(() -> {
         m_endEffector.pivotTo(m_endEffector.getPivotPosition());
     }, () -> {
     }, m_endEffector));
+
+    m_ledSubsystem.setDefaultCommand(m_ledSubsystem.coralModeCommand(() -> m_coralMode, m_endEffector::isHolding));
 }
 
+/**
+ * runs on teleop and auton init
+ */
 public void initSubsystems() {
     // cancel commands
     new InstantCommand(() -> {}, m_elevator, m_endEffector).schedule();
@@ -190,9 +199,13 @@ public void initSubsystems() {
     new JoystickButton(m_driverController, Button.kBack.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
 
+    // new JoystickButton(m_driverController, Button.kB.value)
+    //     .onTrue(m_ledSubsystem.tripleBlink(0, 128, 0, "green"));
+
     // driver drive to reef
     new JoystickButton(m_driverController, Button.kA.value)
-       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()));
+       .whileTrue(new DriveToReef(m_robotDrive, () -> m_driverController.getLeftBumperButton()))
+        .whileTrue(new RepeatCommand(m_ledSubsystem.tripleBlink(128, 0, 0, "auto")));
 
 
     // -------- end effector bindings -------- //
@@ -235,6 +248,7 @@ public void initSubsystems() {
             new PlaceGrabCoralCommand(m_endEffector, false),
             new ParallelCommandGroup(
                 new HapticCommand(m_driverController),
+                new InstantCommand(() -> m_ledSubsystem.tripleBlink(0, 255, 0, "Intookened"), m_ledSubsystem),
                 new HapticCommand(m_operatorController))),
           // algae
           new StartEndCommand(m_endEffector::intakeAlgae, m_endEffector::stopEffector),
