@@ -24,12 +24,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
   private final SparkFlex m_effectorMotor;
   private final CANrange m_endEffectorRange = new CANrange(EndEffectorConstants.kEndEffectorCANrangePort);
 
-  private final PIDController m_PIDController = new PIDController(EndEffectorConstants.kPEndEffector, 0, 0, Constants.kFastPeriodicPeriod);
+  private final PIDController m_PIDController = new PIDController(EndEffectorConstants.kPEndEffector, 0, 0,
+      Constants.kFastPeriodicPeriod);
 
   private double targetRotation = 0;
   private double effectorOutput = 0;
 
-  private double m_output;
+  private double m_pivotOutput;
 
   private final Interlocks m_interlocks;
 
@@ -37,9 +38,17 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   private double m_aggressiveComponent;
 
-  // Pivoting controls: A is L1, B is L2 & L3, Y is L4 or use right joystick
-  // Intake/Outtake controls: Right Bumper: Intake Algae, Left Bumper: Outtake Algae
-  //                          Right Trigger: Intake Coral, Left Trigger Outtake Coral
+  public enum IntakeState {
+    IntakeCoral,
+    OuttakeCoral,
+    IntakeAlgae,
+    OuttakeAlgae,
+    ReverseCoral,
+    ForceCoral,
+    Idle
+  }
+
+  public IntakeState m_intakeState = IntakeState.Idle;
 
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem(Interlocks interlocks) {
@@ -56,7 +65,6 @@ public class EndEffectorSubsystem extends SubsystemBase {
     // TODO: set to reset and persist after testing
     m_pivotMotor.configure(pivotConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    // TODO: maybe reverse effector motor
     m_PIDController.setTolerance(EndEffectorConstants.kPivotTolerance);
 
     m_interlocks = interlocks;
@@ -67,36 +75,66 @@ public class EndEffectorSubsystem extends SubsystemBase {
   public void periodic() {
     m_interlocks.setPivotPosition(getPivotPosition());
 
-      /*
+    /*
      * The order of callbacks is as follows:
-     *  The timed robot periodic will run
-     *    Then the command command scheduler will run
-     *      Then all periodics will run
-     *      Then all commands will run
-     *    Then the fast periodics will run
-     *    Then the fast periodics will run again
+     * The timed robot periodic will run
+     * Then the command command scheduler will run
+     * Then all periodics will run
+     * Then all commands will run
+     * Then the fast periodics will run
+     * Then the fast periodics will run again
      * 
      * This means that we will set overrideSpeed to 0 in each periodic
-     *  Then a command might cause this to become non zero
-     *  In that case, the two fast periodics will use the speed override instead of the setpoint
+     * Then a command might cause this to become non zero
+     * In that case, the two fast periodics will use the speed override instead of
+     * the setpoint
      */
 
-     m_speedOverride = 0;
+    m_speedOverride = 0;
 
     SmartDashboard.putBoolean("Is Holding", isHolding());
     SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
     SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
-    SmartDashboard.putNumber("Pivot Output", m_output);
+    SmartDashboard.putNumber("Pivot Output", m_pivotOutput);
     SmartDashboard.putNumber("Pivot Setpoint", m_PIDController.getSetpoint());
-    SmartDashboard.putBoolean("Pivot atSetpoint", atSetpoint());
-    // This method will be called once per scheduler run
+    SmartDashboard.putString("Intake state", m_intakeState.toString());
   }
 
-  public void fastPeriodic(){
-    m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
-    m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
+  public void fastPeriodic() {
+    m_pivotOutput = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
+    m_pivotOutput = m_speedOverride != 0 ? m_speedOverride : m_pivotOutput;
 
-    m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
+    switch (m_intakeState) {
+      case IntakeCoral:
+        // We are doing this check here in fast periodic so we react to intookened coral faster
+        if (!isHolding()) {
+          effectorOutput = EndEffectorConstants.kCoralIntakeSpeed;
+        } else {
+          m_intakeState = IntakeState.Idle;
+          effectorOutput = 0;
+        }
+        break;
+      case IntakeAlgae:
+        effectorOutput = EndEffectorConstants.kAlgaeIntakeSpeed;
+        break;
+      case OuttakeAlgae:
+        effectorOutput = EndEffectorConstants.kAlgaeOuttakeSpeed;
+        break;
+      case OuttakeCoral:
+        effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
+        break;
+      case ReverseCoral:
+        effectorOutput = EndEffectorConstants.kCoralReverseSpeed;
+        break;
+      case ForceCoral:
+        effectorOutput = EndEffectorConstants.kCoralIntakeSpeed;
+        break;
+      case Idle:
+        effectorOutput = 0;
+        break;
+    }
+
+    m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_pivotOutput));
     m_effectorMotor.set(effectorOutput);
   }
 
@@ -106,7 +144,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public void pivotTo(double setpoint, boolean aggressive) {
     m_aggressiveComponent = aggressive ? Math.signum(setpoint) * EndEffectorConstants.kAgressiveComponent : 0;
-    targetRotation = setpoint; //TODO: clamp setpoint
+    targetRotation = setpoint; // TODO: clamp setpoint
     m_PIDController.setSetpoint(targetRotation + m_aggressiveComponent);
   }
 
@@ -114,33 +152,42 @@ public class EndEffectorSubsystem extends SubsystemBase {
     return targetRotation;
   }
 
-  // commented out because this code does not make sense
-  // pivot motor should be controlled with a pid in fastperiodic
-  // maybe these should be m_coralMotor or m_algaeMotor?
-  public void intakeAlgae(){
-    effectorOutput = EndEffectorConstants.kAlgaeIntakeSpeed;
+  public void setIntakeState(IntakeState intakeState) {
+    m_intakeState = intakeState;
   }
 
-  public void intakeCoral(){
+  public IntakeState getIntakeState() {
+    return m_intakeState;
+  }
+
+  public void intakeAlgae() {
+    m_intakeState = IntakeState.IntakeAlgae;
+  }
+
+  public void intakeCoral() {
     if (m_endEffectorRange.getDistance().getValueAsDouble() != 0) {
-      effectorOutput = EndEffectorConstants.kCoralIntakeSpeed;
+      m_intakeState = IntakeState.IntakeCoral;
     }
   }
 
-  public void outtakeAlgae(){
-    effectorOutput = EndEffectorConstants.kAlgaeOuttakeSpeed;
+  public void outtakeAlgae() {
+    m_intakeState = IntakeState.OuttakeAlgae;
   }
 
-  public void outtakeCoral(){
-    effectorOutput = EndEffectorConstants.kCoralOuttakeSpeed;
+  public void outtakeCoral() {
+    m_intakeState = IntakeState.OuttakeCoral;
   }
 
   public void reverseCoral() {
-    effectorOutput = EndEffectorConstants.kCoralReverseSpeed;
+    m_intakeState = IntakeState.ReverseCoral;
+  }
+
+  public void forceCoral() {
+    m_intakeState = IntakeState.ForceCoral;
   }
 
   public void stopEffector() {
-    effectorOutput = 0;
+    m_intakeState = IntakeState.Idle;
   }
 
   public void setSpeed(double speed) {
@@ -155,6 +202,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   /**
    * Checks if currently holding
+   * 
    * @return True if either a coral or algae is currently being held
    */
   public boolean isHolding() {

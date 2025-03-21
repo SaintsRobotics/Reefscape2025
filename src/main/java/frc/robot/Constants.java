@@ -253,7 +253,7 @@ public final class Constants {
 
     public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
 
-    public static final double kSensorDistanceThreshold = .1; // meters, TODO: tune
+    public static final double kSensorDistanceThreshold = 0.1; // meters, TODO: tune
 
     public static final double kMinAlgaeExtension = 0.3;
 
