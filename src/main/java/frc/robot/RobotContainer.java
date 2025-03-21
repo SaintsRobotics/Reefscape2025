@@ -11,8 +11,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,18 +25,17 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants.AutonConstants;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.AutonCommands;
+import frc.robot.commands.IntakeOuttakeCoralCommand;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.HapticCommand;
-import frc.robot.commands.PlaceGrabCoralCommand;
-import frc.robot.commands.auton.DriveForwardsL1;
 import frc.robot.commands.scoring.BargeFlipCommand;
 import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L2Command;
@@ -47,6 +46,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.EndEffectorSubsystem.IntakeState;
 import frc.robot.utils.Interlocks;
 
 /*
@@ -212,7 +212,7 @@ public void initSubsystems() {
 
     // operator hold to intake coral (or weakly outtake algae)
     new JoystickButton(m_operatorController, Button.kA.value)
-      .onTrue(new InstantCommand(m_endEffector::intakeCoral, m_endEffector))
+      .onTrue(new InstantCommand(m_endEffector::forceCoral, m_endEffector))
       .onFalse(new InstantCommand(m_endEffector::stopEffector, m_endEffector));
 
     // operator hold to outtake coral (or weakly intake algae)
@@ -245,7 +245,7 @@ public void initSubsystems() {
         .whileTrue(new ConditionalCommand(
           // coral
           new SequentialCommandGroup(
-            new PlaceGrabCoralCommand(m_endEffector, false),
+            new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.IntakeCoral),
             new ParallelCommandGroup(
                 new HapticCommand(m_driverController),
                 new InstantCommand(() -> m_ledSubsystem.tripleBlink(0, 255, 0, "Intookened"), m_ledSubsystem),
@@ -258,7 +258,7 @@ public void initSubsystems() {
     new Trigger(() -> m_driverController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
         .whileTrue(new ConditionalCommand(
           // coral
-          new PlaceGrabCoralCommand(m_endEffector, true),
+          new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.OuttakeCoral),
           // algae
           new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector),
           () -> m_coralMode));
