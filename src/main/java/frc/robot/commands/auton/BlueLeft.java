@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.CoralCommand;
+import frc.robot.commands.IntakeOuttakeCoralCommand;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.scoring.L1Command;
 import frc.robot.commands.scoring.L4Command;
@@ -37,7 +37,7 @@ public class BlueLeft extends SequentialCommandGroup {
             new DriveToPose(driveSubsystem, FindNearest.blueScoringLocations[9].plus(new Transform2d(startingPose, FindNearest.blueScoringLocations[9]).times(-0.15))),
             new L1Command(endEffector, elevator, () -> true),
             new DriveToPose(driveSubsystem, FindNearest.blueSources[1]),
-            new CoralCommand(endEffector, IntakeState.OuttakeCoral),
+            new IntakeOuttakeCoralCommand(endEffector, IntakeState.OuttakeCoral),
             new DriveToPose(driveSubsystem, FindNearest.blueScoringLocations[7].plus(new Transform2d(FindNearest.blueSources[1], FindNearest.blueScoringLocations[7]).times(-0.15))),
             new L4Command(endEffector, elevator, () -> true),
             new DriveToPose(driveSubsystem, FindNearest.blueScoringLocations[7]),

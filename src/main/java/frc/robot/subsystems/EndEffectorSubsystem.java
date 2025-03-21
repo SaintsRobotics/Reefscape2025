@@ -30,7 +30,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
   private double targetRotation = 0;
   private double effectorOutput = 0;
 
-  private double m_output;
+  private double m_pivotOutput;
 
   private final Interlocks m_interlocks;
 
@@ -95,15 +95,14 @@ public class EndEffectorSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Is Holding", isHolding());
     SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
     SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
-    SmartDashboard.putNumber("Pivot Output", m_output);
+    SmartDashboard.putNumber("Pivot Output", m_pivotOutput);
     SmartDashboard.putNumber("Pivot Setpoint", m_PIDController.getSetpoint());
-    SmartDashboard.putBoolean("Pivot atSetpoint", atSetpoint());
-    // This method will be called once per scheduler run
+    SmartDashboard.putString("Intake state", m_intakeState.toString());
   }
 
   public void fastPeriodic() {
-    m_output = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
-    m_output = m_speedOverride != 0 ? m_speedOverride : m_output;
+    m_pivotOutput = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
+    m_pivotOutput = m_speedOverride != 0 ? m_speedOverride : m_pivotOutput;
 
     switch (m_intakeState) {
       case IntakeCoral:
@@ -135,7 +134,7 @@ public class EndEffectorSubsystem extends SubsystemBase {
         break;
     }
 
-    m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_output));
+    m_pivotMotor.set(m_interlocks.clampPivotMotorSet(m_pivotOutput));
     m_effectorMotor.set(effectorOutput);
   }
 
