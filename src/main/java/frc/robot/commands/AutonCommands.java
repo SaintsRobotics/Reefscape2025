@@ -27,14 +27,14 @@ public class AutonCommands {
 
 	public static enum Commands {
 		GET_CORAL(
-				new SequentialCommandGroup(new CoralCommand(m_endEffector, IntakeState.IntakeCoral))),
+				new SequentialCommandGroup(new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.IntakeCoral))),
 		PLACE_CORAL_L4(
 				new SequentialCommandGroup()),
 		RAISE_ELEVATOR_L4(
 				new SequentialCommandGroup(new CoralL4Command(m_endEffector, m_elevator))),
 
 		OUTTAKE_CORAL(
-				new SequentialCommandGroup(new CoralCommand(m_endEffector, IntakeState.OuttakeCoral))),
+				new SequentialCommandGroup(new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.OuttakeCoral))),
 		LOWER_ELEVATOR(
 				new SequentialCommandGroup(new CoralL1Command(m_endEffector, m_elevator))),
 

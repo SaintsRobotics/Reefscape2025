@@ -9,14 +9,13 @@ import frc.robot.Robot;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem.IntakeState;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class CoralCommand extends Command {
+public class IntakeOuttakeCoralCommand extends Command {
 
   EndEffectorSubsystem m_endEffectorSubsystem;
   IntakeState m_intakeState;
 
   /** Creates a new CoralCommand. */
-  public CoralCommand(EndEffectorSubsystem endEffectorSubsystem, IntakeState intakeState) {
+  public IntakeOuttakeCoralCommand(EndEffectorSubsystem endEffectorSubsystem, IntakeState intakeState) {
     /*
      * We aren't requiring the end effector subsystem here because moving the
      * intake wheels does not affect the safety of the bot in any other way,

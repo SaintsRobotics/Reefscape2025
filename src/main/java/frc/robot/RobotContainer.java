@@ -31,7 +31,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.AutonCommands;
-import frc.robot.commands.CoralCommand;
+import frc.robot.commands.IntakeOuttakeCoralCommand;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.ElevatorSemiAutomaticDriveCommand;
 import frc.robot.commands.HapticCommand;
@@ -232,7 +232,7 @@ public void initSubsystems() {
         .whileTrue(new ConditionalCommand(
           // coral
           new SequentialCommandGroup(
-            new CoralCommand(m_endEffector, IntakeState.IntakeCoral),
+            new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.IntakeCoral),
             new ParallelCommandGroup(
                 new HapticCommand(m_driverController),
                 new HapticCommand(m_operatorController))),
@@ -244,7 +244,7 @@ public void initSubsystems() {
     new Trigger(() -> m_driverController.getRightTriggerAxis() > IOConstants.kControllerDeadband)
         .whileTrue(new ConditionalCommand(
           // coral
-          new CoralCommand(m_endEffector, IntakeState.OuttakeCoral),
+          new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.OuttakeCoral),
           // algae
           new StartEndCommand(m_endEffector::outtakeAlgae, m_endEffector::stopEffector),
           () -> m_coralMode));
