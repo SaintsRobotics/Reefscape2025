@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDSubsystem extends SubsystemBase {
 
-  private static final int kPort = 9;
+  private static final int kPort = 0;
   private static final int kLength = 60;
 
   private final AddressableLED m_led = new AddressableLED(kPort);
