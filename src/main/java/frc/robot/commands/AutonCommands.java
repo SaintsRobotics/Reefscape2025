@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.scoring.coral.CoralL1Command;
 import frc.robot.commands.scoring.coral.CoralL4Command;
+import frc.robot.commands.scoring.coral.CoralL4PlusCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem.IntakeState;
@@ -37,6 +38,8 @@ public class AutonCommands {
 				new SequentialCommandGroup(new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.OuttakeCoral)).withTimeout(0.5)),
 		LOWER_ELEVATOR(
 				new SequentialCommandGroup(new CoralL1Command(m_endEffector, m_elevator))),
+		CORAL_L4_PLUS(
+				new SequentialCommandGroup(new CoralL4PlusCommand(m_endEffector, m_elevator))),
 
 		GET_ALGAE(
 				new SequentialCommandGroup()),

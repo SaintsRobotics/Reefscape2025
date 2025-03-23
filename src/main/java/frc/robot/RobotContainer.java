@@ -41,6 +41,7 @@ import frc.robot.commands.scoring.L2Command;
 import frc.robot.commands.scoring.L3Command;
 import frc.robot.commands.scoring.L4Command;
 import frc.robot.commands.scoring.algae.AlgaeBargeCommand;
+import frc.robot.commands.scoring.coral.CoralL4PlusCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
@@ -290,6 +291,9 @@ public void initSubsystems() {
                         return m_elevator.getHeightSetpoint() >= m_elevator.getCurrentHeight()
                                     - ElevatorConstants.kBoundaryHintThreshold;
                     }, m_endEffector, m_elevator));
+
+    new JoystickButton(m_operatorController, Button.kY.value)
+        .onTrue(new CoralL4PlusCommand(m_endEffector, m_elevator));
 
     // operator POV buttons
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1

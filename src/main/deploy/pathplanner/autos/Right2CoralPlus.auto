@@ -1,0 +1,150 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralPre1"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "RAISE_ELEVATOR_L4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoral1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OUTTAKE_CORAL"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "OUTTAKE_CORAL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "CORAL_L4_PLUS"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoralIntakePost2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LOWER_ELEVATOR"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralPre2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RAISE_ELEVATOR_L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoral2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OUTTAKE_CORAL"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "OUTTAKE_CORAL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "CORAL_L4_PLUS"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoral2Reverse"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LOWER_ELEVATOR"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "RightAutons",
+  "choreoAuto": false
+}
