@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5698295454545454,
-        "y": 2.5591761363636363
+        "x": 3.1542297979797977,
+        "y": 2.22594696969697
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.7191805219717238,
-        "y": 3.016463166480191
+        "x": 3.305108150221923,
+        "y": 2.4252851818508394
       },
       "isLocked": false,
       "linkedName": "Right Coral Pre 2"
@@ -20,8 +20,8 @@
         "y": 2.9577651515151513
       },
       "prevControl": {
-        "x": 3.518355719612676,
-        "y": 2.4034339975691323
+        "x": 3.5662452516461025,
+        "y": 2.742239854428803
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "RightPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 53.365886124032556
   },
   "useDefaultConstraints": true
 }

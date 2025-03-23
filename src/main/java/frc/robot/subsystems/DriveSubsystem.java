@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -308,7 +309,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void resetOdometry(Pose2d pose, boolean ignoreRotation) {
     Rotation2d rot = Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle);
 
-    if (AllianceFlipUtil.shouldFlip()) {
+    if (AllianceFlipUtil.shouldFlip() && !DriverStation.isAutonomous()) {
         rot = new Rotation2d(rot.getRadians() + Math.PI);
     }
 

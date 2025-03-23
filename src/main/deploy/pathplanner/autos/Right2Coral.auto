@@ -11,15 +11,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "RAISE_ELEVATOR_L4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightCoral1"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "RAISE_ELEVATOR_L4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoral1"
+                }
+              }
+            ]
           }
         },
         {
@@ -29,21 +36,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "RightCoralIntakePre2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "LOWER_ELEVATOR"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightCoralIntakePost2"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoralIntakePost2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LOWER_ELEVATOR"
+                }
+              }
+            ]
           }
         },
         {
@@ -77,15 +85,35 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "RightCoral2Reverse"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "LOWER_ELEVATOR"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoral2Reverse"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "LOWER_ELEVATOR"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       ]

@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.5441966298271352,
-        "y": 2.504098336114949
+        "x": 3.489646464646464,
+        "y": 2.642676767676767
       },
       "isLocked": false,
       "linkedName": "Right Coral Post 2"
     },
     {
       "anchor": {
-        "x": 3.5698295454545454,
-        "y": 2.5591761363636363
+        "x": 1.3551767676767679,
+        "y": 0.9046085858585866
       },
       "prevControl": {
-        "x": 3.734166454009538,
-        "y": 3.0938169806194393
+        "x": 1.487310606060606,
+        "y": 1.128219696969697
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Right Coral Pre 2"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 53.365886124032556
   },
   "reversed": false,
   "folder": "RightPaths",

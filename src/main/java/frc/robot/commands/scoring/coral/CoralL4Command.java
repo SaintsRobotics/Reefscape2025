@@ -12,8 +12,8 @@ public class CoralL4Command extends SequentialCommandGroup {
     public CoralL4Command(EndEffectorSubsystem endEffector, ElevatorSubsystem elevator) {
         super(
             new ParallelCommandGroup(
-                new PivotCommand(endEffector, 0.55), 
-                new ElevatorNoPivotCommand(16.75, elevator))
+                new PivotCommand(endEffector, 0.55),
+                new ElevatorNoPivotCommand(16.95, elevator))
         );
     }
     

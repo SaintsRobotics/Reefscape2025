@@ -15,7 +15,7 @@ public class CoralL1Command extends SequentialCommandGroup {
             new ParallelCommandGroup(
                 new PivotCommand(endEffector, 0.36),
                 new ElevatorNoPivotCommand(ElevatorConstants.kL1Height, elevator)),
-            new PivotCommand(endEffector, 0.05)
+            new PivotCommand(endEffector, 0.07)
         );
     }
     

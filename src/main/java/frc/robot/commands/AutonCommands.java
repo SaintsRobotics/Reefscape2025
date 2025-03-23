@@ -34,7 +34,7 @@ public class AutonCommands {
 				new SequentialCommandGroup(new CoralL4Command(m_endEffector, m_elevator))),
 
 		OUTTAKE_CORAL(
-				new SequentialCommandGroup(new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.OuttakeCoral))),
+				new SequentialCommandGroup(new IntakeOuttakeCoralCommand(m_endEffector, IntakeState.OuttakeCoral)).withTimeout(0.5)),
 		LOWER_ELEVATOR(
 				new SequentialCommandGroup(new CoralL1Command(m_endEffector, m_elevator))),
 
