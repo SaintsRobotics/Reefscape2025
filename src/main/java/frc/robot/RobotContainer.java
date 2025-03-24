@@ -270,30 +270,43 @@ public void initSubsystems() {
             .onTrue(new InstantCommand(() -> m_elevator.zeroPosition(5), m_elevator));
 
     // operator full manual elevator
-    new JoystickButton(m_operatorController, Button.kB.value)
-            .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
-            .and(() -> m_operatorController.getYButton())
-            .whileTrue(new RunCommand(() -> {
-                m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar); // no need to apply deadband here because of trigger
-            }, m_elevator));
+    // new JoystickButton(m_operatorController, Button.kB.value)
+    //         .and(() -> MathUtil.applyDeadband(m_operatorController.getLeftY(), IOConstants.kControllerDeadband) != 0)
+    //         .and(() -> m_operatorController.getYButton())
+    //         .whileTrue(new RunCommand(() -> {
+    //             m_elevator.setSpeed(-m_operatorController.getLeftY() * IOConstants.kElevatorAxisScalar); // no need to apply deadband here because of trigger
+    //         }, m_elevator));
 
     // operator semi manual elevator
-    new JoystickButton(m_operatorController, Button.kB.value).negate()
-            .and(() -> m_operatorController.getYButton())
-            .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
-                    IOConstants.kControllerDeadband) != 0)
-            .whileTrue(new ElevatorSemiAutomaticDriveCommand(
-                    () -> -m_operatorController.getLeftY(), () -> {
-                        if (m_operatorController.getLeftY() > 0) {
-                            return m_elevator.getHeightSetpoint() <= m_elevator.getCurrentHeight()
-                                    + ElevatorConstants.kBoundaryHintThreshold;
-                        }
-                        return m_elevator.getHeightSetpoint() >= m_elevator.getCurrentHeight()
-                                    - ElevatorConstants.kBoundaryHintThreshold;
-                    }, m_endEffector, m_elevator));
+    // new JoystickButton(m_operatorController, Button.kB.value).negate()
+    //         .and(() -> m_operatorController.getYButton())
+    //         .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
+    //                 IOConstants.kControllerDeadband) != 0)
+    //         .whileTrue(new ElevatorSemiAutomaticDriveCommand(
+    //                 () -> -m_operatorController.getLeftY(), () -> {
+    //                     if (m_operatorController.getLeftY() > 0) {
+    //                         return m_elevator.getHeightSetpoint() <= m_elevator.getCurrentHeight()
+    //                                 + ElevatorConstants.kBoundaryHintThreshold;
+    //                     }
+    //                     return m_elevator.getHeightSetpoint() >= m_elevator.getCurrentHeight()
+    //                                 - ElevatorConstants.kBoundaryHintThreshold;
+    //                 }, m_endEffector, m_elevator));
+
+    new JoystickButton(m_operatorController, Button.kB.value)
+        .onTrue(new CoralL4PlusCommand(m_endEffector, m_elevator));
 
     new JoystickButton(m_operatorController, Button.kY.value)
-        .onTrue(new CoralL4PlusCommand(m_endEffector, m_elevator));
+        .and(() -> MathUtil.applyDeadband(-m_operatorController.getLeftY(),
+                IOConstants.kControllerDeadband) != 0)
+        .whileTrue(new ElevatorSemiAutomaticDriveCommand(
+            () -> -m_operatorController.getLeftY(), () -> {
+                if (m_operatorController.getLeftY() > 0) {
+                    return m_elevator.getHeightSetpoint() <= m_elevator.getCurrentHeight()
+                            + ElevatorConstants.kBoundaryHintThreshold;
+                }
+                return m_elevator.getHeightSetpoint() >= m_elevator.getCurrentHeight()
+                            - ElevatorConstants.kBoundaryHintThreshold;
+            }, m_endEffector, m_elevator));
 
     // operator POV buttons
     new POVButton(m_operatorController, IOConstants.kDPadUp) // Up - L1

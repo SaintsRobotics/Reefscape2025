@@ -2,6 +2,7 @@ package frc.robot.commands.scoring.coral;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.commands.ElevatorNoPivotCommand;
 import frc.robot.commands.PivotCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -13,7 +14,7 @@ public class CoralL4Command extends SequentialCommandGroup {
         super(
             new ParallelCommandGroup(
                 new PivotCommand(endEffector, 0.55),
-                new ElevatorNoPivotCommand(16.95, elevator))
+                new ElevatorNoPivotCommand(ElevatorConstants.kL4Height, elevator))
         );
     }
     

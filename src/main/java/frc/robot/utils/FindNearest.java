@@ -14,18 +14,18 @@ public class FindNearest {
 
   // Scoring locations for the blue alliance
   public static final Pose2d[] blueScoringLocations = {
-      new Pose2d(new Translation2d(5.727, 3.861), Rotation2d.fromDegrees(180)),
-      new Pose2d(new Translation2d(5.251, 3.037), Rotation2d.fromDegrees(120)),
-      new Pose2d(new Translation2d(4.965, 2.872), Rotation2d.fromDegrees(120)),
-      new Pose2d(new Translation2d(4.014, 2.872), Rotation2d.fromDegrees(60)),
-      new Pose2d(new Translation2d(3.728, 3.037), Rotation2d.fromDegrees(60)),
-      new Pose2d(new Translation2d(3.251, 3.861), Rotation2d.fromDegrees(0)),
-      new Pose2d(new Translation2d(3.251, 4.191), Rotation2d.fromDegrees(0)),
-      new Pose2d(new Translation2d(3.728, 5.015), Rotation2d.fromDegrees(-60)),
-      new Pose2d(new Translation2d(4.014, 5.180), Rotation2d.fromDegrees(-60)),
-      new Pose2d(new Translation2d(4.965, 5.180), Rotation2d.fromDegrees(-120)),
-      new Pose2d(new Translation2d(5.251, 5.015), Rotation2d.fromDegrees(-120)),
-      new Pose2d(new Translation2d(5.727, 4.191), Rotation2d.fromDegrees(180))
+      new Pose2d(new Translation2d(5.753, 3.861), Rotation2d.fromDegrees(180)),
+      new Pose2d(new Translation2d(5.264, 3.015), Rotation2d.fromDegrees(120)),
+      new Pose2d(new Translation2d(4.978, 2.85), Rotation2d.fromDegrees(120)),
+      new Pose2d(new Translation2d(4.001, 2.85), Rotation2d.fromDegrees(60)),
+      new Pose2d(new Translation2d(3.715, 3.015), Rotation2d.fromDegrees(60)),
+      new Pose2d(new Translation2d(3.226, 3.861), Rotation2d.fromDegrees(0)),
+      new Pose2d(new Translation2d(3.226, 4.191), Rotation2d.fromDegrees(0)),
+      new Pose2d(new Translation2d(3.715, 5.037), Rotation2d.fromDegrees(-60)),
+      new Pose2d(new Translation2d(4.001, 5.202), Rotation2d.fromDegrees(-60)),
+      new Pose2d(new Translation2d(4.978, 5.202), Rotation2d.fromDegrees(-120)),
+      new Pose2d(new Translation2d(5.264, 5.037), Rotation2d.fromDegrees(-120)),
+      new Pose2d(new Translation2d(5.753, 4.191), Rotation2d.fromDegrees(180))
   };
 
   // Scoring locations for the red alliance

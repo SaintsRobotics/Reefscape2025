@@ -216,7 +216,7 @@ public final class Constants {
     public static final double kL1Height = 0.2;
     public static final double kL2Height = 3.25;
     public static final double kL3Height = 10.5;
-    public static final double kL4Height = 20;
+    public static final double kL4Height = 16.95;
 
     public static final double kPositionTolerance = 0.04; //TODO: tune
     public static final double kVelocityTolerance = 1;
