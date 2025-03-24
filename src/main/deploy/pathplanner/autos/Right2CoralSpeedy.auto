@@ -1,0 +1,125 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralPre1"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "RAISE_ELEVATOR_L4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoral1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OUTTAKE_CORAL"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "LOWER_ELEVATOR"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoralIntakePre2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralIntakePost2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GET_CORAL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightCoralPre2"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "RAISE_ELEVATOR_L4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoral2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OUTTAKE_CORAL"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "LOWER_ELEVATOR"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightCoral2Reverse"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "RightAutons",
+  "choreoAuto": false
+}

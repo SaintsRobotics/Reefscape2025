@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.7191805219717238,
-        "y": 3.016463166480191
+        "x": 3.8054839585754374,
+        "y": 2.687600910520218
       },
       "isLocked": false,
       "linkedName": "Right Coral Pre 2"
     },
     {
       "anchor": {
-        "x": 3.693,
-        "y": 2.993
+        "x": 3.988,
+        "y": 2.828
       },
       "prevControl": {
-        "x": 3.5184264266833827,
-        "y": 2.438668846053981
+        "x": 3.735354500925196,
+        "y": 2.7593714626999857
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Right Coral Post 2"
+      "linkedName": "Right Coral Post 3"
     }
   ],
   "rotationTargets": [],
