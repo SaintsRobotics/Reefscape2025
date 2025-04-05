@@ -163,12 +163,12 @@ public final class Constants {
 
     
 
-    public static final String kLimelightNameLeft = "limelight";
-    public static final String kLimelightNameRight = "limelight-sr";
+    public static final String kLimelightNameLeft = "limelight-srleft";
+    public static final String kLimelightNameRight = "limelight-srright";
 
     public static final String[] kLimelightNames = new String[] {
-      "limelight",
-      "limelight-sr"
+      "limelight-srleft",
+      "limelight-srright"
     };
 
     // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
