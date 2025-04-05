@@ -15,11 +15,14 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
@@ -163,6 +166,11 @@ public final class Constants {
     public static final String kLimelightNameLeft = "limelight";
     public static final String kLimelightNameRight = "limelight-sr";
 
+    public static final String[] kLimelightNames = new String[] {
+      "limelight",
+      "limelight-sr"
+    };
+
     // https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
     public static final int kIMUMode = 0;
 
@@ -173,6 +181,11 @@ public final class Constants {
     public static final boolean kUseVision = true;
     public static final boolean kUseLeftLL = true;
     public static final boolean kUseRightLL = true;
+
+    public static final boolean[] kUseLimelights = {
+      true, // limelight
+      true // limelight-sr
+    };
   }
 
   public static final class AutonConstants {

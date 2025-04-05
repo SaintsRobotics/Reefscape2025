@@ -9,6 +9,7 @@ import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -183,23 +184,67 @@ public class DriveSubsystem extends SubsystemBase {
       return;
     }
 
-    boolean LLreal = LimelightHelpers.getLatency_Pipeline(name) != 0.0;
-    if (VisionConstants.kUseVision && Robot.isReal() && LLreal) {
-      // Update LimeLight with current robot orientation
-      LimelightHelpers.SetRobotOrientation(name, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+    LimelightHelpers.PoseEstimate[] LimelightMeasurements = {};
 
-      // Get the pose estimate
-      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+    if (VisionConstants.kUseVision && Robot.isReal()) {
+      int posex = 0, posey = 0, tags = 0;
+      double time = 0;
+      for (int i = 0; i < VisionConstants.kLimelightNames.length; i++) {
+        String LLname = VisionConstants.kLimelightNames[i];
+        boolean useLL = VisionConstants.kUseLimelights[i];
 
-      // Add it to your pose estimator if it is a valid measurement
-      if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
-        m_poseEstimator.addVisionMeasurement(
-            limelightMeasurement.pose,
-            limelightMeasurement.timestampSeconds);
+
+        if (!useLL) {
+          continue;
+        }
+
+        boolean LLreal = LimelightHelpers.getLatency_Pipeline(LLname) != 0.0;
+        if (LLreal) {
+          // Update LimeLight with current robot orientation
+          LimelightHelpers.SetRobotOrientation(LLname, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+
+          // Get the pose estimate
+          LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LLname);
+
+          // Add it to your pose estimator if it is a valid measurement
+          if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
+            posex += limelightMeasurement.pose.getX();
+            posey += limelightMeasurement.pose.getY();
+            time = limelightMeasurement.timestampSeconds;
+            tags++;
+          }
+        }
+        // SmartDashboard.putBoolean(name + " valid", LLreal);
       }
-    }
 
-    SmartDashboard.putBoolean(name + " valid", LLreal);
+      posex = posex / tags;
+      posey = posey / tags;
+      Pose2d pose = new Pose2d(posex, posey, null); // may need to add a rotation2d to this
+
+      m_poseEstimator.addVisionMeasurement(
+        pose,
+        time
+      );
+
+    }
+    
+    // boolean LLreal = LimelightHelpers.getLatency_Pipeline(name) != 0.0;
+    // if (VisionConstants.kUseVision && Robot.isReal() && LLreal) {
+    //   // Update LimeLight with current robot orientation
+    //   LimelightHelpers.SetRobotOrientation(name, m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
+
+    //   // Get the pose estimate
+    //   LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
+
+    //   // Add it to your pose estimator if it is a valid measurement
+    //   if (limelightMeasurement != null && limelightMeasurement.tagCount != 0 && m_gyro.getRate() < 720) {
+    //     m_poseEstimator.addVisionMeasurement(
+    //         limelightMeasurement.pose,
+    //         limelightMeasurement.timestampSeconds);
+    //   }
+    // }
+
+    //SmartDashboard.putBoolean(name + " valid", LLreal);
   }
 
   /**
