@@ -122,13 +122,13 @@ public final class Constants {
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(kModulePositions);
 
     /** For a a SDS Mk4i L1 swerve base with Neos */
-    public static final double kMaxSpeedMetersPerSecond = 4.4196;
+    public static final double kMaxSpeedMetersPerSecond = 1.5147;
 
     // TODO: Set max acceleration constants
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1; //check
     
     /** For a a SDS Mk4i L1 swerve base with Neos */
-    public static final double kMaxAngularSpeedRadiansPerSecond = 10.8164;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 6.268;
 
     /** Heading Correction */
     public static final double kHeadingCorrectionTurningStopTime = 0.2;
@@ -305,6 +305,6 @@ public final class Constants {
             Map.entry(13.0,    Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
             Map.entry(1000.0,  Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2))),
             Map.entry(10000.0, Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2)))
-        )); 
+        ));
   }
 }
