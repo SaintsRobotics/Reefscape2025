@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANrange;
+import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -14,7 +15,16 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -38,6 +48,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private final MedianFilter m_sensorFilter = new MedianFilter(ElevatorConstants.kSampleCount);
 
+  // simulation
+  private final ElevatorSim m_elevatorSim;
+  private final SparkFlexSim m_sparkFlexSim;
+  private final DCMotor m_motorSim;
+  private final MechanismLigament2d m_elevatorMech;
+
   public ElevatorSubsystem(Interlocks interlocks) {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     motorConfig.encoder.positionConversionFactor(ElevatorConstants.kElevatorGearing);
@@ -50,6 +66,25 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     m_PIDController.setTolerance(ElevatorConstants.kPositionTolerance, ElevatorConstants.kVelocityTolerance);
     m_interlocks = interlocks;
+
+    // simulation
+    m_motorSim = DCMotor.getNeoVortex(1);
+    m_sparkFlexSim = new SparkFlexSim(m_elevatorMotor, m_motorSim);
+    m_elevatorSim = new ElevatorSim(
+      m_motorSim, 
+      5, 
+      1, 
+      Units.inchesToMeters(2), 
+      ElevatorConstants.kElevatorBottom, 
+      ElevatorConstants.kElevatorTop, 
+      true, 
+      0.05);
+
+    Mechanism2d mech = new Mechanism2d(25, 25);
+    MechanismRoot2d root = mech.getRoot("elevator", 12.5, 0);
+    m_elevatorMech = root.append(new MechanismLigament2d("stage", 1, 90));
+
+    SmartDashboard.putData("mechanism", mech);
   }
 
   @Override
@@ -139,5 +174,31 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   private void zeroPositionNoReset(double offset) {
     m_motorOffset = -m_elevatorMotor.getEncoder().getPosition() + offset;
+  }
+
+
+  // simulation
+  public void simulationPeriodic() {
+    // set inputs
+    m_elevatorSim.setInput(m_sparkFlexSim.getAppliedOutput() * RobotController.getBatteryVoltage());
+
+    // update the simulation
+    m_elevatorSim.update(0.02);
+
+    // update the SparkFlexSim
+    m_sparkFlexSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_elevatorSim.getVelocityMetersPerSecond() / Units.inchesToMeters(2.0)), RobotController.getBatteryVoltage(), 0.02);
+    //m_sparkFlexSim.getRelativeEncoderSim().iterate(m_sparkFlexSim.getVelocity(), 0.02);
+    m_sparkFlexSim.getRelativeEncoderSim().setPosition(m_elevatorSim.getPositionMeters());
+
+    // update battery
+    RoboRioSim.setVInVoltage(
+      BatterySim.calculateDefaultBatteryLoadedVoltage(m_elevatorSim.getCurrentDrawAmps()));
+
+    // update mechanism2d
+    m_elevatorMech.setLength(m_elevatorSim.getPositionMeters());
+
+    SmartDashboard.putNumber("sim elevator", m_elevatorSim.getPositionMeters());
+    SmartDashboard.putNumber("sim motor", m_sparkFlexSim.getAppliedOutput());
+    SmartDashboard.putNumber("sim encoder", m_sparkFlexSim.getRelativeEncoderSim().getPosition());
   }
 }

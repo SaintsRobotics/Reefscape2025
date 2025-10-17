@@ -65,6 +65,7 @@ public class Interlocks {
         }
         
         return ElevatorConstants.kElevatorFeedForward;
+        //return speed;
     }
 
     /**
@@ -105,5 +106,6 @@ public class Interlocks {
         }
 
         return EndEffectorConstants.kPivotFeedForwards;
+        //return speed;
     }
 }

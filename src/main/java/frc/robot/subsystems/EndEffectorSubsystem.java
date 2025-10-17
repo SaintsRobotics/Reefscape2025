@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANrange;
+import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -13,6 +14,15 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -50,6 +60,12 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public IntakeState m_intakeState = IntakeState.Idle;
 
+  // simulation objects
+  private final SingleJointedArmSim m_armSim;
+  private final MechanismLigament2d m_armMech;
+  private final DCMotor m_pivotDCMotor;
+  private final SparkFlexSim m_pivotMotorSim;
+
   /** Creates a new EndEffectorSubsystem. */
   public EndEffectorSubsystem(Interlocks interlocks) {
     SparkFlexConfig pivotConfig = new SparkFlexConfig();
@@ -69,6 +85,25 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
     m_interlocks = interlocks;
     m_aggressiveComponent = 0;
+
+    // initialize simulation objects
+    m_pivotDCMotor = DCMotor.getNeoVortex(1);
+    m_armSim = new SingleJointedArmSim(
+      m_pivotDCMotor, 
+      1, 
+      1, 
+      0.4, 
+      0.02, 
+      Math.PI *  2, 
+      false, 
+      Math.PI / 2);
+    m_pivotMotorSim = new SparkFlexSim(m_pivotMotor, m_pivotDCMotor);
+
+    Mechanism2d mech = new Mechanism2d(3, 3);
+    MechanismRoot2d root = mech.getRoot("end effector", 1.5, 1.5);
+    m_armMech = root.append(new MechanismLigament2d("pivot", 1, 0));
+
+    SmartDashboard.putData("end effector sim", mech);
   }
 
   @Override
@@ -96,12 +131,14 @@ public class EndEffectorSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Pivot Angle 2", getPivotPosition());
     SmartDashboard.putNumber("raw rotations", m_pivotMotor.getAbsoluteEncoder().getPosition() / Math.PI / 2.0);
     SmartDashboard.putNumber("Pivot Output", m_pivotOutput);
+    SmartDashboard.putNumber("Pivot clamped output", m_pivotMotor.get());
     SmartDashboard.putNumber("Pivot Setpoint", m_PIDController.getSetpoint());
     SmartDashboard.putString("Intake state", m_intakeState.toString());
   }
 
   public void fastPeriodic() {
-    m_pivotOutput = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
+    // m_pivotOutput = -m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
+    m_pivotOutput = m_PIDController.calculate(getPivotPosition(), targetRotation + m_aggressiveComponent);
     m_pivotOutput = m_speedOverride != 0 ? m_speedOverride : m_pivotOutput;
 
     switch (m_intakeState) {
@@ -211,5 +248,24 @@ public class EndEffectorSubsystem extends SubsystemBase {
 
   public boolean atSetpoint() {
     return m_PIDController.atSetpoint();
+  }
+
+  public void simulationPeriodic() {
+    // update simulated pivot input
+    m_armSim.setInput(m_pivotMotor.getAppliedOutput() * RobotController.getBatteryVoltage());
+
+    // update arm simulation
+    m_armSim.update(0.02);
+
+    // iterate simulated SparkFlex and update simulated encoder
+    m_pivotMotorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_armSim.getVelocityRadPerSec()), RobotController.getBatteryVoltage(), 0.02);
+    m_pivotMotorSim.getAbsoluteEncoderSim().setPosition(m_armSim.getAngleRads());
+
+    // update battery
+    RoboRioSim.setVInVoltage(
+      BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
+    
+    // update mechanism2d
+    m_armMech.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
   }
 }
